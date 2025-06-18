@@ -26,6 +26,12 @@ allprojects {
       testOutputDir file('build/classes/java/test')
     }
   }
+  ext {
+    shapedrawerVersion = '2.5.0'
+  }
+  repositories {
+    maven { url 'https://jitpack.io' }
+  }
 }
 
 configure(subprojects - project(':android')) {
@@ -58,7 +64,7 @@ configure(subprojects - project(':android')) {
   }
   compileKotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
   compileTestKotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-  
+
 }
 
 subprojects {
