@@ -1,0 +1,21 @@
+# Global ignores for project
+
+# IDE directories
+.idea/
+.metadata/
+
+# Build outputs
+*.class
+**/target/
+build/
+bin/
+out/
+
+# Specific project outputs
+cli-java-prototype/klobasky_cli/target/
+cli-java-prototype/klobasky_cli/.idea/
+cli-java-prototype/klobasky_cli/.metadata/
+
+# Maven and Gradle
+.mvn/
+.gradle/
