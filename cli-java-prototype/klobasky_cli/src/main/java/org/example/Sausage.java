@@ -2,6 +2,7 @@ package org.example;
 
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,9 +13,10 @@ public class Sausage {
 
     public Sausage(int player, Dot dot1, Dot dot2, Dot dot3) {
 
-        if (!isValidSausage(dot1, dot2, dot3)) {
-            throw new IllegalArgumentException("The sausage shape is invalid");
-        }
+        // we will try to ensure validity in the gui directly
+//        if (!CoordUtils.isValidShape(dot1, dot2, dot3)) {
+//            throw new IllegalArgumentException("The sausage shape is invalid");
+//        }
 
         if (dot1 == null || dot2 == null || dot3 == null) {
             throw new IllegalArgumentException("Dots cannot be null");
@@ -32,13 +34,11 @@ public class Sausage {
         this.player = player;
     }
 
-    private boolean isValidSausage(Dot dot1, Dot dot2, Dot dot3) {
-        // TODO: Implement the logic to check if the sausage shape is valid
-        return true;
-    }
-
     @Override
     public String toString() {
-        return STR."{dots=\{threeDots}, player=\{player}}";
+        return "{" +
+                "dots=" + threeDots +
+                ", player=" + player +
+                '}';
     }
 }

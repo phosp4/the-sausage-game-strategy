@@ -1,7 +1,6 @@
 package org.example;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +19,7 @@ public class Grid {
             throw new IllegalArgumentException("Grid dimensions cannot be negative");
         }
 
-        grid = new int[x][y]; // filled with zeroes
+        grid = new int[y][x]; // filled with zeroes
         for (int i = 0; i < grid.length; i++) {
             if (i % 2 == 1) {
                 grid[i][grid[i].length - 1] = GridConstants.INVALID;
@@ -45,7 +44,7 @@ public class Grid {
 
         // add sausage to the grid
         for (Dot dot : sausage.getThreeDots()) {
-            grid[dot.getX()][dot.getY()] = sausage.getPlayer();
+            grid[dot.getY()][dot.getX()] = sausage.getPlayer();
         }
         sausages.add(sausage);
     }
@@ -54,15 +53,16 @@ public class Grid {
         if (dot == null) {
             throw new IllegalArgumentException("Dot cannot be null");
         }
-        if (grid[dot.getX()][dot.getY()] == GridConstants.PLAYER_ONE ||
-                grid[dot.getX()][dot.getY()] == GridConstants.PLAYER_TWO) {
-            throw new IllegalArgumentException("Dot is already occupied");
-        }
-        if (dot.getX() < 0 || dot.getX() >= grid.length || dot.getY() < 0 || dot.getY() >= grid[0].length ||
-                grid[dot.getX()][dot.getY()] == GridConstants.INVALID) {
+        if (dot.getY() < 0 || dot.getY() >= grid.length || dot.getX() < 0 || dot.getX() >= grid[0].length ||
+                grid[dot.getY()][dot.getX()] == GridConstants.INVALID) {
             throw new IllegalArgumentException("Dot is out of bounds");
         }
+        if (grid[dot.getY()][dot.getX()] == GridConstants.PLAYER_ONE ||
+                grid[dot.getY()][dot.getX()] == GridConstants.PLAYER_TWO) {
+            throw new IllegalArgumentException("Dot is already occupied");
+        }
     }
+
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
@@ -97,6 +97,22 @@ public class Grid {
             case -1 -> "~"; // Invalid
             default -> "?"; // Unknown
         };
+    }
+
+    public String normalToString() {
+        StringBuilder out = new StringBuilder();
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                out.append(convertValueToSymbol(grid[i][j]));
+                if (j < grid[i].length - 1) {
+                    out.append(" ");
+                }
+            }
+            out.append("\n");
+        }
+
+        return out.toString();
     }
 
     public static void main(String[] args) {

@@ -1,9 +1,11 @@
 package org.example;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class Dot {
+@Setter
+public class Dot implements Comparable<Dot> {
     private int x;
     private int y;
 
@@ -18,6 +20,14 @@ public class Dot {
 
     @Override
     public String toString() {
-        return STR."(\{x},\{y})";
+        return "(" + x + "," + y + ")";
+    }
+
+    @Override
+    public int compareTo(Dot other) {
+        if (this.x != other.x) {
+            return Integer.compare(this.x, other.x);
+        }
+        return Integer.compare(this.y, other.y);
     }
 }
