@@ -14,7 +14,7 @@ public class Grid {
     private int[][] grid;
     private List<Sausage> sausages; // alt. using stack
 
-    Grid(int x, int y) {
+    public Grid(int x, int y) {
         if (x < 0 || y < 0) {
             throw new IllegalArgumentException("Grid dimensions cannot be negative");
         }

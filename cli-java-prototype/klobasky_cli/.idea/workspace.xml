@@ -5,20 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74edada0-534c-4863-9c76-fe99e73486f0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/CoordUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/CoordUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Dot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Dot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Grid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Grid.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Sausage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Sausage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/test/Players.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/test/Players.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/example/Dot.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/Dot.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/example/Grid.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/Grid.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/example/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/org/example/Sausage.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/example/Sausage.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,6 +153,8 @@
       <workItem from="1750339527480" duration="941000" />
       <workItem from="1750340615710" duration="14788000" />
       <workItem from="1750409627445" duration="3156000" />
+      <workItem from="1750434875626" duration="18000" />
+      <workItem from="1750435358478" duration="21000" />
     </task>
     <servers />
   </component>

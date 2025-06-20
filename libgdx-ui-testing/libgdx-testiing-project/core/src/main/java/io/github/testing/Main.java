@@ -18,7 +18,10 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private ShapeDrawer drawer;
     private List<HoverCircle> circles;
-    private HoverCircle heldCircle = null;
+    private HoverCircle firstCircle = null;
+    private HoverCircle secondCircle = null;
+    private HoverCircle thirdCircle = null;
+
     private List<Connection> connections = new ArrayList<>();
 
     private int columns = 5;
@@ -86,12 +89,21 @@ public class Main extends ApplicationAdapter {
         float time = (float) (System.currentTimeMillis() % 10000L) / 1000f;
         float angleOffset = -time * 2f; // rotation speed and direction
 
-        // draw the highlighting animated circles
-        if (heldCircle != null) {
+        // draw the highlighting animated circles in progress
+        HoverCircle anchor = null;
+        if (firstCircle != null && secondCircle == null) {
+            anchor = firstCircle;
+        } else if (secondCircle != null && thirdCircle == null) {
+            anchor = secondCircle;
+        }
+        if (anchor != null) {
             drawer.setColor(new Color(0xF72585ff));
             drawer.setDefaultLineWidth(4f);
             for (HoverCircle circle : circles) {
-                if (circle != heldCircle && heldCircle.isNeighbor(circle) && !circle.connected) {
+                if (circle != firstCircle && circle != secondCircle && !circle.connected &&
+                    anchor.isNeighbor(circle) &&
+                    !intersectsExistingConnection(anchor.x, anchor.y, circle.x, circle.y)) {
+
                     int dashCount = 16;
                     float radius = circle.baseRadius + 6f;
                     for (int i = 0; i < dashCount; i += 2) {
@@ -125,29 +137,60 @@ public class Main extends ApplicationAdapter {
             drawer.filledCircle(conn.b.x, conn.b.y, 15f);
         }
 
-        if (isTouched && heldCircle == null && hovered != null && !hovered.connected) {
-            heldCircle = hovered;
-        }
+        if (isTouched) {
+            if (firstCircle == null && hovered != null && !hovered.connected) {
+                firstCircle = hovered;
+            } else if (firstCircle != null && secondCircle == null && hovered != null
+                && hovered != firstCircle && firstCircle.isNeighbor(hovered) && !hovered.connected) {
+                secondCircle = hovered;
+            } else if (firstCircle != null && secondCircle != null && hovered != null
+                && hovered != firstCircle && hovered != secondCircle
+                && secondCircle.isNeighbor(hovered) && !hovered.connected) {
+                thirdCircle = hovered;
+            }
 
-        if (isTouched && heldCircle != null) {
+            // Draw connection-in-progress lines
             drawer.setColor(new Color(0x4cc9f0ff));
             drawer.setDefaultLineWidth(30f);
-            float endX = (hovered != null && heldCircle != hovered) ? hovered.x : mouseX;
-            float endY = (hovered != null && heldCircle != hovered) ? hovered.y : mouseY;
-            drawer.line(heldCircle.x, heldCircle.y, endX, endY);
-            drawer.filledCircle(heldCircle.x, heldCircle.y, 15f);
-            drawer.filledCircle(endX, endY, 15f);
+            if (firstCircle != null && secondCircle == null) {
+                drawer.line(firstCircle.x, firstCircle.y, mouseX, mouseY);
+                drawer.filledCircle(firstCircle.x, firstCircle.y, 15f);
+                drawer.filledCircle(mouseX, mouseY, 15f);
+            } else if (firstCircle != null && secondCircle != null && thirdCircle == null) {
+                drawer.line(firstCircle.x, firstCircle.y, secondCircle.x, secondCircle.y);
+                drawer.line(secondCircle.x, secondCircle.y, mouseX, mouseY);
+                drawer.filledCircle(firstCircle.x, firstCircle.y, 15f);
+                drawer.filledCircle(secondCircle.x, secondCircle.y, 15f);
+                drawer.filledCircle(mouseX, mouseY, 15f);
+            } else if (firstCircle != null && secondCircle != null && thirdCircle != null) {
+                drawer.line(firstCircle.x, firstCircle.y, secondCircle.x, secondCircle.y);
+                drawer.line(secondCircle.x, secondCircle.y, thirdCircle.x, thirdCircle.y);
+                drawer.filledCircle(firstCircle.x, firstCircle.y, 15f);
+                drawer.filledCircle(secondCircle.x, secondCircle.y, 15f);
+                drawer.filledCircle(thirdCircle.x, thirdCircle.y, 15f);
+            }
+
+        } else {
+            if (firstCircle != null && secondCircle != null && thirdCircle != null) {
+                boolean noIntersections =
+                    !intersectsExistingConnection(firstCircle.x, firstCircle.y, secondCircle.x, secondCircle.y) &&
+                        !intersectsExistingConnection(secondCircle.x, secondCircle.y, thirdCircle.x, thirdCircle.y);
+
+                if (noIntersections) {
+                    connections.add(new Connection(firstCircle, secondCircle));
+                    connections.add(new Connection(secondCircle, thirdCircle));
+                    firstCircle.connected = true;
+                    secondCircle.connected = true;
+                    thirdCircle.connected = true;
+                }
+            }
+
+            // Reset selection on mouse release
+            firstCircle = null;
+            secondCircle = null;
+            thirdCircle = null;
         }
 
-        if (!isTouched && heldCircle != null) {
-            if (hovered != null && hovered != heldCircle && heldCircle.isNeighbor(hovered)
-                && !heldCircle.connected && !hovered.connected) {
-                connections.add(new Connection(heldCircle, hovered));
-                heldCircle.connected = true;
-                hovered.connected = true;
-            }
-            heldCircle = null;
-        }
 
         batch.end();
     }
@@ -224,4 +267,71 @@ public class Main extends ApplicationAdapter {
             this.b = b;
         }
     }
+
+    // utility methods - ai generated
+
+    private boolean intersectsExistingConnection(float x1, float y1, float x2, float y2) {
+        for (Connection conn : connections) {
+            float x3 = conn.a.x, y3 = conn.a.y;
+            float x4 = conn.b.x, y4 = conn.b.y;
+
+            // Allow shared endpoints but not if geometrically crossing
+            if (isSharedEndpoint(x1, y1, x2, y2, x3, y3, x4, y4)) {
+                continue;
+            }
+
+            if (segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // True if segments intersect excluding touching at shared endpoints
+    private boolean segmentsIntersect(float x1, float y1, float x2, float y2,
+                                      float x3, float y3, float x4, float y4) {
+        int o1 = orientation(x1, y1, x2, y2, x3, y3);
+        int o2 = orientation(x1, y1, x2, y2, x4, y4);
+        int o3 = orientation(x3, y3, x4, y4, x1, y1);
+        int o4 = orientation(x3, y3, x4, y4, x2, y2);
+
+        if (o1 != o2 && o3 != o4) return true;
+
+        return (o1 == 0 && onSegment(x1, y1, x3, y3, x2, y2)) ||
+            (o2 == 0 && onSegment(x1, y1, x4, y4, x2, y2)) ||
+            (o3 == 0 && onSegment(x3, y3, x1, y1, x4, y4)) ||
+            (o4 == 0 && onSegment(x3, y3, x2, y2, x4, y4));
+    }
+
+    private int orientation(float x1, float y1, float x2, float y2, float x3, float y3) {
+        float val = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2);
+        if (Math.abs(val) < 1e-6) return 0; // colinear
+        return (val > 0) ? 1 : 2; // clockwise or counterclockwise
+    }
+
+    private boolean onSegment(float x1, float y1, float x2, float y2, float x3, float y3) {
+        return x2 <= Math.max(x1, x3) && x2 >= Math.min(x1, x3) &&
+            y2 <= Math.max(y1, y3) && y2 >= Math.min(y1, y3);
+    }
+
+
+    // Allow touching only at ends, not crossing mid-segment
+    private boolean isOnlyTouchingAtEndpoint(float x1, float y1, float x2, float y2,
+                                             float x3, float y3, float x4, float y4) {
+        return (equals(x1, y1, x3, y3) || equals(x1, y1, x4, y4) ||
+            equals(x2, y2, x3, y3) || equals(x2, y2, x4, y4));
+    }
+
+    private boolean isSharedEndpoint(float x1, float y1, float x2, float y2,
+                                     float x3, float y3, float x4, float y4) {
+        return equals(x1, y1, x3, y3) || equals(x1, y1, x4, y4) ||
+            equals(x2, y2, x3, y3) || equals(x2, y2, x4, y4);
+    }
+
+    private boolean equals(float x1, float y1, float x2, float y2) {
+        float epsilon = 0.01f;
+        return Math.abs(x1 - x2) < epsilon && Math.abs(y1 - y2) < epsilon;
+    }
+
+
 }
