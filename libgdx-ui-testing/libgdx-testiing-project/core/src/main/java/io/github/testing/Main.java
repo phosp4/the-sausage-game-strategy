@@ -15,6 +15,8 @@ import java.util.List;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class Main extends ApplicationAdapter {
+    private TurnManager turnManager;
+    private boolean gameOver = false;
     private SpriteBatch batch;
     private ShapeDrawer drawer;
     private List<HoverCircle> circles;
@@ -43,6 +45,12 @@ public class Main extends ApplicationAdapter {
 
         circles = new ArrayList<>();
         generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // Initialize the turn manager
+        Player player1 = new Player("Player 1", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
+        Player player2 = new Player("Player 2", new Color(0xF72585ff)); // 0xF72585ff
+        turnManager = new TurnManager(player1, player2);
+
     }
 
     @Override
@@ -74,6 +82,21 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void render() {
+//        if (gameOver) {
+//            // todo show game over screen
+//            batch.begin();
+//            // Optional: gray overlay or something fancy
+//            drawer.setColor(Color.BLACK);
+//            drawer.getBatch().end(); // switch to GDX font rendering if needed
+//
+//            batch.begin();
+//            // Show game over message
+//            // (You may use a BitmapFont for text; here’s a placeholder comment)
+//            // font.draw(batch, gameOverMessage, 100, 100);
+//            batch.end();
+//            return;
+//        }
+
         // Clear the screen with a white color
         ScreenUtils.clear(1, 1, 1, 1);
 
@@ -85,11 +108,7 @@ public class Main extends ApplicationAdapter {
         // Every drawing should be done here
         batch.begin();
 
-        // get the current time and convert it to seconds
-        float time = (float) (System.currentTimeMillis() % 10000L) / 1000f;
-        float angleOffset = -time * 2f; // rotation speed and direction
-
-        // draw the highlighting animated circles in progress
+        // draw the highlight around circles
         HoverCircle anchor = null;
         if (firstCircle != null && secondCircle == null) {
             anchor = firstCircle;
@@ -97,24 +116,13 @@ public class Main extends ApplicationAdapter {
             anchor = secondCircle;
         }
         if (anchor != null) {
-            drawer.setColor(new Color(0xF72585ff));
+            drawer.setColor(turnManager.getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
             for (HoverCircle circle : circles) {
                 if (circle != firstCircle && circle != secondCircle && !circle.connected &&
                     anchor.isNeighbor(circle) &&
                     !intersectsExistingConnection(anchor.x, anchor.y, circle.x, circle.y)) {
-
-                    int dashCount = 16;
-                    float radius = circle.baseRadius + 6f;
-                    for (int i = 0; i < dashCount; i += 2) {
-                        float angle1 = (float)(2 * Math.PI * i / dashCount) + angleOffset;
-                        float angle2 = (float)(2 * Math.PI * (i + 1) / dashCount) + angleOffset;
-                        float x1 = circle.x + (float)Math.cos(angle1) * radius;
-                        float y1 = circle.y + (float)Math.sin(angle1) * radius;
-                        float x2 = circle.x + (float)Math.cos(angle2) * radius;
-                        float y2 = circle.y + (float)Math.sin(angle2) * radius;
-                        drawer.line(x1, y1, x2, y2);
-                    }
+                    drawer.circle(circle.x, circle.y, circle.baseRadius + 6f);
                 }
             }
         }
@@ -129,9 +137,10 @@ public class Main extends ApplicationAdapter {
             drawer.filledCircle(circle.x, circle.y, circle.currentRadius);
         }
 
-        drawer.setColor(new Color(0xabababff));
+//        drawer.setColor(new Color(0xabababff)); // alternative - all the same color
         drawer.setDefaultLineWidth(30f);
         for (Connection conn : connections) {
+            drawer.setColor(conn.owner.getColor());
             drawer.line(conn.a.x, conn.a.y, conn.b.x, conn.b.y);
             drawer.filledCircle(conn.a.x, conn.a.y, 15f);
             drawer.filledCircle(conn.b.x, conn.b.y, 15f);
@@ -150,7 +159,7 @@ public class Main extends ApplicationAdapter {
             }
 
             // Draw connection-in-progress lines
-            drawer.setColor(new Color(0x4cc9f0ff));
+            drawer.setColor(turnManager.getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(30f);
             if (firstCircle != null && secondCircle == null) {
                 drawer.line(firstCircle.x, firstCircle.y, mouseX, mouseY);
@@ -177,11 +186,23 @@ public class Main extends ApplicationAdapter {
                         !intersectsExistingConnection(secondCircle.x, secondCircle.y, thirdCircle.x, thirdCircle.y);
 
                 if (noIntersections) {
-                    connections.add(new Connection(firstCircle, secondCircle));
-                    connections.add(new Connection(secondCircle, thirdCircle));
+                    Player currentPlayer = turnManager.getCurrentPlayer();
+
+                    connections.add(new Connection(firstCircle, secondCircle, currentPlayer));
+                    connections.add(new Connection(secondCircle, thirdCircle, currentPlayer));
+
                     firstCircle.connected = true;
                     secondCircle.connected = true;
                     thirdCircle.connected = true;
+
+                    // Swap turn
+                    turnManager.nextTurn();
+
+                    if (!playerHasValidMove()) {
+                        gameOver = true;
+                        System.out.println("Game Over! " + turnManager.getNotCurrentPlayer().getName() + " wins!");
+                    }
+
                 }
             }
 
@@ -222,7 +243,7 @@ public class Main extends ApplicationAdapter {
         boolean update(float mouseX, float mouseY, boolean isTouched) {
             boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
             if (isHovered) {
-                color = connected ? Color.GRAY : new Color(0x4cc9f0ff);
+                color = connected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
                 currentRadius = isTouched ? enlargedRadius : baseRadius;
                 return true;
             } else {
@@ -261,12 +282,37 @@ public class Main extends ApplicationAdapter {
 
     private static class Connection {
         HoverCircle a, b;
+        Player owner;
 
-        Connection(HoverCircle a, HoverCircle b) {
+        Connection(HoverCircle a, HoverCircle b, Player owner) {
             this.a = a;
             this.b = b;
+            this.owner = owner;
         }
     }
+
+    // not the most efficient probably, works for now
+    private boolean playerHasValidMove() {
+        for (HoverCircle a : circles) {
+            if (a.connected) continue;
+            for (HoverCircle b : circles) {
+                if (b.connected || b == a || !a.isNeighbor(b)) continue;
+                if (intersectsExistingConnection(a.x, a.y, b.x, b.y)) continue;
+
+                for (HoverCircle c : circles) {
+                    if (c == a || c == b || c.connected) continue;
+                    if (!b.isNeighbor(c)) continue;
+                    if (intersectsExistingConnection(b.x, b.y, c.x, c.y)) continue;
+                    if (intersectsExistingConnection(a.x, a.y, c.x, c.y)) continue; // optional
+
+                    // Found a valid path A→B→C
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     // utility methods - ai generated
 
