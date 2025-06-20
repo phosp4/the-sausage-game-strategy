@@ -3,7 +3,6 @@ package io.github.testing;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -27,6 +26,8 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
+
+        // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 1, 1, 1);
         pixmap.fill();
@@ -43,14 +44,18 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        generateCircles(width, height);
     }
 
     private void generateCircles(int width, int height) {
+
+        // Clear existing circles and connections
         circles.clear();
+
+        // Calculate spacing based on the number of columns and rows
         float spacingX = width / (columns + 1f);
         float spacingY = height / (rows + 1f);
 
+        // Generate circles in a hexagonal-grid-like pattern
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns - (row % 2); col++) {
                 float offsetX = (row % 2) * (spacingX / 2);
@@ -61,23 +66,32 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    /*
+        * This method is called every frame to render the game.
+     */
     @Override
     public void render() {
+        // Clear the screen with a white color
+        ScreenUtils.clear(1, 1, 1, 1);
+
+        // Get the current mouse position and touch state
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         boolean isTouched = Gdx.input.isTouched();
 
-        ScreenUtils.clear(1, 1, 1, 1);
-
+        // Every drawing should be done here
         batch.begin();
 
+        // get the current time and convert it to seconds
         float time = (float) (System.currentTimeMillis() % 10000L) / 1000f;
-        float angleOffset = -time * 2f;
+        float angleOffset = -time * 2f; // rotation speed and direction
+
+        // draw the highlighting animated circles
         if (heldCircle != null) {
             drawer.setColor(new Color(0xF72585ff));
             drawer.setDefaultLineWidth(4f);
             for (HoverCircle circle : circles) {
-                if (circle != heldCircle && heldCircle.isTrueNeighbor(circle) && !circle.connected) {
+                if (circle != heldCircle && heldCircle.isNeighbor(circle) && !circle.connected) {
                     int dashCount = 16;
                     float radius = circle.baseRadius + 6f;
                     for (int i = 0; i < dashCount; i += 2) {
@@ -98,6 +112,8 @@ public class Main extends ApplicationAdapter {
             boolean isHovered = circle.update(mouseX, mouseY, isTouched);
             if (isHovered) hovered = circle;
             drawer.setColor(circle.color);
+
+            // drawing all the circles
             drawer.filledCircle(circle.x, circle.y, circle.currentRadius);
         }
 
@@ -124,7 +140,7 @@ public class Main extends ApplicationAdapter {
         }
 
         if (!isTouched && heldCircle != null) {
-            if (hovered != null && hovered != heldCircle && heldCircle.isTrueNeighbor(hovered)
+            if (hovered != null && hovered != heldCircle && heldCircle.isNeighbor(hovered)
                 && !heldCircle.connected && !hovered.connected) {
                 connections.add(new Connection(heldCircle, hovered));
                 heldCircle.connected = true;
@@ -157,6 +173,9 @@ public class Main extends ApplicationAdapter {
             this.col = col;
         }
 
+        /**
+         * Updates the circle's hover state and radius based on mouse position and touch state.
+         */
         boolean update(float mouseX, float mouseY, boolean isTouched) {
             boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
             if (isHovered) {
@@ -170,7 +189,9 @@ public class Main extends ApplicationAdapter {
             }
         }
 
-        boolean isTrueNeighbor(HoverCircle other) {
+        boolean isNeighbor(HoverCircle other) {
+
+            // coords of the 8 neighbors - in hex grid they vary based on row parity
             int[][] offsetsEven = {
                 {-1, -1}, {-1, 0}, {0, -1}, {0, 1}, {1, -1}, {1, 0},
                 {-2, 0}, {2, 0}
@@ -179,8 +200,11 @@ public class Main extends ApplicationAdapter {
                 {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, 0}, {1, 1},
                 {-2, 0}, {2, 0}
             };
+
+            // Determine which set of offsets to use based on the row parity
             int[][] offsets = (row % 2 == 0) ? offsetsEven : offsetsOdd;
 
+            // Check if the other circle is a neighbor
             for (int[] offset : offsets) {
                 int nr = row + offset[0];
                 int nc = col + offset[1];
