@@ -46,7 +46,7 @@ public class Main extends ApplicationAdapter {
 
     private void generateCircles(int width, int height) {
         circles.clear();
-        int columns = 5;
+        int columns = 5; // todo fsr stlpce rata len dlhe ale riadky vsetky
         int rows = 7;
         float spacingX = width / (columns + 1f);
         float spacingY = height / (rows + 1f);
