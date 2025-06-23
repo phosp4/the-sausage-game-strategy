@@ -70,7 +70,7 @@ configure(subprojects - project(':android')) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'LibgdxTesting'
+  ext.appName = 'TheSausageGame'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -83,4 +83,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'LibgdxTesting' + '-parent'
+eclipse.project.name = 'TheSausageGame' + '-parent'
