@@ -2,14 +2,21 @@ package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +24,7 @@ import java.util.List;
 import io.github.MainGame;
 import io.github.utils.MoveValidator;
 import io.github.entities.Player;
+import io.github.utils.SoundManager;
 import io.github.utils.TurnManager;
 import io.github.entities.GridCircle;
 import io.github.entities.GridConnection;
@@ -33,16 +41,17 @@ public class GameScreen implements Screen {
     private GridCircle firstCircle = null;
     private GridCircle secondCircle = null;
     private GridCircle thirdCircle = null;
-    GridCircle currentlyHoveredCircle;
+    private GridCircle currentlyHoveredCircle;
     private Texture background;
-    float mouseX;
-    float mouseY;
-    boolean isTouched;
-
+    private float mouseX;
+    private float mouseY;
+    private boolean isTouched;
+    private Sound selectSound;
     private List<GridConnection> connections = new ArrayList<>();
-
     private int columns;
     private int rows;
+    private float baseCircleRadius = 12f;
+    private float enlargedCircleRadius = 24f;
 
     public GameScreen(MainGame game, int columns, int rows) {
         this.game = game;
@@ -52,6 +61,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        if (!VisUI.isLoaded()) {
+            VisUI.load(); // Load VisUI skin
+        }
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
@@ -74,6 +87,49 @@ public class GameScreen implements Screen {
         Player player1 = new Player("Player 1", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
         Player player2 = new Player("Player 2", new Color(0xF72585ff)); // 0xF72585ff
         turnManager = new TurnManager(player1, player2);
+
+        // sounds
+        selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
+
+        // rest of ui
+        VisTable table = new VisTable();
+        table.setFillParent(true);
+        VisTextButton restartButton = new VisTextButton("Restart");
+        VisTextButton quitButton = new VisTextButton("Quit");
+        VisTextButton soundsButton = new VisTextButton("No sounds", "toggle");
+        if (!SoundManager.isSoundEnabled()) {
+            soundsButton.toggle();
+        }
+
+        restartButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new GameScreen(game, columns, rows));
+                GameScreen.this.dispose();
+            }
+        });
+        quitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new MenuScreen(game));
+                GameScreen.this.dispose();
+            }
+        });
+        soundsButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // toggle sounds
+                SoundManager.setSoundEnabled(!SoundManager.isSoundEnabled());
+                System.out.println("Toggle sounds");
+            }
+        });
+
+        table.add(restartButton).width(200).height(50).padBottom(20);
+        table.add(quitButton).width(200).height(50).padBottom(20);
+        table.add(soundsButton).width(200).height(50).padBottom(20);
+        table.align(Align.bottom); // Align the table to the bottom of the screen
+//        table.padBottom(0); // Add padding from the bottom edge
+        stage.addActor(table);
 
     }
 
@@ -101,8 +157,11 @@ public class GameScreen implements Screen {
         // Clear existing circles and connections
         circles.clear();
 
+        int bottomPadding = 80; // for the UI at the bottom
+        height = height - bottomPadding;
+
         // Calculate spacing based on the number of columns and rows
-        float spacingX = width / (columns + 1f);
+        float spacingX = (width) / (columns + 1f);
         float spacingY = height / (rows + 1f);
 
         // Generate circles in a hexagonal-grid-like pattern
@@ -110,8 +169,8 @@ public class GameScreen implements Screen {
             for (int col = 0; col < columns - (row % 2); col++) {
                 float offsetX = (row % 2) * (spacingX / 2);
                 float x = spacingX + col * spacingX + offsetX;
-                float y = height - spacingY * (row + 1);
-                circles.add(new GridCircle(x, y, row, col));
+                float y = bottomPadding + height - spacingY * (row + 1);
+                circles.add(new GridCircle(x, y, row, col, baseCircleRadius, enlargedCircleRadius));
             }
         }
     }
@@ -146,12 +205,10 @@ public class GameScreen implements Screen {
 
         // Every drawing should be done here
         batch.begin();
-
         drawBackground();
         drawCircleHints();
         drawExistingCircles();
         drawExistingConnections();
-
         if (isTouched) { handleTemporaryConnections(); }
         else {
             handleNewConnection();
@@ -159,8 +216,10 @@ public class GameScreen implements Screen {
             secondCircle = null;
             thirdCircle = null;
         }
-
         batch.end();
+
+        stage.act(delta);
+        stage.draw();
     }
 
     private void handleNewConnection() {
@@ -174,6 +233,9 @@ public class GameScreen implements Screen {
 
                 connections.add(new GridConnection(firstCircle, secondCircle, currentPlayer));
                 connections.add(new GridConnection(secondCircle, thirdCircle, currentPlayer));
+
+                long id = SoundManager.play(selectSound);
+                SoundManager.setPitch(selectSound, id, 0.75f);
 
                 firstCircle.setIsConnected(true);
                 secondCircle.setIsConnected(true);
@@ -194,58 +256,68 @@ public class GameScreen implements Screen {
     private void handleTemporaryConnections() {
         if (firstCircle == null && currentlyHoveredCircle != null && !currentlyHoveredCircle.getIsConnected()) {
             firstCircle = currentlyHoveredCircle;
+            SoundManager.play(selectSound);
         } else if (firstCircle != null && secondCircle == null && currentlyHoveredCircle != null
             && currentlyHoveredCircle != firstCircle && firstCircle.isNeighbor(currentlyHoveredCircle) && !currentlyHoveredCircle.getIsConnected()) {
             secondCircle = currentlyHoveredCircle;
+            SoundManager.play(selectSound);
         } else if (firstCircle != null && secondCircle != null && currentlyHoveredCircle != null
             && currentlyHoveredCircle != firstCircle && currentlyHoveredCircle != secondCircle
             && secondCircle.isNeighbor(currentlyHoveredCircle) && !currentlyHoveredCircle.getIsConnected()) {
+            if (thirdCircle != currentlyHoveredCircle) { // Play sound only when thirdCircle is newly assigned
+                thirdCircle = currentlyHoveredCircle;
+                SoundManager.play(selectSound);
+            }
             thirdCircle = currentlyHoveredCircle;
         }
 
         // Draw connection-in-progress lines
         drawer.setColor(turnManager.getCurrentPlayer().getColor());
-        drawer.setDefaultLineWidth(30f);
+        drawer.setDefaultLineWidth(enlargedCircleRadius);
 
         if (firstCircle != null && secondCircle == null) {
             drawer.line(firstCircle.getX(), firstCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), 15f);
-            drawer.filledCircle(mouseX, mouseY, 15f);
+            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
+            drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
         } else if (firstCircle != null && secondCircle != null && thirdCircle == null) {
             drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
             drawer.line(secondCircle.getX(), secondCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), 15f);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), 15f);
-            drawer.filledCircle(mouseX, mouseY, 15f);
+            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
+            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
+            drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
         } else if (firstCircle != null && secondCircle != null && thirdCircle != null) {
             drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
             drawer.line(secondCircle.getX(), secondCircle.getY(), thirdCircle.getX(), thirdCircle.getY());
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), 15f);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), 15f);
-            drawer.filledCircle(thirdCircle.getX(), thirdCircle.getY(), 15f);
+            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
+            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
+            drawer.filledCircle(thirdCircle.getX(), thirdCircle.getY(), baseCircleRadius);
         }
 
     }
 
     private void drawExistingCircles() {
+        currentlyHoveredCircle = null; // Reset before checking hover
         for (GridCircle circle : circles) {
             boolean isHovered = circle.updateIfHovered(mouseX, mouseY, isTouched, turnManager);
-            if (isHovered) currentlyHoveredCircle = circle;
+            if (isHovered) {
+                currentlyHoveredCircle = circle;
+            }
             drawer.setColor(circle.getColor());
 
             // drawing all the circles
-            drawer.filledCircle(circle.getX(), circle.getY(), circle.getCurrentRadius());
+            drawer.filledCircle(circle.getX(), circle.getY(),
+                circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
         }
     }
 
     private void drawExistingConnections() {
         // Draw all connections
-        drawer.setDefaultLineWidth(30f);
+        drawer.setDefaultLineWidth(enlargedCircleRadius);
         for (GridConnection conn : connections) {
             drawer.setColor(conn.getOwner().getColor());
             drawer.line(conn.getA().getX(), conn.getA().getY(), conn.getB().getX(), conn.getB().getY());
-            drawer.filledCircle(conn.getA().getX(), conn.getA().getY(), 15f);
-            drawer.filledCircle(conn.getB().getX(), conn.getB().getY(), 15f);
+            drawer.filledCircle(conn.getA().getX(), conn.getA().getY(), baseCircleRadius);
+            drawer.filledCircle(conn.getB().getX(), conn.getB().getY(), baseCircleRadius);
         }
     }
 
@@ -277,5 +349,6 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
+        selectSound.dispose();
     }
 }

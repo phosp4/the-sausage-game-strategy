@@ -7,17 +7,19 @@ import io.github.utils.TurnManager;
 public class GridCircle {
     private float x, y;
     private int row, col;
-    private float baseRadius = 15f;
-    private float enlargedRadius = 30f;
-    private float currentRadius = 15f;
+    private float baseRadius;
+    private float enlargedRadius;
+    private boolean isEnlarged = false;
     private Color color = Color.BLACK;
     private boolean isConnected = false;
 
-    public GridCircle(float x, float y, int row, int col) {
+    public GridCircle(float x, float y, int row, int col, float baseRadius, float enlargedRadius) {
         this.x = x;
         this.y = y;
         this.row = row;
         this.col = col;
+        this.baseRadius = baseRadius;
+        this.enlargedRadius = enlargedRadius;
     }
 
     public float getX() {
@@ -38,8 +40,8 @@ public class GridCircle {
     public float getEnlargedRadius() {
         return enlargedRadius;
     }
-    public float getCurrentRadius() {
-        return currentRadius;
+    public boolean isEnlarged() {
+        return isEnlarged;
     }
     public Color getColor() {
         return color;
@@ -55,14 +57,15 @@ public class GridCircle {
      * Updates the circle's hover state and radius based on mouse position and touch state.
      */
     public boolean updateIfHovered(float mouseX, float mouseY, boolean isTouched, TurnManager turnManager) {
+        float currentRadius = isEnlarged ? enlargedRadius : baseRadius;
         boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
         if (isHovered) {
             color = isConnected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
-            currentRadius = isTouched ? enlargedRadius : baseRadius;
+            isEnlarged = isTouched;
             return true;
         } else {
             color = isConnected ? Color.GRAY : Color.BLACK;
-            currentRadius = baseRadius;
+            isEnlarged = false;
             return false;
         }
     }
