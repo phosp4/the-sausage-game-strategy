@@ -1,4 +1,4 @@
-package io.github;
+package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -12,12 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import io.github.MainGame;
+
 public class ScoreboardScreen implements Screen {
     private Stage stage;
-    private KlobaskyMain app;
+    private MainGame app;
     private Texture background;
 
-    public ScoreboardScreen(KlobaskyMain app) {
+    public ScoreboardScreen(MainGame app) {
         this.app = app;
     }
 

@@ -1,40 +1,73 @@
-package io.github;
+package io.github.entities;
 
 import com.badlogic.gdx.graphics.Color;
 
-public class GridCircle {
-    float x, y;
-    int row, col;
-    float baseRadius = 15f;
-    float enlargedRadius = 30f;
-    float currentRadius = 15f;
-    Color color = Color.BLACK;
-    boolean connected = false;
+import io.github.utils.TurnManager;
 
-    GridCircle(float x, float y, int row, int col) {
+public class GridCircle {
+    private float x, y;
+    private int row, col;
+    private float baseRadius = 15f;
+    private float enlargedRadius = 30f;
+    private float currentRadius = 15f;
+    private Color color = Color.BLACK;
+    private boolean isConnected = false;
+
+    public GridCircle(float x, float y, int row, int col) {
         this.x = x;
         this.y = y;
         this.row = row;
         this.col = col;
     }
 
+    public float getX() {
+        return x;
+    }
+    public float getY() {
+        return y;
+    }
+    public int getRow() {
+        return row;
+    }
+    public int getCol() {
+        return col;
+    }
+    public float getBaseRadius() {
+        return baseRadius;
+    }
+    public float getEnlargedRadius() {
+        return enlargedRadius;
+    }
+    public float getCurrentRadius() {
+        return currentRadius;
+    }
+    public Color getColor() {
+        return color;
+    }
+    public boolean getIsConnected() {
+        return isConnected;
+    }
+    public void setIsConnected(boolean isConnected) {
+        this.isConnected = isConnected;
+    }
+
     /**
      * Updates the circle's hover state and radius based on mouse position and touch state.
      */
-    boolean update(float mouseX, float mouseY, boolean isTouched, TurnManager turnManager) {
+    public boolean updateIfHovered(float mouseX, float mouseY, boolean isTouched, TurnManager turnManager) {
         boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
         if (isHovered) {
-            color = connected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
+            color = isConnected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
             currentRadius = isTouched ? enlargedRadius : baseRadius;
             return true;
         } else {
-            color = connected ? Color.GRAY : Color.BLACK;
+            color = isConnected ? Color.GRAY : Color.BLACK;
             currentRadius = baseRadius;
             return false;
         }
     }
 
-    boolean isNeighbor(GridCircle other) {
+    public boolean isNeighbor(GridCircle other) {
 
         // coords of the 8 neighbors - in hex grid they vary based on row parity
         int[][] offsetsEven = {

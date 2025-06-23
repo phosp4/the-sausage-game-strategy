@@ -1,4 +1,4 @@
-package io.github;
+package io.github.entities;
 
 import com.badlogic.gdx.graphics.Color;
 

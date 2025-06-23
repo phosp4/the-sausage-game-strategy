@@ -1,4 +1,6 @@
-package io.github;
+package io.github.utils;
+
+import io.github.entities.Player;
 
 public class TurnManager {
     private Player player1;

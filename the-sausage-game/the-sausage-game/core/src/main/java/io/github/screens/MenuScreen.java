@@ -1,4 +1,4 @@
-package io.github;
+package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -12,15 +12,17 @@ import com.kotcrab.vis.ui.widget.*;
 
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
+import io.github.MainGame;
+
 public class MenuScreen implements Screen {
     private Stage stage;
-    private KlobaskyMain app;
+    private MainGame app;
     private Texture background;
     private VisSelectBox<String> gridSelectBox;
     private int[][] gridDimensions = {{4, 5}, {5, 7}, {7, 7}, {9, 9}};
     private String[] gridOptions = {"Small", "Classic", "Large", "Very Large"};
 
-    public MenuScreen(KlobaskyMain app) {
+    public MenuScreen(MainGame app) {
         this.app = app;
     }
 

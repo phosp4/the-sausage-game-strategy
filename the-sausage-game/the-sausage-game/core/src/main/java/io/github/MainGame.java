@@ -3,7 +3,9 @@ package io.github;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
-public class KlobaskyMain extends Game {
+import io.github.screens.RulesScreen;
+
+public class MainGame extends Game {
     @Override
     public void create() {
         // Initialize your game here, e.g., set the initial screen

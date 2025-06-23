@@ -1,4 +1,4 @@
-package io.github;
+package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -15,12 +15,14 @@ import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import io.github.MainGame;
+
 public class RulesScreen implements Screen {
     private Stage stage;
-    private KlobaskyMain app;
+    private MainGame app;
     private Texture background;
 
-    public RulesScreen(KlobaskyMain app) {
+    public RulesScreen(MainGame app) {
         this.app = app;
     }
 
