@@ -1,6 +1,6 @@
 # Project Android
 
-This repository contains the source code for the **The Sausage Game** app developed as part of the VMA course at UPJS. It uses Kotlin/Java with libGDX game engine.
+This repository contains the source code for the **The Sausage Game** app developed as part of the VMA course at UPJS. It uses Java with libGDX game engine.
 
 ## Structure
 
