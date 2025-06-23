@@ -1,9 +1,9 @@
-package io.github.testing.teavm;
+package io.github.teavm;
 
 import com.github.xpenatan.gdx.backends.teavm.TeaApplicationConfiguration;
 import com.github.xpenatan.gdx.backends.teavm.TeaApplication;
-import io.github.testing.GameScreen;
-import io.github.testing.KlobaskyMain;
+
+import io.github.KlobaskyMain;
 
 /**
  * Launches the TeaVM/HTML application.

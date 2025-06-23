@@ -1,4 +1,4 @@
-package io.github.testing;
+package io.github;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -37,7 +37,7 @@ public class ScoreboardScreen implements Screen {
         stage.addActor(root);
 
         VisLabel titleLabel = new VisLabel("Scoreboard");
-        titleLabel.setColor(Color.SCARLET);
+        titleLabel.setColor(Color.NAVY);
         titleLabel.setFontScale(2f);
         root.add(titleLabel).padBottom(20).row();
 
@@ -45,10 +45,10 @@ public class ScoreboardScreen implements Screen {
         table.top();
 
         // Header
-        table.add(new VisLabel("Player")).pad(10);
-        table.add(new VisLabel("Wins")).pad(10);
-        table.add(new VisLabel("Losses")).pad(10);
-        table.add(new VisLabel("Points")).pad(10);
+        table.add(addFormatedVisLabel("Player", Color.BLACK)).pad(10);
+        table.add(addFormatedVisLabel("Wins", Color.BLACK)).pad(10);
+        table.add(addFormatedVisLabel("Losses", Color.BLACK)).pad(10);
+        table.add(addFormatedVisLabel("Points", Color.BLACK)).pad(10);
         table.row();
 
         // Sample Data
@@ -75,11 +75,18 @@ public class ScoreboardScreen implements Screen {
         root.add(backButton).width(250).height(50);
     }
 
+    private VisLabel addFormatedVisLabel(String text, Color color) {
+        VisLabel label = new VisLabel(text);
+        label.setColor(color);
+//        label.setFontScale(1.2f);
+        return label;
+    }
+
     private void addRow(VisTable table, String player, int wins, int losses, int points) {
-        table.add(new VisLabel(player)).pad(5);
-        table.add(new VisLabel(String.valueOf(wins))).pad(5);
-        table.add(new VisLabel(String.valueOf(losses))).pad(5);
-        table.add(new VisLabel(String.valueOf(points))).pad(5);
+        table.add(addFormatedVisLabel(player, Color.BLACK)).pad(5);
+        table.add(addFormatedVisLabel(String.valueOf(wins), Color.BLACK)).pad(5);
+        table.add(addFormatedVisLabel(String.valueOf(losses), Color.BLACK)).pad(5);
+        table.add(addFormatedVisLabel(String.valueOf(points), Color.BLACK)).pad(5);
         table.row();
     }
 
@@ -111,8 +118,5 @@ public class ScoreboardScreen implements Screen {
     public void dispose() {
         stage.dispose();
         background.dispose();
-        if (VisUI.isLoaded()) {
-            VisUI.dispose();
-        }
     }
 }

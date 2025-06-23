@@ -1,9 +1,8 @@
-package io.github.testing;
+package io.github;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -40,8 +39,9 @@ public class MenuScreen implements Screen {
         table.center();
         stage.addActor(table);
 
-        VisLabel titleLabel = new VisLabel("Klobasky Game");
-        titleLabel.setColor(Color.SCARLET);
+        VisLabel titleLabel = new VisLabel("The Sausage Game!");
+//        titleLabel.setColor(new Color(0x3A0CA3ff));
+        titleLabel.setColor(Color.NAVY);
         titleLabel.setFontScale(2f);
 
         // Grid size selector
@@ -135,8 +135,5 @@ public class MenuScreen implements Screen {
     public void dispose() {
         stage.dispose();
         background.dispose();
-        if (VisUI.isLoaded()) {
-            VisUI.dispose();
-        }
     }
 }

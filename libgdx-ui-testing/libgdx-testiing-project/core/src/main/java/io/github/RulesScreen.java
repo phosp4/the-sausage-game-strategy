@@ -1,4 +1,4 @@
-package io.github.testing;
+package io.github;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -40,28 +40,23 @@ public class RulesScreen implements Screen {
 
         // Title
         VisLabel titleLabel = new VisLabel("Game Rules");
-        titleLabel.setColor(Color.SCARLET);
+        titleLabel.setColor(Color.NAVY);
         titleLabel.setFontScale(2f);
         rootTable.add(titleLabel).padTop(20).padBottom(30).row();
 
         // Rules text container with scrolling
         VisTable rulesTable = new VisTable();
         String rulesText =
-            "The Sausage Game is a two-player, turn-based strategy game played on a triangular dotted grid. " +
-                "The grid consists of evenly spaced dots arranged so that each dot may connect to up to six neighboring dots, " +
-                "forming a hexagonal tiling pattern.\n\n" +
+            "The Sausage Game is a two-player strategy game played on a triangular dotted grid. " +
 
-                "Players take turns identifying and marking a group of exactly three unclaimed, adjacent dots that form a valid shape. " +
-                "A valid shape may be a straight line or an angled configuration, provided all three dots are directly connected. " +
-                "This group is called a \"sausage.\" Once a sausage is claimed, its dots may no longer be used in future moves.\n\n" +
-
-                "On each turn, a player must claim one valid sausage using only unclaimed dots. " +
+                "Players take turns identifying and marking a group of exactly three unclaimed, adjacent dots that form a valid shape, called \"sausage\". " +
+                "It may be a straight line or an angled configuration, provided all three dots are directly connected.\n\n" +
+                "Once a sausage is claimed, its dots may no longer be used in future moves." +
                 "Sausages must not overlap or share dots with previously claimed sausages. " +
                 "The game continues until a player is unable to make a legal move on their turn. " +
                 "That player loses the game.\n\n" +
 
-                "The objective is to avoid being the player who cannot make a move. " +
-                "Strategic placement and blocking are key aspects of gameplay.";
+                "Good luck!";
 
         VisLabel rulesLabel = new VisLabel(rulesText);
         rulesLabel.setWrap(true); // Enable text wrapping
@@ -80,7 +75,7 @@ public class RulesScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 app.setScreen(new MenuScreen(app));
-                RulesScreen.this.dispose();
+                RulesScreen.this.dispose(); // ?? not sure
             }
         });
         rootTable.add(backButton).pad(20).width(250).height(60);

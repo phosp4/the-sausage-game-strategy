@@ -1,13 +1,14 @@
-package io.github.testing.android;
+package io.github.android;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import io.github.testing.GameScreen;
-import io.github.testing.KlobaskyMain;
+
+import io.github.KlobaskyMain;
 
 /** Launches the Android application. */
+
 public class AndroidLauncher extends AndroidApplication {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

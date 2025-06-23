@@ -1,4 +1,4 @@
-package io.github.testing;
+package io.github;
 
 public class TurnManager {
     private Player player1;

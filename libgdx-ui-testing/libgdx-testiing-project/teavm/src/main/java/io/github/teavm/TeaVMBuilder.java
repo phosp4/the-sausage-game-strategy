@@ -1,12 +1,12 @@
-package io.github.testing.teavm;
+package io.github.teavm;
 
 import com.github.xpenatan.gdx.backends.teavm.config.AssetFileHandle;
 import com.github.xpenatan.gdx.backends.teavm.config.TeaBuildConfiguration;
 import com.github.xpenatan.gdx.backends.teavm.config.TeaBuilder;
-import com.github.xpenatan.gdx.backends.teavm.config.plugins.TeaReflectionSupplier;
+
 import java.io.File;
 import java.io.IOException;
-import org.teavm.tooling.TeaVMTargetType;
+
 import org.teavm.tooling.TeaVMTool;
 import org.teavm.vm.TeaVMOptimizationLevel;
 
@@ -18,10 +18,10 @@ public class TeaVMBuilder {
         teaBuildConfiguration.webappPath = new File("build/dist").getCanonicalPath();
 
         // Register any extra classpath assets here:
-        // teaBuildConfiguration.additionalAssetsClasspathFiles.add("io/github/testing/asset.extension");
+        // teaBuildConfiguration.additionalAssetsClasspathFiles.add("io/io.github/testing/asset.extension");
 
         // Register any classes or packages that require reflection here:
-        // TeaReflectionSupplier.addReflectionClass("io.github.testing.reflect");
+        // TeaReflectionSupplier.addReflectionClass("io.github.reflect");
 
         TeaVMTool tool = TeaBuilder.config(teaBuildConfiguration);
         // You can uncomment the line below to use WASM instead of JavaScript as a target.

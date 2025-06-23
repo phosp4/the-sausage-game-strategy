@@ -1,32 +1,35 @@
-package io.github.testing;
+package io.github;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
-public class GameScreen extends ScreenAdapter {
-    final KlobaskyMain game;
+public class GameScreen implements Screen {
+    private KlobaskyMain game;
+    private Stage stage;
     private TurnManager turnManager;
     private boolean gameOver = false;
-    private SpriteBatch batch;
+    private Batch batch;
     private ShapeDrawer drawer;
-    private List<HoverCircle> circles;
-    private HoverCircle firstCircle = null;
-    private HoverCircle secondCircle = null;
-    private HoverCircle thirdCircle = null;
+    private List<GridCircle> circles;
+    private GridCircle firstCircle = null;
+    private GridCircle secondCircle = null;
+    private GridCircle thirdCircle = null;
+    private Texture background;
 
-    private List<Connection> connections = new ArrayList<>();
+    private List<GridConnection> connections = new ArrayList<>();
 
     private int columns;
     private int rows;
@@ -39,6 +42,9 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+        background = new Texture(Gdx.files.internal("white-paper-texture.png"));
 
         // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -48,7 +54,7 @@ public class GameScreen extends ScreenAdapter {
         pixelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
 
-        batch = new SpriteBatch();
+        batch = stage.getBatch();
         drawer = new ShapeDrawer(batch, new TextureRegion(pixelTexture));
 
         circles = new ArrayList<>();
@@ -63,6 +69,21 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 
     private void generateCircles(int width, int height) {
@@ -80,7 +101,7 @@ public class GameScreen extends ScreenAdapter {
                 float offsetX = (row % 2) * (spacingX / 2);
                 float x = spacingX + col * spacingX + offsetX;
                 float y = height - spacingY * (row + 1);
-                circles.add(new HoverCircle(x, y, row, col));
+                circles.add(new GridCircle(x, y, row, col));
             }
         }
     }
@@ -116,8 +137,10 @@ public class GameScreen extends ScreenAdapter {
         // Every drawing should be done here
         batch.begin();
 
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         // draw the highlight around circles
-        HoverCircle anchor = null;
+        GridCircle anchor = null;
         if (firstCircle != null && secondCircle == null) {
             anchor = firstCircle;
         } else if (secondCircle != null && thirdCircle == null) {
@@ -126,7 +149,7 @@ public class GameScreen extends ScreenAdapter {
         if (anchor != null) {
             drawer.setColor(turnManager.getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
-            for (HoverCircle circle : circles) {
+            for (GridCircle circle : circles) {
                 if (circle != firstCircle && circle != secondCircle && !circle.connected &&
                     anchor.isNeighbor(circle) &&
                     !intersectsExistingConnection(anchor.x, anchor.y, circle.x, circle.y)) {
@@ -135,9 +158,9 @@ public class GameScreen extends ScreenAdapter {
             }
         }
 
-        HoverCircle hovered = null;
-        for (HoverCircle circle : circles) {
-            boolean isHovered = circle.update(mouseX, mouseY, isTouched);
+        GridCircle hovered = null;
+        for (GridCircle circle : circles) {
+            boolean isHovered = circle.update(mouseX, mouseY, isTouched, turnManager);
             if (isHovered) hovered = circle;
             drawer.setColor(circle.color);
 
@@ -147,7 +170,7 @@ public class GameScreen extends ScreenAdapter {
 
 //        drawer.setColor(new Color(0xabababff)); // alternative - all the same color
         drawer.setDefaultLineWidth(30f);
-        for (Connection conn : connections) {
+        for (GridConnection conn : connections) {
             drawer.setColor(conn.owner.getColor());
             drawer.line(conn.a.x, conn.a.y, conn.b.x, conn.b.y);
             drawer.filledCircle(conn.a.x, conn.a.y, 15f);
@@ -196,8 +219,8 @@ public class GameScreen extends ScreenAdapter {
                 if (noIntersections) {
                     Player currentPlayer = turnManager.getCurrentPlayer();
 
-                    connections.add(new Connection(firstCircle, secondCircle, currentPlayer));
-                    connections.add(new Connection(secondCircle, thirdCircle, currentPlayer));
+                    connections.add(new GridConnection(firstCircle, secondCircle, currentPlayer));
+                    connections.add(new GridConnection(secondCircle, thirdCircle, currentPlayer));
 
                     firstCircle.connected = true;
                     secondCircle.connected = true;
@@ -229,85 +252,15 @@ public class GameScreen extends ScreenAdapter {
         batch.dispose();
     }
 
-    private class HoverCircle {
-        float x, y;
-        int row, col;
-        float baseRadius = 15f;
-        float enlargedRadius = 30f;
-        float currentRadius = 15f;
-        Color color = Color.BLACK;
-        boolean connected = false;
-
-        HoverCircle(float x, float y, int row, int col) {
-            this.x = x;
-            this.y = y;
-            this.row = row;
-            this.col = col;
-        }
-
-        /**
-         * Updates the circle's hover state and radius based on mouse position and touch state.
-         */
-        boolean update(float mouseX, float mouseY, boolean isTouched) {
-            boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
-            if (isHovered) {
-                color = connected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
-                currentRadius = isTouched ? enlargedRadius : baseRadius;
-                return true;
-            } else {
-                color = connected ? Color.GRAY : Color.BLACK;
-                currentRadius = baseRadius;
-                return false;
-            }
-        }
-
-        boolean isNeighbor(HoverCircle other) {
-
-            // coords of the 8 neighbors - in hex grid they vary based on row parity
-            int[][] offsetsEven = {
-                {-1, -1}, {-1, 0}, {0, -1}, {0, 1}, {1, -1}, {1, 0},
-                {-2, 0}, {2, 0}
-            };
-            int[][] offsetsOdd = {
-                {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, 0}, {1, 1},
-                {-2, 0}, {2, 0}
-            };
-
-            // Determine which set of offsets to use based on the row parity
-            int[][] offsets = (row % 2 == 0) ? offsetsEven : offsetsOdd;
-
-            // Check if the other circle is a neighbor
-            for (int[] offset : offsets) {
-                int nr = row + offset[0];
-                int nc = col + offset[1];
-                if (other.row == nr && other.col == nc) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    private static class Connection {
-        HoverCircle a, b;
-        Player owner;
-
-        Connection(HoverCircle a, HoverCircle b, Player owner) {
-            this.a = a;
-            this.b = b;
-            this.owner = owner;
-        }
-    }
-
     // not the most efficient probably, works for now
     private boolean playerHasValidMove() {
-        for (HoverCircle a : circles) {
+        for (GridCircle a : circles) {
             if (a.connected) continue;
-            for (HoverCircle b : circles) {
+            for (GridCircle b : circles) {
                 if (b.connected || b == a || !a.isNeighbor(b)) continue;
                 if (intersectsExistingConnection(a.x, a.y, b.x, b.y)) continue;
 
-                for (HoverCircle c : circles) {
+                for (GridCircle c : circles) {
                     if (c == a || c == b || c.connected) continue;
                     if (!b.isNeighbor(c)) continue;
                     if (intersectsExistingConnection(b.x, b.y, c.x, c.y)) continue;
@@ -325,7 +278,7 @@ public class GameScreen extends ScreenAdapter {
     // utility methods - ai generated
 
     private boolean intersectsExistingConnection(float x1, float y1, float x2, float y2) {
-        for (Connection conn : connections) {
+        for (GridConnection conn : connections) {
             float x3 = conn.a.x, y3 = conn.a.y;
             float x4 = conn.b.x, y4 = conn.b.y;
 

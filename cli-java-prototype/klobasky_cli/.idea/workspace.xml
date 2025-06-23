@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74edada0-534c-4863-9c76-fe99e73486f0" name="Changes" comment="" />
+    <list default="true" id="74edada0-534c-4863-9c76-fe99e73486f0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/GridCircle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/GridConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/src/main/java/io/github/testing/android/AndroidLauncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/android/src/main/java/io/github/github/android/AndroidLauncher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/GameScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/GameScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/KlobaskyMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/KlobaskyMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/MenuScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/MenuScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/RulesScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/RulesScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/ScoreboardScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/ScoreboardScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/testing/TurnManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/core/src/main/java/io/github/github/TurnManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/src/main/java/io/github/testing/lwjgl3/Lwjgl3Launcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/src/main/java/io/github/github/lwjgl3/Lwjgl3Launcher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/src/main/java/io/github/testing/lwjgl3/StartupHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/lwjgl3/src/main/java/io/github/github/lwjgl3/StartupHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/src/main/java/io/github/testing/teavm/TeaVMBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/src/main/java/io/github/github/teavm/TeaVMBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/src/main/java/io/github/testing/teavm/TeaVMLauncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../libgdx-ui-testing/libgdx-testiing-project/teavm/src/main/java/io/github/github/teavm/TeaVMLauncher.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -153,6 +173,7 @@
       <workItem from="1750434875626" duration="18000" />
       <workItem from="1750435358478" duration="21000" />
       <workItem from="1750456988073" duration="1982000" />
+      <workItem from="1750687226687" duration="31000" />
     </task>
     <servers />
   </component>

@@ -1,9 +1,9 @@
-package io.github.testing.lwjgl3;
+package io.github.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import io.github.testing.GameScreen;
-import io.github.testing.KlobaskyMain;
+
+import io.github.KlobaskyMain;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
