@@ -2,6 +2,7 @@ package io.github.testing;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,7 +15,8 @@ import java.util.List;
 
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
-public class Main extends ApplicationAdapter {
+public class GameScreen extends ScreenAdapter {
+    final KlobaskyMain game;
     private TurnManager turnManager;
     private boolean gameOver = false;
     private SpriteBatch batch;
@@ -26,11 +28,17 @@ public class Main extends ApplicationAdapter {
 
     private List<Connection> connections = new ArrayList<>();
 
-    private int columns = 5;
-    private int rows = 7;
+    private int columns;
+    private int rows;
+
+    public GameScreen(KlobaskyMain game, int columns, int rows) {
+        this.game = game;
+        this.columns = columns;
+        this.rows = rows;
+    }
 
     @Override
-    public void create() {
+    public void show() {
 
         // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -78,10 +86,10 @@ public class Main extends ApplicationAdapter {
     }
 
     /*
-        * This method is called every frame to render the game.
+     * This method is called every frame to render the game.
      */
     @Override
-    public void render() {
+    public void render(float delta) {
 //        if (gameOver) {
 //            // todo show game over screen
 //            batch.begin();

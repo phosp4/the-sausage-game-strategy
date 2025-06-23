@@ -28,6 +28,7 @@ allprojects {
   }
   ext {
     shapedrawerVersion = '2.5.0'
+    visuiVersion = '1.5.4'
   }
   repositories {
     maven { url 'https://jitpack.io' }

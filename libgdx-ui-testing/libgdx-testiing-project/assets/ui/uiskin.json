@@ -139,6 +139,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
   subtitle: {
     font: subtitle
   }
+  "black-label": {
+    "font": "default-font",
+    "fontColor": black
+  },
 }
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
   default: {

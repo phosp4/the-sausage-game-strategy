@@ -2,7 +2,8 @@ package io.github.testing.teavm;
 
 import com.github.xpenatan.gdx.backends.teavm.TeaApplicationConfiguration;
 import com.github.xpenatan.gdx.backends.teavm.TeaApplication;
-import io.github.testing.Main;
+import io.github.testing.GameScreen;
+import io.github.testing.KlobaskyMain;
 
 /**
  * Launches the TeaVM/HTML application.
@@ -19,6 +20,6 @@ public class TeaVMLauncher {
         //// If width and height are both -1, then the app will fill the canvas size.
         config.width = -1;
         config.height = -1;
-        new TeaApplication(new Main(), config);
+        new TeaApplication(new KlobaskyMain(), config);
     }
 }
