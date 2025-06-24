@@ -1,5 +1,3 @@
-// menu without scaling
-
 package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
@@ -42,8 +40,11 @@ public class MenuScreen implements Screen {
 //        stage = new Stage(new ScreenViewport(new OrthographicCamera(virtualWidth, virtualHeight)));
 //        stage = new Stage(new ScalingViewport(Scaling.fit, 1000, 600));
         stage = new Stage(new ScreenViewport());
+
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
+
+        float scale = Gdx.graphics.getDensity();
 
         VisTable table = new VisTable();
         table.setFillParent(true);
@@ -53,18 +54,18 @@ public class MenuScreen implements Screen {
         VisLabel titleLabel = new VisLabel("The Sausage Game!");
 //        titleLabel.setColor(new Color(0x3A0CA3ff));
         titleLabel.setColor(Color.NAVY);
-        titleLabel.setFontScale(2f);
+        titleLabel.setFontScale(2f * scale);
 
         // Grid size selector
         VisTable gridTable = new VisTable();
         VisLabel gridLabel = new VisLabel("Grid Size:");
         gridLabel.setColor(Color.BLACK);
-        gridLabel.setFontScale(1.2f);
+        gridLabel.setFontScale(1.2f * scale);
 
         gridSelectBox = new VisSelectBox<>();
         gridSelectBox.setItems(gridOptions);
         gridSelectBox.setSelected("Classic");
-        gridSelectBox.getStyle().font.getData().setScale(1.1f);
+        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
 
         gridTable.add(gridLabel).right().padRight(15);
         gridTable.add(gridSelectBox).width(200).left();
@@ -104,11 +105,14 @@ public class MenuScreen implements Screen {
             }
         });
 
-        table.add(playButton).colspan(2).width(250).height(50).pad(15);
+        float buttonWidth = 250 * scale;
+        float buttonHeight = 50 * scale;
+
+        table.add(playButton).colspan(2).width(buttonWidth).height(buttonHeight).pad(15);
         table.row();
-        table.add(rulesButton).colspan(2).width(250).height(50).pad(10);
+        table.add(rulesButton).colspan(2).width(buttonWidth).height(buttonHeight).pad(10);
         table.row();
-        table.add(scoreboardButton).colspan(2).width(250).height(50).pad(10);
+        table.add(scoreboardButton).colspan(2).width(buttonWidth).height(buttonHeight).pad(10);
         table.row();
     }
 

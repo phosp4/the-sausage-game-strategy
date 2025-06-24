@@ -29,6 +29,8 @@ public class ScoreboardScreen implements Screen {
             VisUI.load();
         }
 
+        float scale = Gdx.graphics.getDensity();
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
@@ -40,7 +42,7 @@ public class ScoreboardScreen implements Screen {
 
         VisLabel titleLabel = new VisLabel("Scoreboard");
         titleLabel.setColor(Color.NAVY);
-        titleLabel.setFontScale(2f);
+        titleLabel.setFontScale(2f * scale);
         root.add(titleLabel).padBottom(20).row();
 
         VisTable table = new VisTable(true);
@@ -63,7 +65,7 @@ public class ScoreboardScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(table);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
-        root.add(scrollPane).width(600).height(300).padBottom(30).row();
+        root.add(scrollPane).width(600 * scale).height(300 * scale).padBottom(30 * scale).row();
 
         VisTextButton backButton = new VisTextButton("Back to Menu");
         backButton.addListener(new ChangeListener() {
@@ -74,7 +76,7 @@ public class ScoreboardScreen implements Screen {
             }
         });
 
-        root.add(backButton).width(250).height(50);
+        root.add(backButton).width(250 * scale).height(50 * scale);
     }
 
     private VisLabel addFormatedVisLabel(String text, Color color) {

@@ -55,8 +55,8 @@ public class GameScreen implements Screen {
     private List<GridConnection> connections = new ArrayList<>();
     private int columns;
     private int rows;
-    private float baseCircleRadius = 12f;
-    private float enlargedCircleRadius = 24f;
+    private float baseCircleRadius;
+    private float enlargedCircleRadius;
 
     public GameScreen(MainGame game, int columns, int rows) {
         this.game = game;
@@ -69,6 +69,10 @@ public class GameScreen implements Screen {
         if (!VisUI.isLoaded()) {
             VisUI.load(); // Load VisUI skin
         }
+
+        float scale = Gdx.graphics.getDensity();
+        baseCircleRadius = 12f * scale;
+        enlargedCircleRadius = 24f * scale;
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -128,16 +132,13 @@ public class GameScreen implements Screen {
             }
         });
 
-//        float scale = Gdx.graphics.getDensity();
-//        table.add(restartButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-//        table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-//        table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
+        table.add(restartButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
+        table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
+        table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
 
-        table.add(restartButton).width(200).height(50).padBottom(20);
-        table.add(quitButton).width(200).height(50).padBottom(20);
-        table.add(soundsButton).width(200).height(50).padBottom(20);
-
-
+//        table.add(restartButton).width(200).height(50).padBottom(20);
+//        table.add(quitButton).width(200).height(50).padBottom(20);
+//        table.add(soundsButton).width(200).height(50).padBottom(20);
 
         table.align(Align.bottom); // Align the table to the bottom of the screen
 //        table.padBottom(0); // Add padding from the bottom edge

@@ -32,6 +32,8 @@ public class RulesScreen implements Screen {
             VisUI.load(); // Load VisUI skin
         }
 
+        float scale = Gdx.graphics.getDensity();
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
@@ -43,8 +45,8 @@ public class RulesScreen implements Screen {
         // Title
         VisLabel titleLabel = new VisLabel("Game Rules");
         titleLabel.setColor(Color.NAVY);
-        titleLabel.setFontScale(2f);
-        rootTable.add(titleLabel).padTop(20).padBottom(30).row();
+        titleLabel.setFontScale(2f * scale);
+        rootTable.add(titleLabel).padTop(20 * scale).padBottom(30 * scale).row();
 
         // Rules text container with scrolling
         VisTable rulesTable = new VisTable();
@@ -80,7 +82,7 @@ public class RulesScreen implements Screen {
                 RulesScreen.this.dispose(); // ?? not sure
             }
         });
-        rootTable.add(backButton).pad(20).width(250).height(60);
+        rootTable.add(backButton).pad(20 * scale).width(250 * scale).height(60 * scale);
     }
 
     @Override
