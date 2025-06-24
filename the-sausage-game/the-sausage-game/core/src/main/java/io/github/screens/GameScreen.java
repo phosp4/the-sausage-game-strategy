@@ -30,6 +30,11 @@ import io.github.entities.GridCircle;
 import io.github.entities.GridConnection;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
+/**
+ * The GameScreen class represents the main game screen where players can play the Sausage Game.
+ * It handles the game logic, rendering of circles and connections, and user interactions.
+ * Ideally, this class could be split into two, one for the game logic and one for rendering.
+ */
 public class GameScreen implements Screen {
     private MainGame game;
     private Stage stage;
@@ -120,13 +125,20 @@ public class GameScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 // toggle sounds
                 SoundManager.setSoundEnabled(!SoundManager.isSoundEnabled());
-                System.out.println("Toggle sounds");
             }
         });
+
+//        float scale = Gdx.graphics.getDensity();
+//        table.add(restartButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
+//        table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
+//        table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
 
         table.add(restartButton).width(200).height(50).padBottom(20);
         table.add(quitButton).width(200).height(50).padBottom(20);
         table.add(soundsButton).width(200).height(50).padBottom(20);
+
+
+
         table.align(Align.bottom); // Align the table to the bottom of the screen
 //        table.padBottom(0); // Add padding from the bottom edge
         stage.addActor(table);
@@ -181,18 +193,12 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
 //        if (gameOver) {
-//            // todo show game over screen
-//            batch.begin();
-//            // Optional: gray overlay or something fancy
-//            drawer.setColor(Color.BLACK);
-//            drawer.getBatch().end(); // switch to GDX font rendering if needed
+//            // Clear the screen with a white color
+//            ScreenUtils.clear(1, 1, 1, 1);
 //
-//            batch.begin();
-//            // Show game over message
-//            // (You may use a BitmapFont for text; here’s a placeholder comment)
-//            // font.draw(batch, gameOverMessage, 100, 100);
-//            batch.end();
-//            return;
+//            stage.act(delta);
+//            stage.draw();
+//            return; // Stop further rendering
 //        }
 
         // Clear the screen with a white color
@@ -246,9 +252,10 @@ public class GameScreen implements Screen {
 
                 if (!MoveValidator.playerHasValidMove(circles, connections)) {
                     gameOver = true;
-                    System.out.println("Game Over! " + turnManager.getNotCurrentPlayer().getName() + " wins!");
+                    String winnerName = turnManager.getNotCurrentPlayer().getName();
+//                    game.setScreen(new GameOverScreen(game, winnerName));
+//                    dispose(); todo make GameOverScreen working
                 }
-
             }
         }
     }

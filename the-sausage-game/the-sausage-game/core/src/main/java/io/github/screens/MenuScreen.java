@@ -1,11 +1,16 @@
+// menu without scaling
+
 package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
@@ -29,9 +34,13 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         if (!VisUI.isLoaded()) {
-            VisUI.load(); // Load VisUI skin
+            VisUI.load(); // VisUI.SkinScale.X2
         }
 
+        float virtualWidth = 800;
+        float virtualHeight = 480;
+//        stage = new Stage(new ScreenViewport(new OrthographicCamera(virtualWidth, virtualHeight)));
+//        stage = new Stage(new ScalingViewport(Scaling.fit, 1000, 600));
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
@@ -90,7 +99,6 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 int index = gridSelectBox.getSelectedIndex();
-                System.out.println("Selected Grid: " + gridSelectBox.getSelected());
                 app.setScreen(new GameScreen(app, gridDimensions[index][0], gridDimensions[index][1]));
                 MenuScreen.this.dispose(); // todo je to takto spravne?
             }
