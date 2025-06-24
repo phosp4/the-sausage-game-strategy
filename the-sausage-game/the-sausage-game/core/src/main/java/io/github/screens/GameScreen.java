@@ -254,8 +254,8 @@ public class GameScreen implements Screen {
                 if (!MoveValidator.playerHasValidMove(circles, connections)) {
                     gameOver = true;
                     String winnerName = turnManager.getNotCurrentPlayer().getName();
-//                    game.setScreen(new GameOverScreen(game, winnerName));
-//                    dispose(); todo make GameOverScreen working
+                    game.setScreen(new GameOverScreen(game, winnerName));
+                    GameScreen.this.dispose();
                 }
             }
         }
