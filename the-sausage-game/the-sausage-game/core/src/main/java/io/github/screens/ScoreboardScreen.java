@@ -13,6 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import io.github.MainGame;
+import io.github.data.GameRepositoryProvider;
+import io.github.data.GameResult;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ScoreboardScreen implements Screen {
     private Stage stage;
@@ -55,12 +60,21 @@ public class ScoreboardScreen implements Screen {
         table.add(addFormatedVisLabel("Points", Color.BLACK)).pad(10);
         table.row();
 
-        // Sample Data
-        addRow(table, "Alice", 10, 3, 103);
-        addRow(table, "Bob", 8, 5, 87);
-        addRow(table, "Charlie", 6, 7, 74);
-        addRow(table, "Diana", 5, 8, 66);
-        addRow(table, "Eve", 4, 9, 60);
+        // Load results from repository and aggregate stats
+        List<GameResult> results = GameRepositoryProvider.getRepository().getAllGameResults();
+        Map<String, PlayerStats> stats = new HashMap<>();
+        for (GameResult result : results) {
+            PlayerStats winner = stats.computeIfAbsent(result.getPlayerOne(), k -> new PlayerStats());
+            if (result.isPlayerOneWon()) winner.wins++; else winner.losses++;
+
+            PlayerStats loser = stats.computeIfAbsent(result.getPlayerTwo(), k -> new PlayerStats());
+            if (result.isPlayerOneWon()) loser.losses++; else loser.wins++;
+        }
+
+        for (Map.Entry<String, PlayerStats> entry : stats.entrySet()) {
+            PlayerStats s = entry.getValue();
+            addRow(table, entry.getKey(), s.wins, s.losses, s.points());
+        }
 
         ScrollPane scrollPane = new ScrollPane(table);
         scrollPane.setFadeScrollBars(false);
@@ -92,6 +106,15 @@ public class ScoreboardScreen implements Screen {
         table.add(addFormatedVisLabel(String.valueOf(losses), Color.BLACK)).pad(5);
         table.add(addFormatedVisLabel(String.valueOf(points), Color.BLACK)).pad(5);
         table.row();
+    }
+
+    private static class PlayerStats {
+        int wins;
+        int losses;
+
+        int points() {
+            return wins * 3 - losses;
+        }
     }
 
     @Override
