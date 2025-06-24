@@ -42,13 +42,13 @@ public class ScoreboardScreen implements Screen {
 
         VisTable root = new VisTable();
         root.setFillParent(true);
-        root.top().pad(30);
+        root.top().pad(30 * scale);
         stage.addActor(root);
 
         VisLabel titleLabel = new VisLabel("Scoreboard");
         titleLabel.setColor(Color.NAVY);
         titleLabel.setFontScale(2f * scale);
-        root.add(titleLabel).padBottom(20).row();
+        root.add(titleLabel).padBottom(20 * scale).row();
 
         VisTable table = new VisTable(true);
         table.top();
@@ -82,7 +82,9 @@ public class ScoreboardScreen implements Screen {
         ScrollPane scrollPane = new ScrollPane(table);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
-        root.add(scrollPane).width(600 * scale).height(300 * scale).padBottom(30 * scale).row();
+        float scrollWidth = Math.min(600 * scale, Gdx.graphics.getWidth() * 0.9f);
+        float scrollHeight = Math.min(300 * scale, Gdx.graphics.getHeight() * 0.4f);
+        root.add(scrollPane).width(scrollWidth).height(scrollHeight).padBottom(30 * scale).row();
 
         VisTextButton backButton = new VisTextButton("Back to Menu");
         backButton.addListener(new ChangeListener() {

@@ -170,7 +170,8 @@ public class GameScreen implements Screen {
         // Clear existing circles and connections
         circles.clear();
 
-        int bottomPadding = 80; // for the UI at the bottom
+        float scale = Gdx.graphics.getDensity();
+        int bottomPadding = (int)(80 * scale); // reserve space for bottom UI on different densities
         height = height - bottomPadding;
 
         // Calculate spacing based on the number of columns and rows
