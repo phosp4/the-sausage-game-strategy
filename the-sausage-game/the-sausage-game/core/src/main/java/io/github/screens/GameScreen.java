@@ -93,8 +93,8 @@ public class GameScreen implements Screen {
         generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Initialize the turn manager
-        Player player1 = new Player("Player 1", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
-        Player player2 = new Player("Player 2", new Color(0xF72585ff)); // 0xF72585ff
+        Player player1 = new Player("Blue Player", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
+        Player player2 = new Player("Red Player", new Color(0xF72585ff)); // 0xF72585ff
         turnManager = new TurnManager(player1, player2);
 
         // sounds

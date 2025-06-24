@@ -71,10 +71,13 @@ public class ScoreboardScreen implements Screen {
             if (result.isPlayerOneWon()) loser.losses++; else loser.wins++;
         }
 
-        for (Map.Entry<String, PlayerStats> entry : stats.entrySet()) {
-            PlayerStats s = entry.getValue();
-            addRow(table, entry.getKey(), s.wins, s.losses, s.points());
-        }
+        // Sort players by points
+        stats.entrySet().stream()
+            .sorted((e1, e2) -> Integer.compare(e2.getValue().points(), e1.getValue().points()))
+            .forEach(entry -> {
+                PlayerStats s = entry.getValue();
+                addRow(table, entry.getKey(), s.wins, s.losses, s.points());
+            });
 
         ScrollPane scrollPane = new ScrollPane(table);
         scrollPane.setFadeScrollBars(false);
@@ -113,7 +116,7 @@ public class ScoreboardScreen implements Screen {
         int losses;
 
         int points() {
-            return wins * 3 - losses;
+            return wins * 10 - losses * 10;
         }
     }
 

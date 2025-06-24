@@ -51,16 +51,12 @@ public class RulesScreen implements Screen {
         // Rules text container with scrolling
         VisTable rulesTable = new VisTable();
         String rulesText =
-            "The Sausage Game is a two-player strategy game played on a triangular dotted grid. " +
-
-                "Players take turns identifying and marking a group of exactly three unclaimed, adjacent dots that form a valid shape, called \"sausage\". " +
-                "It may be a straight line or an angled configuration, provided all three dots are directly connected.\n\n" +
-                "Once a sausage is claimed, its dots may no longer be used in future moves." +
-                "Sausages must not overlap or share dots with previously claimed sausages. " +
-                "The game continues until a player is unable to make a legal move on their turn. " +
-                "That player loses the game.\n\n" +
-
-                "Good luck!";
+            "The Sausage Game is a strategy game for two players, played on a triangular dotted grid." +
+                "Players take turns marking exactly three unclaimed, connected dots to form a shape" +
+                "called a \"sausage.\" The three dots can be in a straight line or form an angle, as long as" +
+                "they're all directly connected.\n\nOnce a sausage is made, its dots can't be used again." +
+                "Sausages can't overlap or share dots. The game ends when a player has no legal moves left –" +
+                "that player loses.\n\nGood luck!";
 
         VisLabel rulesLabel = new VisLabel(rulesText);
         rulesLabel.setWrap(true); // Enable text wrapping
