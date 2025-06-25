@@ -28,6 +28,7 @@ import io.github.utils.SoundManager;
 import io.github.utils.TurnManager;
 import io.github.entities.GridCircle;
 import io.github.entities.GridConnection;
+import io.github.screens.GameOverDialog;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /**
@@ -148,6 +149,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        if (stage != null) {
+            stage.getViewport().update(width, height, true);
+        }
     }
 
     @Override
@@ -194,35 +198,28 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
-//        if (gameOver) {
-//            // Clear the screen with a white color
-//            ScreenUtils.clear(1, 1, 1, 1);
-//
-//            stage.act(delta);
-//            stage.draw();
-//            return; // Stop further rendering
-//        }
 
-        // Clear the screen with a white color
         ScreenUtils.clear(1, 1, 1, 1);
 
-        // Get the current mouse position and touch state
-        mouseX = Gdx.input.getX();
-        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        isTouched = Gdx.input.isTouched();
+        if (!gameOver) {
+            mouseX = Gdx.input.getX();
+            mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+            isTouched = Gdx.input.isTouched();
+        }
 
-        // Every drawing should be done here
         batch.begin();
         drawBackground();
         drawCircleHints();
         drawExistingCircles();
         drawExistingConnections();
-        if (isTouched) { handleTemporaryConnections(); }
-        else {
-            handleNewConnection();
-            firstCircle = null;
-            secondCircle = null;
-            thirdCircle = null;
+        if (!gameOver) {
+            if (isTouched) { handleTemporaryConnections(); }
+            else {
+                handleNewConnection();
+                firstCircle = null;
+                secondCircle = null;
+                thirdCircle = null;
+            }
         }
         batch.end();
 
@@ -255,8 +252,11 @@ public class GameScreen implements Screen {
                 if (!MoveValidator.playerHasValidMove(circles, connections)) {
                     gameOver = true;
                     String winnerName = turnManager.getNotCurrentPlayer().getName();
-                    game.setScreen(new GameOverScreen(game, winnerName));
-                    GameScreen.this.dispose();
+                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
+                    dialog.showOn(stage);
+                    firstCircle = null;
+                    secondCircle = null;
+                    thirdCircle = null;
                 }
             }
         }
