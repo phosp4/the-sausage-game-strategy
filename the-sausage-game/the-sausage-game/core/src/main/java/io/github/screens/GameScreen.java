@@ -198,8 +198,8 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
-
-        ScreenUtils.clear(1, 1, 1, 1);
+        // omitting this stops the flicker
+//        ScreenUtils.clear(1, 1, 1, 1);
 
         if (!gameOver) {
             mouseX = Gdx.input.getX();
