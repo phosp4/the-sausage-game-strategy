@@ -1,3 +1,5 @@
+// This code was generated using ChatGPT (June 2025)
+
 package io.github.utils;
 
 import java.util.List;

@@ -1,3 +1,5 @@
+// This code was generated using ChatGPT (June 2025)
+
 package io.github.android.db;
 
 import android.content.Context;

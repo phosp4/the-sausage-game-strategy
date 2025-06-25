@@ -1,3 +1,5 @@
+// Generated with the help of ChatGPT (June 2025)
+
 package io.github.screens;
 
 import com.badlogic.gdx.Gdx;

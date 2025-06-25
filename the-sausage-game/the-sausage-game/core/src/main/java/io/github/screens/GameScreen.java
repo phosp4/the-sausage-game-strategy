@@ -1,4 +1,6 @@
-package io.github.screens;
+// Portions of this code were generated using ChatGPT (June 2025)
+
+    package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;

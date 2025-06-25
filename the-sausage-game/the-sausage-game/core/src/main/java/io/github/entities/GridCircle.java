@@ -1,3 +1,5 @@
+// Generated with the help of ChatGPT (June 2025)
+
 package io.github.entities;
 
 import com.badlogic.gdx.graphics.Color;
