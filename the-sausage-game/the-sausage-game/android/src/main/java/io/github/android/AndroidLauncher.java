@@ -16,7 +16,10 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
-        configuration.useImmersiveMode = true; // Recommended, but not required.
+        // Disable immersive mode so Android can resize the window when the
+        // soft keyboard appears. This prevents input fields in dialogs from
+        // being covered by the on-screen keyboard.
+        configuration.useImmersiveMode = false;
         GameRepositoryProvider.setRepository(new AndroidGameRepository(getApplicationContext()));
         initialize(new MainGame(), configuration);
     }
