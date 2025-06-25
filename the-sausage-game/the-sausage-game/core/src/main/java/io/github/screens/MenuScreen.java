@@ -63,9 +63,12 @@ public class MenuScreen implements Screen {
         gridLabel.setFontScale(1.2f * scale);
 
         gridSelectBox = new VisSelectBox<>();
+        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+        gridSelectBox.getList().getStyle().font.getData().setScale(1.1f * scale);
         gridSelectBox.setItems(gridOptions);
         gridSelectBox.setSelected("Classic");
-        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+//        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+        gridSelectBox.invalidateHierarchy();
 
         gridTable.add(gridLabel).right().padRight(15);
         gridTable.add(gridSelectBox).width(200).left();
