@@ -1,15 +1,12 @@
 package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
+
 import io.github.MainGame;
 import io.github.data.GameRepositoryProvider;
 import io.github.data.GameResult;
@@ -18,43 +15,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GameOverScreen implements Screen {
+/**
+ * Dialog shown when the game ends. Allows the user to confirm winner/loser
+ * names and stores the result.
+ */
+public class GameOverDialog extends VisDialog {
     private final MainGame game;
     private final String winnerName;
-    private Stage stage;
-    private Texture background;
 
     private VisTextField winnerField;
     private VisTextField loserField;
     private VisLabel errorLabel;
 
-    public GameOverScreen(MainGame game, String winnerName) {
+    public GameOverDialog(MainGame game, String winnerName) {
+        super("");
         this.game = game;
         this.winnerName = winnerName;
+        build();
     }
 
-    @Override
-    public void show() {
-        if (!VisUI.isLoaded()) {
-            VisUI.load();
-        }
+    private void build() {
         float scale = Gdx.graphics.getDensity();
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-        background = new Texture(Gdx.files.internal("white-paper-texture.png"));
-
         VisTable root = new VisTable();
-        root.setFillParent(true);
-        root.center().pad(30 * scale);
-        stage.addActor(root);
+        getContentTable().add(root).pad(30 * scale);
+        root.center();
 
-        VisLabel title = new VisLabel("Game Over");
-        title.setColor(Color.NAVY);
-        title.setFontScale(2f * scale);
-        root.add(title).padBottom(20 * scale).row();
-
-        VisLabel winnerLabel = new VisLabel("Winner: " + winnerName);
-        winnerLabel.setColor(Color.BLACK);
+        VisLabel winnerLabel = new VisLabel("Game over! The winner is " + winnerName);
+        winnerLabel.setColor(Color.WHITE);
         root.add(winnerLabel).padBottom(20 * scale).row();
 
         // collect existing player names
@@ -66,8 +53,8 @@ public class GameOverScreen implements Screen {
         }
         String[] nameArray = names.toArray(new String[0]);
 
-        winnerField = new VisTextField(winnerName);
-        winnerField.setMessageText("Winner name");
+        winnerField = new VisTextField();
+        winnerField.setMessageText("Winner Name");
         VisSelectBox<String> winnerSelect = new VisSelectBox<>();
         winnerSelect.setItems(nameArray);
         winnerSelect.addListener(new ChangeListener() {
@@ -78,7 +65,7 @@ public class GameOverScreen implements Screen {
         });
 
         loserField = new VisTextField();
-        loserField.setMessageText("Loser name");
+        loserField.setMessageText("Loser Name");
         VisSelectBox<String> loserSelect = new VisSelectBox<>();
         loserSelect.setItems(nameArray);
         loserSelect.addListener(new ChangeListener() {
@@ -89,10 +76,10 @@ public class GameOverScreen implements Screen {
         });
 
         VisTable form = new VisTable(true);
-        form.add(new VisLabel("Winner")).left();
+        form.add(new VisLabel("Write / Select: ")).left();
         form.add(winnerField).width(200 * scale);
         form.add(winnerSelect).width(150 * scale).row();
-        form.add(new VisLabel("Loser")).left();
+        form.add(new VisLabel("Write / Select: ")).left();
         form.add(loserField).width(200 * scale);
         form.add(loserSelect).width(150 * scale).row();
 
@@ -112,32 +99,33 @@ public class GameOverScreen implements Screen {
                     errorLabel.setText("Please enter both names");
                     return;
                 }
+                if (winner.equals(loser)) {
+                    errorLabel.setText("Winner and loser cannot be the same");
+                    return;
+                }
                 GameResult result = new GameResult(System.currentTimeMillis(), winner, loser, System.currentTimeMillis(), true);
                 GameRepositoryProvider.getRepository().insertGameResult(result);
                 game.setScreen(new MenuScreen(game));
-                GameOverScreen.this.dispose();
+                GameOverDialog.this.hide();
             }
         });
         root.add(exitButton).width(250 * scale).height(60 * scale);
+
+        setModal(true);
+        setMovable(false);
+        setResizable(false);
+        setKeepWithinStage(true);
     }
 
-    @Override
-    public void render(float delta) {
-        stage.getBatch().begin();
-        stage.getBatch().draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        stage.getBatch().end();
-        stage.act(delta);
-        stage.draw();
-    }
-
-    @Override public void resize(int width, int height) {}
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-
-    @Override
-    public void dispose() {
-        stage.dispose();
-        background.dispose();
+    /**
+     * Shows the dialog on the given stage.
+     */
+    public void showOn(Stage stage) {
+        pack();
+        show(stage);
+        float scale = Gdx.graphics.getDensity();
+        float x = (stage.getWidth() - getWidth()) / 2f;
+        float y = stage.getHeight() - getHeight() - 1f * scale;
+        setPosition(x, Math.max(y, 0));
     }
 }

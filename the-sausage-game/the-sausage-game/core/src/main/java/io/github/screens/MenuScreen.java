@@ -22,8 +22,8 @@ public class MenuScreen implements Screen {
     private MainGame app;
     private Texture background;
     private VisSelectBox<String> gridSelectBox;
-    private int[][] gridDimensions = {{4, 5}, {5, 7}, {7, 7}, {9, 9}};
-    private String[] gridOptions = {"Small", "Classic", "Large", "Very Large"};
+    private int[][] gridDimensions = {{4, 5}, {5, 7}, {7, 7}, {9, 9}, {2, 3}};
+    private String[] gridOptions = {"Small", "Classic", "Large", "Very Large", "Special"};
 
     public MenuScreen(MainGame app) {
         this.app = app;
@@ -63,9 +63,12 @@ public class MenuScreen implements Screen {
         gridLabel.setFontScale(1.2f * scale);
 
         gridSelectBox = new VisSelectBox<>();
+        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+        gridSelectBox.getList().getStyle().font.getData().setScale(1.1f * scale);
         gridSelectBox.setItems(gridOptions);
         gridSelectBox.setSelected("Classic");
-        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+//        gridSelectBox.getStyle().font.getData().setScale(1.1f * scale);
+        gridSelectBox.invalidateHierarchy();
 
         gridTable.add(gridLabel).right().padRight(15);
         gridTable.add(gridSelectBox).width(200).left();
@@ -118,7 +121,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+//        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
 //        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.getBatch().begin();

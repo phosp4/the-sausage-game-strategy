@@ -16,10 +16,10 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
-import io.github.game.GameBoard;
-
 import io.github.MainGame;
 import io.github.entities.Player;
+import io.github.game.GameBoard;
+import io.github.screens.GameOverDialog;
 import io.github.utils.SoundManager;
 import io.github.utils.TurnManager;
 
@@ -43,6 +43,7 @@ public class GameScreen implements Screen {
     private int rows;
     private float baseCircleRadius;
     private float enlargedCircleRadius;
+    private boolean shownGameOverDialog;
 
     public GameScreen(MainGame game, int columns, int rows) {
         this.game = game;
@@ -66,7 +67,9 @@ public class GameScreen implements Screen {
 
         batch = stage.getBatch();
         board = new GameBoard(columns, rows, batch, baseCircleRadius, enlargedCircleRadius);
-        board.generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 80);
+        int bottomPadding = (int) (80 * scale);
+        board.generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), bottomPadding);
+        shownGameOverDialog = false;
 
         // Initialize the turn manager
         Player player1 = new Player("Blue Player", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
@@ -112,18 +115,16 @@ public class GameScreen implements Screen {
         table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
         table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
 
-//        table.add(restartButton).width(200).height(50).padBottom(20);
-//        table.add(quitButton).width(200).height(50).padBottom(20);
-//        table.add(soundsButton).width(200).height(50).padBottom(20);
-
         table.align(Align.bottom); // Align the table to the bottom of the screen
-//        table.padBottom(0); // Add padding from the bottom edge
         stage.addActor(table);
 
     }
 
     @Override
     public void resize(int width, int height) {
+        if (stage != null) {
+            stage.getViewport().update(width, height, true);
+        }
     }
 
     @Override
@@ -141,37 +142,34 @@ public class GameScreen implements Screen {
 
     }
 
-
     /*
      * This method is called every frame to render the game.
      */
     @Override
     public void render(float delta) {
-        // Clear the screen with a white color
-        ScreenUtils.clear(1, 1, 1, 1);
+        // omitting this stops the flicker
+//        ScreenUtils.clear(1, 1, 1, 1);
 
         // Get the current mouse position and touch state
         mouseX = Gdx.input.getX();
         mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         isTouched = Gdx.input.isTouched();
 
-        // Every drawing should be done here
         batch.begin();
         drawBackground();
-        board.render(mouseX, mouseY, isTouched, turnManager, selectSound);
-        if (board.isGameOver()) {
-            String winnerName = board.getWinner().getName();
-            game.setScreen(new GameOverScreen(game, winnerName));
-            GameScreen.this.dispose();
-            batch.end();
-            return;
-        }
+        board.render(mouseX, mouseY, !board.isGameOver() && isTouched, turnManager, selectSound);
         batch.end();
+
+        if (board.isGameOver() && !shownGameOverDialog) {
+            String winnerName = board.getWinner().getName();
+            GameOverDialog dialog = new GameOverDialog(game, winnerName);
+            dialog.showOn(stage);
+            shownGameOverDialog = true;
+        }
 
         stage.act(delta);
         stage.draw();
     }
-
 
     private void drawBackground() {
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
