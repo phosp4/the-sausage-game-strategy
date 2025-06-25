@@ -28,7 +28,7 @@ public class GameOverDialog extends VisDialog {
     private VisLabel errorLabel;
 
     public GameOverDialog(MainGame game, String winnerName) {
-        super("Game Over");
+        super("");
         this.game = game;
         this.winnerName = winnerName;
         build();
@@ -40,8 +40,8 @@ public class GameOverDialog extends VisDialog {
         getContentTable().add(root).pad(30 * scale);
         root.center();
 
-        VisLabel winnerLabel = new VisLabel("Winner: " + winnerName);
-        winnerLabel.setColor(Color.BLACK);
+        VisLabel winnerLabel = new VisLabel("Game over! The winner is " + winnerName);
+        winnerLabel.setColor(Color.WHITE);
         root.add(winnerLabel).padBottom(20 * scale).row();
 
         // collect existing player names
@@ -53,8 +53,8 @@ public class GameOverDialog extends VisDialog {
         }
         String[] nameArray = names.toArray(new String[0]);
 
-        winnerField = new VisTextField(winnerName);
-        winnerField.setMessageText("Winner name");
+        winnerField = new VisTextField();
+        winnerField.setMessageText("Winner Name");
         VisSelectBox<String> winnerSelect = new VisSelectBox<>();
         winnerSelect.setItems(nameArray);
         winnerSelect.addListener(new ChangeListener() {
@@ -65,7 +65,7 @@ public class GameOverDialog extends VisDialog {
         });
 
         loserField = new VisTextField();
-        loserField.setMessageText("Loser name");
+        loserField.setMessageText("Loser Name");
         VisSelectBox<String> loserSelect = new VisSelectBox<>();
         loserSelect.setItems(nameArray);
         loserSelect.addListener(new ChangeListener() {
@@ -76,10 +76,10 @@ public class GameOverDialog extends VisDialog {
         });
 
         VisTable form = new VisTable(true);
-        form.add(new VisLabel("Winner")).left();
+        form.add(new VisLabel("Write / Select: ")).left();
         form.add(winnerField).width(200 * scale);
         form.add(winnerSelect).width(150 * scale).row();
-        form.add(new VisLabel("Loser")).left();
+        form.add(new VisLabel("Write / Select: ")).left();
         form.add(loserField).width(200 * scale);
         form.add(loserSelect).width(150 * scale).row();
 
@@ -97,6 +97,10 @@ public class GameOverDialog extends VisDialog {
                 String loser = loserField.getText().trim();
                 if (winner.isEmpty() || loser.isEmpty()) {
                     errorLabel.setText("Please enter both names");
+                    return;
+                }
+                if (winner.equals(loser)) {
+                    errorLabel.setText("Winner and loser cannot be the same");
                     return;
                 }
                 GameResult result = new GameResult(System.currentTimeMillis(), winner, loser, System.currentTimeMillis(), true);

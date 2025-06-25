@@ -22,8 +22,8 @@ public class MenuScreen implements Screen {
     private MainGame app;
     private Texture background;
     private VisSelectBox<String> gridSelectBox;
-    private int[][] gridDimensions = {{4, 5}, {5, 7}, {7, 7}, {9, 9}};
-    private String[] gridOptions = {"Small", "Classic", "Large", "Very Large"};
+    private int[][] gridDimensions = {{4, 5}, {5, 7}, {7, 7}, {9, 9}, {2, 3}};
+    private String[] gridOptions = {"Small", "Classic", "Large", "Very Large", "Special"};
 
     public MenuScreen(MainGame app) {
         this.app = app;
@@ -121,7 +121,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+//        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
 //        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.getBatch().begin();
