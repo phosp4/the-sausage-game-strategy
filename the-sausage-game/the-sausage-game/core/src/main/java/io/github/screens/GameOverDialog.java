@@ -121,7 +121,7 @@ public class GameOverDialog extends VisDialog {
         show(stage);
         float scale = Gdx.graphics.getDensity();
         float x = (stage.getWidth() - getWidth()) / 2f;
-        float y = stage.getHeight() - getHeight() - 50f * scale;
+        float y = stage.getHeight() - getHeight() - 1f * scale;
         setPosition(x, Math.max(y, 0));
     }
 }
