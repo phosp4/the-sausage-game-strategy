@@ -42,9 +42,14 @@ public class Grid {
             checkDotForGrid(dot);
         }
 
+        // TODO podla papiera kde to mam napisane
+        // check if no intersection with existing sausages
+        sausage.getConnection1();
+        sausage.getConnection2();
+
         // add sausage to the grid
         for (Dot dot : sausage.getThreeDots()) {
-            grid[dot.getY()][dot.getX()] = sausage.getPlayer();
+            grid[dot.getOffsetY()][dot.getOffsetX()] = sausage.getPlayer();
         }
         sausages.add(sausage);
     }
@@ -53,12 +58,12 @@ public class Grid {
         if (dot == null) {
             throw new IllegalArgumentException("Dot cannot be null");
         }
-        if (dot.getY() < 0 || dot.getY() >= grid.length || dot.getX() < 0 || dot.getX() >= grid[0].length ||
-                grid[dot.getY()][dot.getX()] == GridConstants.INVALID) {
+        if (dot.getOffsetY() < 0 || dot.getOffsetY() >= grid.length || dot.getOffsetX() < 0 || dot.getOffsetX() >= grid[0].length ||
+                grid[dot.getOffsetY()][dot.getOffsetX()] == GridConstants.INVALID) {
             throw new IllegalArgumentException("Dot is out of bounds");
         }
-        if (grid[dot.getY()][dot.getX()] == GridConstants.PLAYER_ONE ||
-                grid[dot.getY()][dot.getX()] == GridConstants.PLAYER_TWO) {
+        if (grid[dot.getOffsetY()][dot.getOffsetX()] == GridConstants.PLAYER_ONE ||
+                grid[dot.getOffsetY()][dot.getOffsetX()] == GridConstants.PLAYER_TWO) {
             throw new IllegalArgumentException("Dot is already occupied");
         }
     }

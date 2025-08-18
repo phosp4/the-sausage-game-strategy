@@ -2,12 +2,12 @@ package org.example;
 
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 public class Sausage {
+    private Connection connection1;
+    private Connection connection2;
     private Set<Dot> threeDots = new HashSet<Dot>();
     private int player;
 
@@ -25,9 +25,21 @@ public class Sausage {
 
         // Check if the dots are neighbors
         int neighborCount = 0;
-        if (CoordUtils.areNeighbors(dot1, dot2)) neighborCount++;
-        if (CoordUtils.areNeighbors(dot2, dot3)) neighborCount++;
-        if (CoordUtils.areNeighbors(dot1, dot3)) neighborCount++;
+        List<Connection> connections = new ArrayList<>();
+
+        if (CoordUtils.areNeighbors(dot1, dot2)) {
+            neighborCount++;
+            connections.add(new Connection(dot1, dot2));
+        }
+        if (CoordUtils.areNeighbors(dot2, dot3)) {
+            neighborCount++;
+            connections.add(new Connection(dot2, dot3));
+        }
+        if (CoordUtils.areNeighbors(dot1, dot3)) {
+            neighborCount++;
+            connections.add(new Connection(dot1, dot3));
+        }
+
         if (neighborCount < 2) {
             throw new IllegalArgumentException("Dots must be neighbors in a valid sausage shape");
         }
@@ -36,6 +48,9 @@ public class Sausage {
         threeDots.add(dot2);
         threeDots.add(dot3);
         this.player = player;
+        connection1 = connections.get(0);
+        connection2 = connections.get(1);
+        // if there are more than 2 connections, we can ignore the third one
     }
 
     public Sausage(int player, Connection conn1, Connection conn2) {
@@ -56,6 +71,8 @@ public class Sausage {
         if (threeDots.size() != 3) {
             throw new IllegalArgumentException("Connections must form a valid sausage with exactly 3 unique dots");
         }
+        this.connection1 = conn1;
+        this.connection2 = conn2;
     }
 
     @Override
