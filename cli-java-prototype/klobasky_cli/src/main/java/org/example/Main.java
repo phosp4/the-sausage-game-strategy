@@ -5,6 +5,7 @@ public class Main {
     public void welcomeText() {
 
     }
+
     public static void main(String[] args) {
 
 //        int activePlayer = 1;
