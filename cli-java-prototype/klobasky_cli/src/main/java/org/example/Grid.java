@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 public class Grid {
 
     private int[][] grid;
-    private List<Sausage> sausages; // alt. using stack
+    private List<Sausage> sausages; // alt. using stack; can be called also turns
 
     public Grid(int x, int y) {
         if (x < 0 || y < 0) {
@@ -123,5 +123,10 @@ public class Grid {
     public static void main(String[] args) {
         Grid g = new Grid(7,5);
         System.out.println(g);
+    }
+
+    public boolean isFull() {
+        // todo implement
+        return false;
     }
 }
