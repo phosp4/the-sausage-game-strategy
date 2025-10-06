@@ -1,10 +1,8 @@
-package org.example;
+package org.example.entities;
 
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.example.utils.GridConstants;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -12,7 +10,7 @@ import java.util.stream.IntStream;
 public class Grid {
 
     private int[][] grid;
-    private List<Sausage> sausages; // alt. using stack; can be called also turns
+    private Deque<Sausage> sausages;
 
     public Grid(int x, int y) {
         if (x < 0 || y < 0) {
@@ -25,7 +23,7 @@ public class Grid {
                 grid[i][grid[i].length - 1] = GridConstants.INVALID;
             }
         }
-        sausages = new ArrayList<>();
+        sausages = new ArrayDeque<>();;
     }
 
     public void addSausage(Sausage sausage) {
@@ -128,5 +126,25 @@ public class Grid {
     public boolean isFull() {
         // todo implement
         return false;
+    }
+
+    // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat
+    public boolean maxPlayerWins() {
+        return this.isFull() && sausages.getLast().getPlayer() == sausages.getFirst().getPlayer();
+    }
+
+    public void removeLastSausage() {
+        if (sausages.isEmpty()) {
+            throw new IllegalStateException("No sausages to remove");
+        }
+        Sausage lastSausage = sausages.removeLast();
+        for (Dot dot : lastSausage.getThreeDots()) {
+            grid[dot.getOffsetY()][dot.getOffsetX()] = 0; // reset to empty
+        }
+    }
+
+    // todo implement
+    public Sausage[] getAllPossibleMoves() {
+        return null;
     }
 }

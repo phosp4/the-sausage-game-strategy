@@ -23,6 +23,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.source.util.DocTreeScanner;
 import io.github.MainGame;
 import io.github.utils.MoveValidator;
 import io.github.entities.Player;
@@ -330,6 +331,19 @@ public class GameScreen implements Screen {
             drawer.filledCircle(conn.getA().getX(), conn.getA().getY(), baseCircleRadius);
             drawer.filledCircle(conn.getB().getX(), conn.getB().getY(), baseCircleRadius);
         }
+    }
+
+    private List<GridCircle> getValidMoves(GridCircle mainCircle) {
+        List<GridCircle> validMoves = new ArrayList<>();
+
+        for (GridCircle circle : circles) {
+            if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
+                mainCircle.isNeighbor(circle) &&
+                !MoveValidator.intersectsExistingConnection(mainCircle.getX(), mainCircle.getY(), circle.getX(), circle.getY(), connections)) {
+                validMoves.add(circle);
+            }
+        }
+        return validMoves;
     }
 
     private void drawCircleHints() {

@@ -88,6 +88,7 @@ public class GridCircle {
         int[][] offsets = (row % 2 == 0) ? offsetsEven : offsetsOdd;
 
         // Check if the other circle is a neighbor
+
         for (int[] offset : offsets) {
             int nr = row + offset[0];
             int nc = col + offset[1];
