@@ -1,6 +1,4 @@
-// Portions of this code were generated using ChatGPT (June 2025)
-
-    package io.github.screens;
+package io.github.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,6 +8,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -21,46 +20,48 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.sun.source.util.DocTreeScanner;
 import io.github.MainGame;
-import io.github.utils.MoveValidator;
-import io.github.entities.Player;
+import io.github.sausagegame.backend.ConnectionView;
+import io.github.sausagegame.backend.GameConfig;
+import io.github.sausagegame.backend.MoveResult;
+import io.github.sausagegame.backend.MoveStatus;
+import io.github.sausagegame.backend.NodeView;
+import io.github.sausagegame.backend.Player;
+import io.github.sausagegame.backend.SausageGame;
 import io.github.utils.SoundManager;
-import io.github.utils.TurnManager;
-import io.github.entities.GridCircle;
-import io.github.entities.GridConnection;
-import io.github.screens.GameOverDialog;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /**
- * The GameScreen class represents the main game screen where players can play the Sausage Game.
- * It handles the game logic, rendering of circles and connections, and user interactions.
- * Ideally, this class could be split into two, one for the game logic and one for rendering.
+ * Main play screen that renders the board and translates user input into backend moves.
  */
 public class GameScreen implements Screen {
-    private MainGame game;
+    private final MainGame game;
+    private final int columns;
+    private final int rows;
+
     private Stage stage;
-    private TurnManager turnManager;
-    private boolean gameOver = false;
     private Batch batch;
     private ShapeDrawer drawer;
-    private List<GridCircle> circles;
-    private GridCircle firstCircle = null;
-    private GridCircle secondCircle = null;
-    private GridCircle thirdCircle = null;
-    private GridCircle currentlyHoveredCircle;
     private Texture background;
-    private float mouseX;
-    private float mouseY;
-    private boolean isTouched;
     private Sound selectSound;
-    private List<GridConnection> connections = new ArrayList<>();
-    private int columns;
-    private int rows;
+
+    private SausageGame sausageGame;
+    private Map<Integer, CircleVisual> circles;
+    private final List<Integer> currentSelection = new ArrayList<>(3);
+    private CircleVisual hoveredCircle;
+    private boolean gameOverDialogShown = false;
+
     private float baseCircleRadius;
     private float enlargedCircleRadius;
+    private float bottomPadding;
+
+    private Map<Player, Color> playerColors;
 
     public GameScreen(MainGame game, int columns, int rows) {
         this.game = game;
@@ -71,18 +72,18 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         if (!VisUI.isLoaded()) {
-            VisUI.load(); // Load VisUI skin
+            VisUI.load();
         }
 
         float scale = Gdx.graphics.getDensity();
         baseCircleRadius = 12f * scale;
         enlargedCircleRadius = 24f * scale;
+        bottomPadding = 80f * scale;
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         background = new Texture(Gdx.files.internal("white-paper-texture.png"));
 
-        // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(1, 1, 1, 1);
         pixmap.fill();
@@ -93,20 +94,30 @@ public class GameScreen implements Screen {
         batch = stage.getBatch();
         drawer = new ShapeDrawer(batch, new TextureRegion(pixelTexture));
 
-        circles = new ArrayList<>();
-        generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // Initialize the turn manager
-        Player player1 = new Player("Blue Player", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
-        Player player2 = new Player("Red Player", new Color(0xF72585ff)); // 0xF72585ff
-        turnManager = new TurnManager(player1, player2);
-
-        // sounds
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
 
-        // rest of ui
+        initialiseGame();
+        buildUi(scale);
+    }
+
+    private void initialiseGame() {
+        List<Player> players = List.of(
+                new Player("blue", "Blue Player"),
+                new Player("red", "Red Player")
+        );
+        sausageGame = new SausageGame(new GameConfig(columns, rows), players);
+        playerColors = new LinkedHashMap<>();
+        playerColors.put(players.get(0), new Color(0x2585F7FF));
+        playerColors.put(players.get(1), new Color(0xF72585FF));
+        circles = new HashMap<>();
+        refreshCircleStates();
+        updateCircleLayout(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    private void buildUi(float scale) {
         VisTable table = new VisTable();
         table.setFillParent(true);
+
         VisTextButton restartButton = new VisTextButton("Restart");
         VisTextButton quitButton = new VisTextButton("Quit");
         VisTextButton soundsButton = new VisTextButton("No sounds", "toggle");
@@ -117,21 +128,20 @@ public class GameScreen implements Screen {
         restartButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                dispose();
                 game.setScreen(new GameScreen(game, columns, rows));
-                GameScreen.this.dispose();
             }
         });
         quitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                dispose();
                 game.setScreen(new MenuScreen(game));
-                GameScreen.this.dispose();
             }
         });
         soundsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // toggle sounds
                 SoundManager.setSoundEnabled(!SoundManager.isSoundEnabled());
             }
         });
@@ -139,230 +149,143 @@ public class GameScreen implements Screen {
         table.add(restartButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
         table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
         table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-
-//        table.add(restartButton).width(200).height(50).padBottom(20);
-//        table.add(quitButton).width(200).height(50).padBottom(20);
-//        table.add(soundsButton).width(200).height(50).padBottom(20);
-
-        table.align(Align.bottom); // Align the table to the bottom of the screen
-//        table.padBottom(0); // Add padding from the bottom edge
+        table.align(Align.bottom);
         stage.addActor(table);
-
     }
 
-    @Override
-    public void resize(int width, int height) {
-        if (stage != null) {
-            stage.getViewport().update(width, height, true);
-        }
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    private void generateCircles(int width, int height) {
-
-        // Clear existing circles and connections
-        circles.clear();
-
-        float scale = Gdx.graphics.getDensity();
-        int bottomPadding = (int)(80 * scale); // reserve space for bottom UI on different densities
-        height = height - bottomPadding;
-
-        // Calculate spacing based on the number of columns and rows
-        float spacingX = (width) / (columns + 1f);
-        float spacingY = height / (rows + 1f);
-
-        // Generate circles in a hexagonal-grid-like pattern
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns - (row % 2); col++) {
-                float offsetX = (row % 2) * (spacingX / 2);
-                float x = spacingX + col * spacingX + offsetX;
-                float y = bottomPadding + height - spacingY * (row + 1);
-                circles.add(new GridCircle(x, y, row, col, baseCircleRadius, enlargedCircleRadius));
-            }
-        }
-    }
-
-    /*
-     * This method is called every frame to render the game.
-     */
     @Override
     public void render(float delta) {
-        // omitting this stops the flicker
-//        ScreenUtils.clear(1, 1, 1, 1);
+        ScreenUtils.clear(1, 1, 1, 1);
 
-        if (!gameOver) {
-            mouseX = Gdx.input.getX();
-            mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-            isTouched = Gdx.input.isTouched();
-        }
+        refreshCircleStates();
+        updateHoveredCircle();
+        handleInput();
 
         batch.begin();
         drawBackground();
         drawCircleHints();
-        drawExistingCircles();
         drawExistingConnections();
-        if (!gameOver) {
-            if (isTouched) { handleTemporaryConnections(); }
-            else {
-                handleNewConnection();
-                firstCircle = null;
-                secondCircle = null;
-                thirdCircle = null;
-            }
-        }
+        drawExistingCircles();
         batch.end();
 
         stage.act(delta);
         stage.draw();
+
+        if (sausageGame.isGameOver() && !gameOverDialogShown && sausageGame.winner() != null) {
+            gameOverDialogShown = true;
+            GameOverDialog dialog = new GameOverDialog(game, sausageGame.winner().displayName());
+            dialog.showOn(stage);
+        }
     }
 
-    private void handleNewConnection() {
-        if (firstCircle != null && secondCircle != null && thirdCircle != null) {
-            boolean noIntersections =
-                !MoveValidator.intersectsExistingConnection(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY(), connections) &&
-                    !MoveValidator.intersectsExistingConnection(secondCircle.getX(), secondCircle.getY(), thirdCircle.getX(), thirdCircle.getY(), connections);
+    private void handleInput() {
+        if (sausageGame.isGameOver()) {
+            clearSelection();
+            return;
+        }
 
-            if (noIntersections) {
-                Player currentPlayer = turnManager.getCurrentPlayer();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            clearSelection();
+            return;
+        }
 
-                connections.add(new GridConnection(firstCircle, secondCircle, currentPlayer));
-                connections.add(new GridConnection(secondCircle, thirdCircle, currentPlayer));
+        if (Gdx.input.justTouched() && hoveredCircle != null && !hoveredCircle.isConnected()) {
+            Set<Integer> allowed = sausageGame.validContinuations(currentSelection);
+            if (!currentSelection.isEmpty() && allowed.isEmpty()) {
+                return;
+            }
+            if (!currentSelection.isEmpty() && currentSelection.contains(hoveredCircle.getId())) {
+                return;
+            }
+            if (!allowed.isEmpty() && !allowed.contains(hoveredCircle.getId())) {
+                return;
+            }
 
-                long id = SoundManager.play(selectSound);
-                SoundManager.setPitch(selectSound, id, 0.75f);
+            currentSelection.add(hoveredCircle.getId());
+            hoveredCircle.setSelected(true);
+            SoundManager.play(selectSound);
 
-                firstCircle.setIsConnected(true);
-                secondCircle.setIsConnected(true);
-                thirdCircle.setIsConnected(true);
-
-                // Swap turn
-                turnManager.nextTurn();
-
-                if (!MoveValidator.playerHasValidMove(circles, connections)) {
-                    gameOver = true;
-                    String winnerName = turnManager.getNotCurrentPlayer().getName();
-                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
-                    dialog.showOn(stage);
-                    firstCircle = null;
-                    secondCircle = null;
-                    thirdCircle = null;
-                }
+            if (currentSelection.size() == 3) {
+                applyMove();
             }
         }
     }
 
-    private void handleTemporaryConnections() {
-        if (firstCircle == null && currentlyHoveredCircle != null && !currentlyHoveredCircle.getIsConnected()) {
-            firstCircle = currentlyHoveredCircle;
-            SoundManager.play(selectSound);
-        } else if (firstCircle != null && secondCircle == null && currentlyHoveredCircle != null
-            && currentlyHoveredCircle != firstCircle && firstCircle.isNeighbor(currentlyHoveredCircle) && !currentlyHoveredCircle.getIsConnected()) {
-            secondCircle = currentlyHoveredCircle;
-            SoundManager.play(selectSound);
-        } else if (firstCircle != null && secondCircle != null && currentlyHoveredCircle != null
-            && currentlyHoveredCircle != firstCircle && currentlyHoveredCircle != secondCircle
-            && secondCircle.isNeighbor(currentlyHoveredCircle) && !currentlyHoveredCircle.getIsConnected()) {
-            if (thirdCircle != currentlyHoveredCircle) { // Play sound only when thirdCircle is newly assigned
-                thirdCircle = currentlyHoveredCircle;
-                SoundManager.play(selectSound);
+    private void applyMove() {
+        MoveResult result = sausageGame.playMove(List.copyOf(currentSelection));
+        if (result.status() == MoveStatus.INVALID) {
+            Gdx.app.log("GameScreen", "Invalid move: " + result.message());
+        } else {
+            long id = SoundManager.play(selectSound);
+            SoundManager.setPitch(selectSound, id, 0.75f);
+        }
+        refreshCircleStates();
+        clearSelection();
+    }
+
+    private void refreshCircleStates() {
+        List<NodeView> nodes = sausageGame.getNodeViews();
+        for (NodeView node : nodes) {
+            CircleVisual circle = circles.computeIfAbsent(node.id(), id -> new CircleVisual(node.id(),
+                    node.x(), node.y(), baseCircleRadius, enlargedCircleRadius));
+            circle.update(node, playerColors);
+        }
+    }
+
+    private void updateCircleLayout(int width, int height) {
+        for (CircleVisual circle : circles.values()) {
+            circle.updateLayout(width, height, bottomPadding);
+        }
+    }
+
+    private void updateHoveredCircle() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        hoveredCircle = null;
+        for (CircleVisual circle : circles.values()) {
+            boolean hovered = circle.contains(mouseX, mouseY);
+            circle.setHovered(hovered && !circle.isConnected());
+            if (hovered) {
+                hoveredCircle = circle;
             }
-            thirdCircle = currentlyHoveredCircle;
         }
-
-        // Draw connection-in-progress lines
-        drawer.setColor(turnManager.getCurrentPlayer().getColor());
-        drawer.setDefaultLineWidth(enlargedCircleRadius);
-
-        if (firstCircle != null && secondCircle == null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
-        } else if (firstCircle != null && secondCircle != null && thirdCircle == null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
-            drawer.line(secondCircle.getX(), secondCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
-        } else if (firstCircle != null && secondCircle != null && thirdCircle != null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
-            drawer.line(secondCircle.getX(), secondCircle.getY(), thirdCircle.getX(), thirdCircle.getY());
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(thirdCircle.getX(), thirdCircle.getY(), baseCircleRadius);
-        }
-
     }
 
     private void drawExistingCircles() {
-        currentlyHoveredCircle = null; // Reset before checking hover
-        for (GridCircle circle : circles) {
-            boolean isHovered = circle.updateIfHovered(mouseX, mouseY, isTouched, turnManager);
-            if (isHovered) {
-                currentlyHoveredCircle = circle;
-            }
-            drawer.setColor(circle.getColor());
-
-            // drawing all the circles
-            drawer.filledCircle(circle.getX(), circle.getY(),
-                circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
+        Player currentPlayer = sausageGame.currentPlayer();
+        for (CircleVisual circle : circles.values()) {
+            drawer.setColor(circle.color(currentPlayer, playerColors));
+            drawer.filledCircle(circle.getX(), circle.getY(), circle.currentRadius());
         }
     }
 
     private void drawExistingConnections() {
-        // Draw all connections
         drawer.setDefaultLineWidth(enlargedCircleRadius);
-        for (GridConnection conn : connections) {
-            drawer.setColor(conn.getOwner().getColor());
-            drawer.line(conn.getA().getX(), conn.getA().getY(), conn.getB().getX(), conn.getB().getY());
-            drawer.filledCircle(conn.getA().getX(), conn.getA().getY(), baseCircleRadius);
-            drawer.filledCircle(conn.getB().getX(), conn.getB().getY(), baseCircleRadius);
+        for (ConnectionView connection : sausageGame.getConnections()) {
+            CircleVisual from = circles.get(connection.fromNodeId());
+            CircleVisual to = circles.get(connection.toNodeId());
+            Color color = playerColors.getOrDefault(connection.owner(), Color.DARK_GRAY);
+            drawer.setColor(color);
+            drawer.line(from.getX(), from.getY(), to.getX(), to.getY());
+            drawer.filledCircle(from.getX(), from.getY(), baseCircleRadius);
+            drawer.filledCircle(to.getX(), to.getY(), baseCircleRadius);
         }
-    }
-
-    private List<GridCircle> getValidMoves(GridCircle mainCircle) {
-        List<GridCircle> validMoves = new ArrayList<>();
-
-        for (GridCircle circle : circles) {
-            if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
-                mainCircle.isNeighbor(circle) &&
-                !MoveValidator.intersectsExistingConnection(mainCircle.getX(), mainCircle.getY(), circle.getX(), circle.getY(), connections)) {
-                validMoves.add(circle);
-            }
-        }
-        return validMoves;
     }
 
     private void drawCircleHints() {
-        // draw the highlight around circles
-        GridCircle anchor = null;
-        if (firstCircle != null && secondCircle == null) {
-            anchor = firstCircle;
-        } else if (secondCircle != null && thirdCircle == null) {
-            anchor = secondCircle;
+        if (currentSelection.isEmpty()) {
+            return;
         }
-        if (anchor != null) {
-            drawer.setColor(turnManager.getCurrentPlayer().getColor());
-            drawer.setDefaultLineWidth(4f);
-            for (GridCircle circle : circles) {
-                if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
-                    anchor.isNeighbor(circle) &&
-                    !MoveValidator.intersectsExistingConnection(anchor.getX(), anchor.getY(), circle.getX(), circle.getY(), connections)) {
-                    drawer.circle(circle.getX(), circle.getY(), circle.getBaseRadius() + 6f);
-                }
+        Set<Integer> allowed = sausageGame.validContinuations(currentSelection);
+        if (allowed.isEmpty()) {
+            return;
+        }
+        drawer.setDefaultLineWidth(4f);
+        drawer.setColor(playerColors.getOrDefault(sausageGame.currentPlayer(), Color.BLACK));
+        for (Integer id : allowed) {
+            CircleVisual circle = circles.get(id);
+            if (circle != null && !circle.isConnected()) {
+                drawer.circle(circle.getX(), circle.getY(), circle.getBaseRadius() + 6f);
             }
         }
     }
@@ -371,9 +294,131 @@ public class GameScreen implements Screen {
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
+    private void clearSelection() {
+        for (Integer id : currentSelection) {
+            CircleVisual circle = circles.get(id);
+            if (circle != null) {
+                circle.setSelected(false);
+            }
+        }
+        currentSelection.clear();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        if (stage != null) {
+            stage.getViewport().update(width, height, true);
+        }
+        updateCircleLayout(width, height);
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
+
     @Override
     public void dispose() {
-        batch.dispose();
-        selectSound.dispose();
+        if (stage != null) {
+            stage.dispose();
+        }
+        if (background != null) {
+            background.dispose();
+        }
+        if (selectSound != null) {
+            selectSound.dispose();
+        }
+    }
+
+    private static final class CircleVisual {
+        private final int id;
+        private final float normalizedX;
+        private final float normalizedY;
+        private final float baseRadius;
+        private final float enlargedRadius;
+        private float x;
+        private float y;
+        private boolean connected;
+        private boolean selected;
+        private boolean hovered;
+        private Player occupant;
+
+        CircleVisual(int id, float normalizedX, float normalizedY, float baseRadius, float enlargedRadius) {
+            this.id = id;
+            this.normalizedX = normalizedX;
+            this.normalizedY = normalizedY;
+            this.baseRadius = baseRadius;
+            this.enlargedRadius = enlargedRadius;
+        }
+
+        int getId() {
+            return id;
+        }
+
+        float getX() {
+            return x;
+        }
+
+        float getY() {
+            return y;
+        }
+
+        float getBaseRadius() {
+            return baseRadius;
+        }
+
+        boolean isConnected() {
+            return connected;
+        }
+
+        void setSelected(boolean selected) {
+            this.selected = selected;
+        }
+
+        void setHovered(boolean hovered) {
+            this.hovered = hovered;
+        }
+
+        void update(NodeView node, Map<Player, Color> colors) {
+            this.connected = node.occupied();
+            this.occupant = node.occupant();
+        }
+
+        void updateLayout(int width, int height, float bottomPadding) {
+            float usableHeight = height - bottomPadding;
+            x = normalizedX * width;
+            y = bottomPadding + normalizedY * usableHeight;
+        }
+
+        boolean contains(float px, float py) {
+            float radius = currentRadius();
+            float dx = px - x;
+            float dy = py - y;
+            return dx * dx + dy * dy <= radius * radius;
+        }
+
+        float currentRadius() {
+            if (selected || hovered) {
+                return enlargedRadius;
+            }
+            return baseRadius;
+        }
+
+        Color color(Player currentPlayer, Map<Player, Color> palette) {
+            if (connected && occupant != null) {
+                return palette.getOrDefault(occupant, Color.GRAY);
+            }
+            if (selected || hovered) {
+                return palette.getOrDefault(currentPlayer, Color.NAVY);
+            }
+            return Color.BLACK;
+        }
     }
 }
