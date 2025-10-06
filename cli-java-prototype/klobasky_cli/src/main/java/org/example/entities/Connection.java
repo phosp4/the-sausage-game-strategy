@@ -1,7 +1,8 @@
-package org.example;
+package org.example.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.utils.CoordUtils;
 
 @Getter
 @Setter

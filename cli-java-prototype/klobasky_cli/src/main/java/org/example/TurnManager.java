@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.entities.Player;
+
 public class TurnManager {
     private Player player1;
     private Player player2;

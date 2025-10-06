@@ -1,6 +1,8 @@
-package org.example;
+package org.example.entities;
 
 import lombok.Getter;
+import org.example.utils.CoordUtils;
+import org.example.utils.GridConstants;
 
 import java.util.*;
 

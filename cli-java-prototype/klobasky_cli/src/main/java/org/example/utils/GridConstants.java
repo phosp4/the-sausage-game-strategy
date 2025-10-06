@@ -1,4 +1,4 @@
-package org.example;
+package org.example.utils;
 
 public class GridConstants {
     public static final int EMPTY = 0;

@@ -1,11 +1,15 @@
 package org.example;
 
-public class Main {
+import org.example.entities.Dot;
+import org.example.entities.Grid;
+import org.example.entities.Sausage;
+
+public class Launcher {
 
     public void welcomeText() {
 
     }
-
+    
     public static void main(String[] args) {
 
 //        int activePlayer = 1;
