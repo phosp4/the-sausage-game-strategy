@@ -1,8 +1,8 @@
-package org.example.entities;
+package org.example.archive;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.example.utils.CoordUtils;
+import org.example.entities.Dot;
 
 @Getter
 @Setter
@@ -16,9 +16,6 @@ public class Connection {
         }
         if (a.equals(b)) {
             throw new IllegalArgumentException("Dots must be unique");
-        }
-        if (!CoordUtils.areNeighbors(a, b)) {
-            throw new IllegalArgumentException("Dots must be neighbors");
         }
         this.a = a;
         this.b = b;

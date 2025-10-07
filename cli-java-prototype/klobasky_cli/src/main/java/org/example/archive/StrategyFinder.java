@@ -1,12 +1,9 @@
 package org.example.archive;
 
 import org.example.entities.Player;
-import org.example.entities.Grid;
 import org.example.entities.Sausage;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 public class StrategyFinder {

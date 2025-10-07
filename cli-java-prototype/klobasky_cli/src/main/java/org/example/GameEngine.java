@@ -1,13 +1,13 @@
 package org.example;
 
-import org.example.entities.Grid;
+import org.example.entities.GameBoard;
 
 public class GameEngine {
-    Grid grid;
+    GameBoard gameBoard;
     TurnManager turnManager;
 
-    public GameEngine(Grid grid, TurnManager turnManager) {
-        this.grid = grid;
+    public GameEngine(GameBoard grid, TurnManager turnManager) {
+        this.gameBoard = grid;
         this.turnManager = turnManager;
     }
 
