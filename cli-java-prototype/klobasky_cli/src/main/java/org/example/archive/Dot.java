@@ -1,16 +1,8 @@
-package org.example.entities;
-
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.example.utils.CoordUtils;
+package org.example.archive;
 
 public class Dot implements Comparable<Dot> {
     private int x; // x coordinate in offset coordinates
     private int y; // y coordinate in offset coordinates
-    
-    @Getter @Setter
-    private Sausage sausage = null;
 
     public Dot(int xInOffset, int yInOffset) {
         if (xInOffset < 0 || yInOffset < 0) {

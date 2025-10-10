@@ -1,6 +1,4 @@
-package org.example.utils;
-
-import org.example.entities.Dot;
+package org.example.archive;
 
 public class CoordUtils {
 

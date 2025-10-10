@@ -2,7 +2,6 @@ package org.example.archive;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.example.entities.Dot;
 
 @Getter
 @Setter

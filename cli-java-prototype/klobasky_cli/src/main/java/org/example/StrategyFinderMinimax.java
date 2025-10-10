@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
+import org.example.utils.MoveGenerator;
 
 public class StrategyFinderMinimax {
 
@@ -13,7 +14,7 @@ public class StrategyFinderMinimax {
 
         if (isMaximizingPlayer) {
             boolean bestValue = false; // to je ako -infinity
-            for (Sausage move : gameBoardState.getAllPossibleMoves()) { // pojde to asi aj s O(1) priestorovou
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid())) { // pojde to asi aj s O(1) priestorovou
                 gameBoardState.addSausage(move);
                 boolean value = minimax(gameBoardState, false);
                 gameBoardState.removeLastSausage();
@@ -24,7 +25,7 @@ public class StrategyFinderMinimax {
 
         else {
             boolean bestValue = true; // to je ako +infinity
-            for (Sausage move : gameBoardState.getAllPossibleMoves()) {
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid())) {
                 gameBoardState.addSausage(move);
                 boolean value = minimax(gameBoardState, true);
                 gameBoardState.removeLastSausage();

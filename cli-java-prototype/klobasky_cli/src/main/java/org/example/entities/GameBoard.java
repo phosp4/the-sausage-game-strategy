@@ -1,6 +1,9 @@
 package org.example.entities;
 
 import lombok.Getter;
+import org.example.IntersectingSausagesException;
+import org.example.utils.MoveGenerator;
+import org.example.utils.ValidatorUtil;
 
 import java.util.*;
 
@@ -15,48 +18,39 @@ public class GameBoard {
             throw new IllegalArgumentException("Grid dimensions cannot be negative");
         }
 
-        grid = new Sausage[y][x]; // filled with zeroes
+        grid = new Sausage[y][x]; // using doubled coordinates
         sausages = new ArrayDeque<>();;
     }
 
     public void addSausage(Sausage sausage) {
-        // check inputs
+
         if (sausage == null) {
-            throw new IllegalArgumentException("Sausage cannot be null");
+            throw new IllegalArgumentException("Sausage cannot be null.");
         }
 
-        // check if sausage is valid
-        for (Dot dot : sausage.getThreeDots()) {
-            checkDotForGrid(dot);
+        Point p1, p2, p3;
+        Iterator<Point> it = sausage.getThreePoints().iterator();
+        p1 = it.next();
+        p2 = it.next();
+        p3 = it.next();
+
+        if (!ValidatorUtil.hasNoIntersectionInGrid(p1, p2, grid) ||
+                !ValidatorUtil.hasNoIntersectionInGrid(p2, p3, grid) ||
+                !ValidatorUtil.hasNoIntersectionInGrid(p1, p3, grid)) {
+            throw new IntersectingSausagesException();
         }
 
-        // TODO podla papiera kde to mam napisane
-        // check if no intersection with existing sausages
+        // mozno tu este raz validovatPointForGrid?
 
         // add sausage to the grid
-        for (Dot dot : sausage.getThreeDots()) {
-            grid[dot.getOffsetY()][dot.getOffsetX()] = sausage; // adds the reference
+        for (Point point : sausage.getThreePoints()) {
+            grid[point.getY()][point.getX()] = sausage; // adds the reference
         }
         sausages.add(sausage);
     }
 
-    private void checkDotForGrid(Dot dot) {
-        if (dot == null) {
-            throw new IllegalArgumentException("Dot cannot be null");
-        }
-        if (dot.getOffsetY() < 0 || dot.getOffsetY() >= grid.length || dot.getOffsetX() < 0 || dot.getOffsetX() >= grid[0].length) {
-            throw new IllegalArgumentException("Dot is out of bounds");
-        }
-    }
-
-    public static void main(String[] args) {
-        GameBoard g = new GameBoard(7,5);
-        System.out.println(g);
-    }
-
     public boolean isFull() {
-        // todo implement
-        return false;
+        return MoveGenerator.getAllPossibleMoves(grid).isEmpty();
     }
 
     // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat
@@ -64,18 +58,20 @@ public class GameBoard {
         return this.isFull() && sausages.getLast().getPlayer() == sausages.getFirst().getPlayer();
     }
 
+    public Player getWinner() {
+        if (!this.isFull()) {
+            return null;
+        }
+        return sausages.getLast().getPlayer();
+    }
+
     public void removeLastSausage() {
         if (sausages.isEmpty()) {
             throw new IllegalStateException("No sausages to remove");
         }
         Sausage lastSausage = sausages.removeLast();
-        for (Dot dot : lastSausage.getThreeDots()) {
-            grid[dot.getOffsetY()][dot.getOffsetX()] = null; // reset to empty
+        for (Point p : lastSausage.getThreePoints()) {
+            grid[p.getY()][p.getX()] = null; // reset to empty
         }
-    }
-
-    // todo implement
-    public Sausage[] getAllPossibleMoves() {
-        return null;
     }
 }
