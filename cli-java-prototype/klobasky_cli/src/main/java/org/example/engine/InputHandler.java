@@ -1,6 +1,5 @@
-package org.example;
+package org.example.engine;
 
-import org.example.entities.Point;
 import org.example.entities.Sausage;
 
 public interface InputHandler {

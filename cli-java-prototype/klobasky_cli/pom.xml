@@ -29,7 +29,11 @@
             <artifactId>logback-classic</artifactId>
             <version>1.5.6</version>
         </dependency>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+        </dependency>
     </dependencies>
 
 </project>

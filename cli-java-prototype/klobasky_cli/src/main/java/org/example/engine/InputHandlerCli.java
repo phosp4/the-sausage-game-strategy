@@ -1,7 +1,10 @@
-package org.example;
+package org.example.engine;
 
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.exceptions.IntersectingSausagesException;
+import org.example.exceptions.InvalidPointForGridException;
+import org.example.utils.ValidatorUtil;
 
 import java.util.*;
 
@@ -37,6 +40,11 @@ public class InputHandlerCli implements InputHandler {
                 return nacitajSausage();
             }
         }
-        return new Sausage(points.get(0), points.get(1), points.get(2));
+        Sausage s = new Sausage(points.get(0), points.get(1), points.get(2));
+        if (!ValidatorUtil.isSausageValid(s)) {
+            return nacitajSausage();
+        } else {
+            return s;
+        }
     }
 }

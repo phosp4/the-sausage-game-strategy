@@ -1,9 +1,12 @@
 package org.example.utils;
 
+import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 public class ValidatorUtil {
 
@@ -45,7 +48,12 @@ public class ValidatorUtil {
         return true;
     }
 
-    public static boolean hasNoIntersectionInGrid(Point p1, Point p2, Sausage[][] grid) {
+    public static boolean haveNoIntersectionInGrid(Point p1, Point p2, Sausage[][] grid) {
+
+        // trivial intersection
+        if (p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
+            return false;
+        }
 
         // ak je to vodorovne spojenie
         if (Math.abs(p2.getX() - p1.getX()) == 2) {

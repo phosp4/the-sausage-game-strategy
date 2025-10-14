@@ -1,15 +1,15 @@
-package org.example;
+package org.example.engine;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
+import org.example.exceptions.IntersectingSausagesException;
+import org.example.exceptions.InvalidPointForGridException;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.MoveGenerator;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -51,6 +51,7 @@ public class Game {
             Sausage turn;
             if (currentPlayer.getName().equals("auto")) {
                 List<Sausage> possibleMoves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(gameBoard.getGrid()));
+                System.out.println("Possible moves: " + possibleMoves);
                 int randomIndex = ThreadLocalRandom.current().nextInt(possibleMoves.size());
                 turn = possibleMoves.get(randomIndex);
                 turn.setPlayer(currentPlayer);
@@ -59,7 +60,18 @@ public class Game {
                 turn.setPlayer(currentPlayer);
             }
 
-            gameBoard.addSausage(turn);
+            // neviem ci toto ma byt tu, asi nn
+            try {
+                gameBoard.addSausage(turn);
+            } catch (InvalidPointForGridException e) {
+                System.out.println("Invalid sausage placement. Try again.");
+                continue; // retry the turn
+            } catch (IntersectingSausagesException e) {
+                System.out.println("Sausage intersects with another sausage. Try again.");
+                continue; // retry the turn
+            }
+
+
             System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
             turnManager.nextTurn();
         }

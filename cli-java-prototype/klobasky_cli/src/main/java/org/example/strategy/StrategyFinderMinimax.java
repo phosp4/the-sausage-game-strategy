@@ -1,4 +1,8 @@
-package org.example;
+/**
+ * originalna implementacia
+ */
+
+package org.example.strategy;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
