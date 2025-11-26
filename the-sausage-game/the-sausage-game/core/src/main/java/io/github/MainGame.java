@@ -3,6 +3,7 @@ package io.github;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
+import io.github.screens.GameScreen;
 import io.github.screens.MenuScreen;
 import io.github.screens.RulesScreen;
 
@@ -25,3 +26,4 @@ public class MainGame extends Game {
         Gdx.app.exit();
     }
 }
+
