@@ -11,43 +11,45 @@ public class MoveValidator {
 
     // not the most efficient probably, works for now
     public static boolean playerHasValidMove(List<GridCircle> circles, List<GridConnection> connections) {
-        for (GridCircle a : circles) {
-            if (a.getIsConnected()) continue;
-            for (GridCircle b : circles) {
-                if (b.getIsConnected() || b == a || !a.isNeighbor(b)) continue;
-                if (intersectsExistingConnection(a.getX(), a.getY(), b.getX(), b.getY(), connections)) continue;
-
-                for (GridCircle c : circles) {
-                    if (c == a || c == b || c.getIsConnected()) continue;
-                    if (!b.isNeighbor(c)) continue;
-                    if (intersectsExistingConnection(b.getX(), b.getY(), c.getX(), c.getY(), connections)) continue;
-                    if (intersectsExistingConnection(a.getX(), a.getY(), c.getX(), c.getY(), connections)) continue; // optional
-
-                    // Found a valid path A→B→C
-                    return true;
-                }
-            }
-        }
-        return false;
+//        for (GridCircle a : circles) {
+//            if (a.getIsConnected()) continue;
+//            for (GridCircle b : circles) {
+//                if (b.getIsConnected() || b == a || !a.isNeighbor(b)) continue;
+//                if (intersectsExistingConnection(a.getX(), a.getY(), b.getX(), b.getY(), connections)) continue;
+//
+//                for (GridCircle c : circles) {
+//                    if (c == a || c == b || c.getIsConnected()) continue;
+//                    if (!b.isNeighbor(c)) continue;
+//                    if (intersectsExistingConnection(b.getX(), b.getY(), c.getX(), c.getY(), connections)) continue;
+//                    if (intersectsExistingConnection(a.getX(), a.getY(), c.getX(), c.getY(), connections)) continue; // optional
+//
+//                    // Found a valid path A→B→C
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+        return true;
     }
     // utility methods - ai generated
 
     public static boolean intersectsExistingConnection(float x1, float y1, float x2, float y2,
                                                 List<GridConnection> connections) {
-        for (GridConnection conn : connections) {
-            float x3 = conn.getA().getX(), y3 = conn.getA().getY();
-            float x4 = conn.getB().getX(), y4 = conn.getB().getY();
-
-            // Allow shared endpoints but not if geometrically crossing
-            if (isSharedEndpoint(x1, y1, x2, y2, x3, y3, x4, y4)) {
-                continue;
-            }
-
-            if (segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
-                return true;
-            }
-        }
-        return false;
+//        for (GridConnection conn : connections) {
+//            float x3 = conn.getA().getX(), y3 = conn.getA().getY();
+//            float x4 = conn.getB().getX(), y4 = conn.getB().getY();
+//
+//            // Allow shared endpoints but not if geometrically crossing
+//            if (isSharedEndpoint(x1, y1, x2, y2, x3, y3, x4, y4)) {
+//                continue;
+//            }
+//
+//            if (segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
+//                return true;
+//            }
+//        }
+//        return false;
+        return true;
     }
 
     // True if segments intersect excluding touching at shared endpoints

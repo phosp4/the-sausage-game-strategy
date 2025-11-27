@@ -1,6 +1,8 @@
 package org.example.engine;
 
 import lombok.Data;
+import org.example.automation.AutonomousOpponent;
+import org.example.automation.RandomOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
 import org.example.utils.MoveGenerator;
@@ -14,12 +16,16 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameController {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
+    private AutonomousOpponent auto;
+    private Player autonomousPlayer;
 
-    private String lastError = null;
+    private String lastError = null; // todo toto asi dat inak
 
-    public GameController(int width, int height, Player p1, Player p2) {
+    public GameController(int width, int height, Player p1, Player p2, Player auto) {
         this.gameBoard = new GameBoard(width, height);
         this.turnManager = new TurnManager(p1, p2);
+        this.autonomousPlayer = auto;
+        this.auto = new RandomOpponent();
     }
 
     /** Called by a UI when a player attempts a move. Returns true if applied. */

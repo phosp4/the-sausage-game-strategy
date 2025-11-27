@@ -2,12 +2,20 @@ package org.example.utils;
 
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+
+import java.util.List;
+
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
 public class ValidatorUtil {
 
 //    private static final Logger log = LoggerFactory.getLogger(ValidatorUtil.class);
+
+    public static boolean areNeigbours(Point p1, Point p2) {
+        return (Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX()) +
+                Math.max(p1.getY(), p2.getY()) - Math.min(p1.getY(), p2.getY()) <= 2);
+    }
 
     private static boolean isPointValid(Point p) {
         if ((p.getX()+p.getY()) % 2 != 0) {
@@ -39,10 +47,10 @@ public class ValidatorUtil {
     }
 
     public static boolean isSausageValid(Sausage s) {
-        if (s.getThreePoints().size() != 3) {
-            return false;
-        }
-        return true;
+        List<Point> points = s.getThreePoints();
+        return !points.get(0).equals(points.get(1)) &&
+                !points.get(1).equals(points.get(2)) &&
+                !points.get(0).equals(points.get(2));
     }
 
     public static boolean haveNoIntersectionInGrid(Point p1, Point p2, Sausage[][] grid) {

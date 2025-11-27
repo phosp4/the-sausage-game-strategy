@@ -2,11 +2,11 @@ package org.example;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import org.example.gui.GameboardScene;
+import org.example.gui.GameScene;
 
 public class GdxGame extends Game {
     @Override public void create() {
-        setScreen(new GameboardScene(this));
+        setScreen(new GameScene(this));
     }
 
     @Override

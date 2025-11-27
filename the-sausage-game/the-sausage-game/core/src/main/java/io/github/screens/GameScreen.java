@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -23,7 +22,6 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.source.util.DocTreeScanner;
 import io.github.MainGame;
 import io.github.utils.MoveValidator;
 import io.github.entities.Player;
@@ -31,7 +29,6 @@ import io.github.utils.SoundManager;
 import io.github.utils.TurnManager;
 import io.github.entities.GridCircle;
 import io.github.entities.GridConnection;
-import io.github.screens.GameOverDialog;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /**
@@ -94,7 +91,7 @@ public class GameScreen implements Screen {
         drawer = new ShapeDrawer(batch, new TextureRegion(pixelTexture));
 
         circles = new ArrayList<>();
-        generateCircles(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        generateCircles();
 
         // Initialize the turn manager
         Player player1 = new Player("Blue Player", new Color(0x2585F7FF)); // 0x4cc9f0ff 0x4895EFF0 0x4361eeff
@@ -172,28 +169,54 @@ public class GameScreen implements Screen {
 
     }
 
-    private void generateCircles(int width, int height) {
+    private void generateCircles() {
 
         // Clear existing circles and connections
         circles.clear();
 
-        float scale = Gdx.graphics.getDensity();
-        int bottomPadding = (int)(80 * scale); // reserve space for bottom UI on different densities
-        height = height - bottomPadding;
-
-        // Calculate spacing based on the number of columns and rows
-        float spacingX = (width) / (columns + 1f);
-        float spacingY = height / (rows + 1f);
-
         // Generate circles in a hexagonal-grid-like pattern
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns - (row % 2); col++) {
-                float offsetX = (row % 2) * (spacingX / 2);
-                float x = spacingX + col * spacingX + offsetX;
-                float y = bottomPadding + height - spacingY * (row + 1);
-                circles.add(new GridCircle(x, y, row, col, baseCircleRadius, enlargedCircleRadius));
+                circles.add(new GridCircle(
+                    colToX(col, row),
+                    rowToY(col, row),
+                    row, col, baseCircleRadius, enlargedCircleRadius));
             }
         }
+    }
+
+    // screen x and screen y
+    private float sx(GridCircle c) {
+        return colToX(c.getCol(), c.getRow());
+    }
+    private float sy(GridCircle c) {
+        return rowToY(c.getCol(), c.getRow());
+    }
+    // generatePointPositionX
+    // todo ak to je draha operacia, width height a scale netreba zistovat pre kazdy bod samostatne
+    private float colToX(int col, int row) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+        float scale = Gdx.graphics.getDensity();
+
+        int bottomPadding = (int)(80 * scale); // reserve space for bottom UI on different densities
+        height = height - bottomPadding;
+        float spacingX = (width) / (columns + 1f);
+        float offsetX = (row % 2) * (spacingX / 2);
+
+        return spacingX + col * spacingX + offsetX;
+    }
+    // generatePointPositionY
+    private float rowToY(int col, int row) {
+        float width = Gdx.graphics.getWidth();
+        float height = Gdx.graphics.getHeight();
+        float scale = Gdx.graphics.getDensity();
+
+        int bottomPadding = (int)(80 * scale); // reserve space for bottom UI on different densities
+        height = height - bottomPadding;
+        float spacingY = height / (rows + 1f);
+
+        return bottomPadding + height - spacingY * (row + 1);
     }
 
     /*
@@ -233,8 +256,12 @@ public class GameScreen implements Screen {
     private void handleNewConnection() {
         if (firstCircle != null && secondCircle != null && thirdCircle != null) {
             boolean noIntersections =
-                !MoveValidator.intersectsExistingConnection(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY(), connections) &&
-                    !MoveValidator.intersectsExistingConnection(secondCircle.getX(), secondCircle.getY(), thirdCircle.getX(), thirdCircle.getY(), connections);
+                !MoveValidator.intersectsExistingConnection(
+                    sx(firstCircle), sy(firstCircle),
+                    sx(secondCircle), sy(secondCircle), connections) &&
+                    !MoveValidator.intersectsExistingConnection(
+                        sx(secondCircle), sy(secondCircle),
+                        sx(thirdCircle), sy(thirdCircle), connections);
 
             if (noIntersections) {
                 Player currentPlayer = turnManager.getCurrentPlayer();
@@ -252,7 +279,8 @@ public class GameScreen implements Screen {
                 // Swap turn
                 turnManager.nextTurn();
 
-                if (!MoveValidator.playerHasValidMove(circles, connections)) {
+//                if (!MoveValidator.playerHasValidMove(circles, connections)) { // todo kontrolovat grid
+                if (false) {
                     gameOver = true;
                     String winnerName = turnManager.getNotCurrentPlayer().getName();
                     GameOverDialog dialog = new GameOverDialog(game, winnerName);
@@ -288,21 +316,21 @@ public class GameScreen implements Screen {
         drawer.setDefaultLineWidth(enlargedCircleRadius);
 
         if (firstCircle != null && secondCircle == null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
+            drawer.line(sx(firstCircle), sy(firstCircle), mouseX, mouseY);
+            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
             drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
         } else if (firstCircle != null && secondCircle != null && thirdCircle == null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
-            drawer.line(secondCircle.getX(), secondCircle.getY(), mouseX, mouseY);
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
+            drawer.line(sx(firstCircle), sy(firstCircle), sx(secondCircle), sy(secondCircle));
+            drawer.line(sx(secondCircle), sy(secondCircle), mouseX, mouseY);
+            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
+            drawer.filledCircle(sx(secondCircle), sy(secondCircle), baseCircleRadius);
             drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
         } else if (firstCircle != null && secondCircle != null && thirdCircle != null) {
-            drawer.line(firstCircle.getX(), firstCircle.getY(), secondCircle.getX(), secondCircle.getY());
-            drawer.line(secondCircle.getX(), secondCircle.getY(), thirdCircle.getX(), thirdCircle.getY());
-            drawer.filledCircle(firstCircle.getX(), firstCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(secondCircle.getX(), secondCircle.getY(), baseCircleRadius);
-            drawer.filledCircle(thirdCircle.getX(), thirdCircle.getY(), baseCircleRadius);
+            drawer.line(sx(firstCircle), sy(firstCircle), sx(secondCircle), sy(secondCircle));
+            drawer.line(sx(secondCircle), sy(secondCircle), sx(thirdCircle), sy(thirdCircle));
+            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
+            drawer.filledCircle(sx(secondCircle), sy(secondCircle), baseCircleRadius);
+            drawer.filledCircle(sx(thirdCircle), sy(thirdCircle), baseCircleRadius);
         }
 
     }
@@ -317,7 +345,9 @@ public class GameScreen implements Screen {
             drawer.setColor(circle.getColor());
 
             // drawing all the circles
-            drawer.filledCircle(circle.getX(), circle.getY(),
+            drawer.filledCircle(
+                sx(circle),
+                sy(circle),
                 circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
         }
     }
@@ -327,9 +357,9 @@ public class GameScreen implements Screen {
         drawer.setDefaultLineWidth(enlargedCircleRadius);
         for (GridConnection conn : connections) {
             drawer.setColor(conn.getOwner().getColor());
-            drawer.line(conn.getA().getX(), conn.getA().getY(), conn.getB().getX(), conn.getB().getY());
-            drawer.filledCircle(conn.getA().getX(), conn.getA().getY(), baseCircleRadius);
-            drawer.filledCircle(conn.getB().getX(), conn.getB().getY(), baseCircleRadius);
+            drawer.line(sx(conn.getA()), sy(conn.getA()), sx(conn.getB()), sy(conn.getB()));
+            drawer.filledCircle(sx(conn.getA()), sy(conn.getA()), baseCircleRadius);
+            drawer.filledCircle(sx(conn.getB()), sy(conn.getB()), baseCircleRadius);
         }
     }
 
@@ -339,7 +369,9 @@ public class GameScreen implements Screen {
         for (GridCircle circle : circles) {
             if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
                 mainCircle.isNeighbor(circle) &&
-                !MoveValidator.intersectsExistingConnection(mainCircle.getX(), mainCircle.getY(), circle.getX(), circle.getY(), connections)) {
+                !MoveValidator.intersectsExistingConnection(
+                    sx(mainCircle), sy(mainCircle),
+                    sx(circle), sy(circle), connections)) {
                 validMoves.add(circle);
             }
         }
@@ -360,8 +392,8 @@ public class GameScreen implements Screen {
             for (GridCircle circle : circles) {
                 if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
                     anchor.isNeighbor(circle) &&
-                    !MoveValidator.intersectsExistingConnection(anchor.getX(), anchor.getY(), circle.getX(), circle.getY(), connections)) {
-                    drawer.circle(circle.getX(), circle.getY(), circle.getBaseRadius() + 6f);
+                    !MoveValidator.intersectsExistingConnection(sx(anchor), sy(anchor), sx(circle), sy(circle), connections)) {
+                    drawer.circle(sx(circle), sy(circle), circle.getBaseRadius() + 6f);
                 }
             }
         }

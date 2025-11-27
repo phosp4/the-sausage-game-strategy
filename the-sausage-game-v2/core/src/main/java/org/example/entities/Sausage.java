@@ -3,15 +3,13 @@ package org.example.entities;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode
 public class Sausage implements Comparable<Sausage> {
 //    private Set<Point> threePoints = new HashSet<>();
-    private Set<Point> threePoints = new TreeSet<>(); // temporary, for better printing
+    private List<Point> threePoints = new ArrayList<>();
     private Player player;
 
     public Sausage(Player player, Point p1, Point p2, Point p3) {

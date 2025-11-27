@@ -24,12 +24,12 @@ public class GridCircle {
         this.enlargedRadius = enlargedRadius;
     }
 
-    public float getX() {
-        return x;
-    }
-    public float getY() {
-        return y;
-    }
+//    public float getX() {
+//        return x;
+//    }
+//    public float getY() {
+//        return y;
+//    }
     public int getRow() {
         return row;
     }

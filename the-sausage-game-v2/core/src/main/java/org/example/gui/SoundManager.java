@@ -1,4 +1,4 @@
-package org.example.gui_utils;
+package org.example.gui;
 
 import com.badlogic.gdx.audio.Sound;
 

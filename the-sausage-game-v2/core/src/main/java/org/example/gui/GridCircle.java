@@ -71,30 +71,30 @@ public class GridCircle {
         }
     }
 
-    public boolean isNeighbor(GridCircle other) {
-
-        // coords of the 8 neighbors - in hex grid they vary based on row parity
-        int[][] offsetsEven = {
-            {-1, -1}, {-1, 0}, {0, -1}, {0, 1}, {1, -1}, {1, 0},
-            {-2, 0}, {2, 0}
-        };
-        int[][] offsetsOdd = {
-            {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, 0}, {1, 1},
-            {-2, 0}, {2, 0}
-        };
-
-        // Determine which set of offsets to use based on the row parity
-        int[][] offsets = (row % 2 == 0) ? offsetsEven : offsetsOdd;
-
-        // Check if the other circle is a neighbor
-
-        for (int[] offset : offsets) {
-            int nr = row + offset[0];
-            int nc = col + offset[1];
-            if (other.row == nr && other.col == nc) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean isNeighbor(GridCircle other) {
+//
+//        // coords of the 8 neighbors - in hex grid they vary based on row parity
+//        int[][] offsetsEven = {
+//            {-1, -1}, {-1, 0}, {0, -1}, {0, 1}, {1, -1}, {1, 0},
+//            {-2, 0}, {2, 0}
+//        };
+//        int[][] offsetsOdd = {
+//            {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, 0}, {1, 1},
+//            {-2, 0}, {2, 0}
+//        };
+//
+//        // Determine which set of offsets to use based on the row parity
+//        int[][] offsets = (row % 2 == 0) ? offsetsEven : offsetsOdd;
+//
+//        // Check if the other circle is a neighbor
+//
+//        for (int[] offset : offsets) {
+//            int nr = row + offset[0];
+//            int nc = col + offset[1];
+//            if (other.row == nr && other.col == nc) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 }
