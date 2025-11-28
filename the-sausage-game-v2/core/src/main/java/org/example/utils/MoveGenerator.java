@@ -14,6 +14,7 @@ public class MoveGenerator {
 //    private static final Logger log = LoggerFactory.getLogger(MoveGenerator.class);
 
     public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid) {
+
         int[][] vectors = {
                 {0,2}, {0,-2},
                 {2,0}, {-2,0},

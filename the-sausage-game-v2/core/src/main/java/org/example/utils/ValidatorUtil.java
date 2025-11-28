@@ -78,6 +78,10 @@ public class ValidatorUtil {
                     return false;
                 }
             }
+            System.out.println("----");
+            System.out.println(p1);
+            System.out.println(p2);
+            System.out.println(CliRendererUtil.gridToString(grid));
         }
 
         // ak je to zvisle spojenie

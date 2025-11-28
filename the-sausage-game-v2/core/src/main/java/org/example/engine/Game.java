@@ -80,9 +80,9 @@ public class Game {
         System.out.println("Winner: " + gameBoard.getWinner().getName());
     }
 
-    public static void main(String[] args) {
-        Game game = new Game(5, 5); // tu by malo podsuvat najaky interface na pracu (napr. nazvat GameView)
-        game.start();
-
-    }
+//    public static void main(String[] args) {
+//        Game game = new Game(5, 5); // tu by malo podsuvat najaky interface na pracu (napr. nazvat GameView)
+//        game.start();
+//
+//    }
 }

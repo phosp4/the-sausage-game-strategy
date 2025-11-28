@@ -220,11 +220,9 @@ public class GameScene implements Screen {
         // omitting this stops the flicker
 //        ScreenUtils.clear(1, 1, 1, 1);
 
-        if (!ctrl.getGameBoard().isFull()) {
-            mouseX = Gdx.input.getX();
-            mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-            isTouched = Gdx.input.isTouched();
-        }
+        mouseX = Gdx.input.getX();
+        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        isTouched = Gdx.input.isTouched();
 
         // todo docasne, na skusku - nesynchronizovane s circles...
         if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutonomousPlayer())) {
@@ -240,14 +238,12 @@ public class GameScene implements Screen {
         drawCircleHints();
         drawExistingCircles();
         drawSausages();
-        if (!ctrl.getGameBoard().isFull()) {
-            if (isTouched) { handleTemporaryConnections(); }
-            else {
-                handleNewSausage();
-                firstCircle = null;
-                secondCircle = null;
-                thirdCircle = null;
-            }
+        if (isTouched) { handleTemporaryConnections(); }
+        else {
+            handleNewSausage();
+            firstCircle = null;
+            secondCircle = null;
+            thirdCircle = null;
         }
         batch.end();
 
