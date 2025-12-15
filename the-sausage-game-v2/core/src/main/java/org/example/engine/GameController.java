@@ -52,7 +52,7 @@ public class GameController {
         return possible.get(ThreadLocalRandom.current().nextInt(possible.size()));
     }
 
-    public boolean isOver() { return gameBoard.isFull(); }
+    public boolean isOver() { return gameBoard.isGameOver(); }
     public Player getWinner() { return gameBoard.getWinner(); }
     public Player getCurrentPlayer() { return turnManager.getCurrentPlayer(); }
     public String getLastError() { return lastError; }

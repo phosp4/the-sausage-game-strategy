@@ -1,7 +1,9 @@
 package org.example.exceptions;
 
+import org.example.entities.Point;
+
 public class InvalidPointForGridException extends RuntimeException {
-    public InvalidPointForGridException() {
-        super("Point is outside the grid boundaries.");
+    public InvalidPointForGridException(Point p) {
+        super("Point is invalid for grid: " + p);
     }
 }

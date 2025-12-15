@@ -33,7 +33,7 @@ public class StrategyFinderMinimaxWithMemo {
     private Map<MemoCall,Boolean> memoVals = new HashMap<>();
 
     public static void main(String[] args) {
-        GameBoard gameBoard = new GameBoard(5,5);
+        GameBoard gameBoard = new GameBoard(6,6);
         StrategyFinderMinimaxWithMemo sfm = new StrategyFinderMinimaxWithMemo();
 
         boolean canFirstPlayerWin = sfm.minimax(gameBoard, true);

@@ -37,7 +37,7 @@ public class Game {
 
         System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
 
-        while (!gameBoard.isFull()) {
+        while (!gameBoard.isGameOver()) {
             Player currentPlayer = turnManager.getCurrentPlayer();
             System.out.println("Current player: " + currentPlayer.getName());
 

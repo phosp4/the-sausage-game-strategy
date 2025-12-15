@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -28,6 +29,7 @@ import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class GameScene implements Screen {
@@ -53,22 +55,34 @@ public class GameScene implements Screen {
     private boolean isTouched;
 
     // libgdx assets
-    private Texture background;
+//    private Texture background;
     private Sound selectSound;
 
     private final int columns;
     private final int rows;
 
+    // pre vypocet rovnomernej mriezky
+    private float cellSize;
+    private float gridOffsetX;
+    private float gridOffsetY;
+
     private List<GridCircle> circles;
+
+//    // generate moves animation
+//    private List<Sausage> moves;
+//    private int ticker = 0;
+//    private int idx = 0;
 
     public GameScene(GdxGame gdxGame) {
         this.game = gdxGame;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
-        this.columns = 10; // temporary
-        this.rows = 6; // temporary
-        this.ctrl = new GameController(columns, rows, p1, p2, null);
+        this.columns = 7; // temporary
+        this.rows = 7; // temporary
+        this.ctrl = new GameController(columns, rows, p1, p2, p2);
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+
+//        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
     }
 
     @Override
@@ -83,7 +97,7 @@ public class GameScene implements Screen {
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-        background = new Texture(Gdx.files.internal("white-paper-texture.png"));
+//        background = new Texture(Gdx.files.internal("white-paper-texture.png"));
 
         // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -142,6 +156,9 @@ public class GameScene implements Screen {
 //        table.padBottom(0); // Add padding from the bottom edge
         stage.addActor(table);
 
+//        // testing
+//        System.out.println(moves.size());
+//        System.out.println(new HashSet<>(moves).size());
     }
 
     @Override
@@ -184,23 +201,14 @@ public class GameScene implements Screen {
         }
     }
 
-    // generatePointPositionX
     private float colToX(int col, int row) {
-        float width = Gdx.graphics.getWidth();
-        float spacingX = (width) / (columns + 1f);
-        return spacingX + col * spacingX;
+        // Začiatok mriežky + jedna bunka (padding zľava) + pozícia stĺpca
+        return gridOffsetX + cellSize + col * cellSize;
     }
 
-    // generatePointPositionY
     private float rowToY(int col, int row) {
-        float height = Gdx.graphics.getHeight();
-        float scale = Gdx.graphics.getDensity();
-
-        int bottomPadding = (int)(80 * scale);
-        height = height - bottomPadding;
-        float spacingY = height / (rows + 1f);
-
-        return bottomPadding + height - spacingY * (row + 1);
+        // Začiatok mriežky + celá výška - pozícia riadku (odpočítavame, lebo Y=0 je dole)
+        return gridOffsetY + (rows + 1f) * cellSize - cellSize * (row + 1);
     }
 
     // screen x and screen y
@@ -217,24 +225,40 @@ public class GameScene implements Screen {
      */
     @Override
     public void render(float delta) {
-        // omitting this stops the flicker
-//        ScreenUtils.clear(1, 1, 1, 1);
+
+//        // generate moves animation
+//        ticker++;
+//        if (ticker % 2 == 0) {
+//            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
+//            if (idx >= moves.size()) {
+//                idx = 0;
+//            }
+//            ctrl.getGameBoard().addSausage(moves.get(idx));
+//            idx++;
+//        }
+
+        // this used to cause flickering, idk why
+        ScreenUtils.clear(1, 1, 1, 1);
+        updateGridMetrics();
 
         mouseX = Gdx.input.getX();
         mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         isTouched = Gdx.input.isTouched();
 
         // todo docasne, na skusku - nesynchronizovane s circles...
-        if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutonomousPlayer())) {
-            System.out.println(ctrl.getAutonomousPlayer());
-            Sausage s = ctrl.getAuto().getAMove(ctrl.getGameBoard().getGrid());
-            s.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
-            ctrl.getGameBoard().addSausage(s);
-            ctrl.getTurnManager().nextTurn();
-        }
+//        if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutonomousPlayer())) {
+//            System.out.println(ctrl.getAutonomousPlayer());
+//            Sausage s = ctrl.getAuto().getAMove(ctrl.getGameBoard().getGrid());
+//            if (s == null) {
+//                // game over action
+//            } else {
+//                s.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
+//                ctrl.getGameBoard().addSausage(s);
+//                ctrl.getTurnManager().nextTurn();
+//            }
+//        }
 
         batch.begin();
-        drawBackground();
         drawCircleHints();
         drawExistingCircles();
         drawSausages();
@@ -275,7 +299,7 @@ public class GameScene implements Screen {
             ctrl.getTurnManager().nextTurn();
             System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
-            if (ctrl.getGameBoard().isFull()) {
+            if (ctrl.getGameBoard().isGameOver()) {
                 String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
 //                GameOverDialog dialog = new GameOverDialog(game, winnerName);
 //                dialog.showOn(stage);
@@ -331,21 +355,33 @@ public class GameScene implements Screen {
 
     // toto nechavam - myslim ze ma zmysel ukladat ui circle samostatne
     private void drawExistingCircles() {
-        currentlyHoveredCircle = null; // Reset before checking hover
+        currentlyHoveredCircle = null;
         for (GridCircle circle : circles) {
+
+            // FIX: Musíme aktualizovať uloženú pozíciu kruhu, aby sedela s novým výpočtom mriežky
+            float newX = sx(circle);
+            float newY = sy(circle);
+
+            // Ak máte prístup k x/y priamo alebo cez setter:
+            circle.setX(newX);
+            circle.setY(newY);
+
+            // Teraz skontrolujeme hover s aktualizovanou pozíciou
             boolean isHovered = circle.updateIfHovered(mouseX, mouseY, isTouched, ctrl.getTurnManager());
+
             if (isHovered) {
                 currentlyHoveredCircle = circle;
             }
+
             drawer.setColor(circle.getColor());
 
-            // drawing all the circles
             drawer.filledCircle(
-                    sx(circle),
-                    sy(circle),
-                    circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
+                newX,
+                newY,
+                circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
         }
     }
+
 
     private void drawSausages() {
         // Draw all connections
@@ -400,9 +436,37 @@ public class GameScene implements Screen {
         }
     }
 
-    private void drawBackground() {
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    private void updateGridMetrics() {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float scale = Gdx.graphics.getDensity();
+
+        // Vaša pôvodná logika pre padding zdola
+        float bottomPadding = 80 * scale;
+        float availableHeight = screenHeight - bottomPadding;
+
+        // Vypočítame, aká by bola medzera, keby sme išli podľa šírky alebo podľa výšky
+        float spacingX = screenWidth / (columns + 1f);
+        float spacingY = availableHeight / (rows + 1f);
+
+        // KĽÚČOVÝ KROK: Vyberieme menšiu medzeru.
+        // Tým zaručíme, že sa mriežka zmestí a body budú rovnako ďaleko v X aj Y smeroch.
+        cellSize = Math.min(spacingX, spacingY);
+
+        // Aká veľká bude celá mriežka v pixeloch?
+        float totalGridWidth = cellSize * (columns + 1f);
+        float totalGridHeight = cellSize * (rows + 1f);
+
+        // Vypočítame offsety na vycentrovanie mriežky
+        gridOffsetX = (screenWidth - totalGridWidth) / 2f;
+
+        // Offset Y berie do úvahy aj bottomPadding a vycentrovanie vo zvyšnom priestore
+        gridOffsetY = bottomPadding + (availableHeight - totalGridHeight) / 2f;
     }
+
+//    private void drawBackground() {
+//        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//    }
 
     @Override
     public void dispose() {

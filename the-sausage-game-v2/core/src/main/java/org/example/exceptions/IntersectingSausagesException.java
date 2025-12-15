@@ -1,8 +1,10 @@
 package org.example.exceptions;
 
+import org.example.entities.Point;
+
 public class IntersectingSausagesException extends RuntimeException {
 
-    public IntersectingSausagesException() {
-        super("Sausage intersects with existing sausages on the grid.");
+    public IntersectingSausagesException(Point a, Point b) {
+        super("Sausage intersects at points: " + a + " and " + b);
     }
 }

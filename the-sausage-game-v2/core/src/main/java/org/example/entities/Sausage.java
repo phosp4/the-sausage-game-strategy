@@ -49,4 +49,12 @@ public class Sausage implements Comparable<Sausage> {
         // If all points are equal so far, compare set sizes (should be 3, but for safety)
         return Integer.compare(this.threePoints.size(), sausage.threePoints.size());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sausage sausage = (Sausage) o;
+        return new HashSet<>(threePoints).equals(new HashSet<>(sausage.threePoints));
+    }
 }

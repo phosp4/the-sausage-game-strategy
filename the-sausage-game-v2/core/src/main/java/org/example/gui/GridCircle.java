@@ -3,8 +3,12 @@
 package org.example.gui;
 
 import com.badlogic.gdx.graphics.Color;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.engine.TurnManager;
 
+@Data
 public class GridCircle {
     private float x, y;
     private int row, col;
@@ -23,37 +27,6 @@ public class GridCircle {
         this.enlargedRadius = enlargedRadius;
     }
 
-    public float getX() {
-        return x;
-    }
-    public float getY() {
-        return y;
-    }
-    public int getRow() {
-        return row;
-    }
-    public int getCol() {
-        return col;
-    }
-    public float getBaseRadius() {
-        return baseRadius;
-    }
-    public float getEnlargedRadius() {
-        return enlargedRadius;
-    }
-    public boolean isEnlarged() {
-        return isEnlarged;
-    }
-    public Color getColor() {
-        return color;
-    }
-    public boolean getIsConnected() {
-        return isConnected;
-    }
-    public void setIsConnected(boolean isConnected) {
-        this.isConnected = isConnected;
-    }
-
     /**
      * Updates the circle's hover state and radius based on mouse position and touch state.
      */
@@ -69,5 +42,13 @@ public class GridCircle {
             isEnlarged = false;
             return false;
         }
+    }
+
+    // treba explicitne
+    public boolean getIsConnected() {
+        return isConnected;
+    }
+    public void setIsConnected(boolean isConnected) {
+        this.isConnected = isConnected;
     }
 }
