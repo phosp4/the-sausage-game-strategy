@@ -30,7 +30,6 @@ public class CliLauncher {
 
             System.out.println(CliRendererUtil.gridToString(ctrl.snapshotGrid()));
         }
-
         System.out.println("Game over! Winner: " + ctrl.getWinner().getName());
     }
 
