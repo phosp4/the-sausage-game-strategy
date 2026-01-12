@@ -1,8 +1,7 @@
-package org.example;
+package org.example.gui;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import org.example.gui.GameScene;
 
 public class GdxGame extends Game {
     @Override public void create() {

@@ -1,3 +1,5 @@
+// toto vlastne netreba
+
 package org.example.engine;
 
 import org.example.entities.GameBoard;

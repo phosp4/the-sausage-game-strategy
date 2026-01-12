@@ -8,6 +8,7 @@ import org.example.utils.ValidatorUtil;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 @Getter
 //@EqualsAndHashCode // nepouziavat - chceme custom
@@ -24,6 +25,43 @@ public class GameBoard {
         grid = new Sausage[y][x]; // using doubled coordinates
         sausages = new ArrayDeque<>();
     }
+
+    /**
+     * Copy Constructor (Deep Copy)
+     * Creates a completely new independent GameBoard based on the state of 'other'.
+     */
+    public GameBoard(GameBoard other) {
+        int rows = other.grid.length;
+        int cols = other.grid[0].length;
+
+        // 1. Initialize new empty structures
+        this.grid = new Sausage[rows][cols];
+        this.sausages = new ArrayDeque<>(other.sausages.size());
+
+        // 2. Reconstruct state by replaying history
+        // This ensures grid and deque point to the same NEW instances
+        for (Sausage sourceSausage : other.sausages) {
+
+            // A. Deep copy the points to ensure total isolation
+            List<Point> oldPts = sourceSausage.getThreePoints();
+            Point p1 = new Point(oldPts.get(0).getX(), oldPts.get(0).getY());
+            Point p2 = new Point(oldPts.get(1).getX(), oldPts.get(1).getY());
+            Point p3 = new Point(oldPts.get(2).getX(), oldPts.get(2).getY());
+
+            // B. Create a new Sausage instance
+            // We assume Player is immutable or shared reference is acceptable (standard for Players)
+            Sausage newSausage = new Sausage(sourceSausage.getPlayer(), p1, p2, p3);
+
+            // C. Add to Deque
+            this.sausages.add(newSausage);
+
+            // D. Place in Grid (Manually to skip validation overhead since source was valid)
+            this.grid[p1.getY()][p1.getX()] = newSausage;
+            this.grid[p2.getY()][p2.getX()] = newSausage;
+            this.grid[p3.getY()][p3.getX()] = newSausage;
+        }
+    }
+
 
     public void addSausage(Sausage sausage) throws InvalidPointForGridException, IntersectingSausagesException {
 

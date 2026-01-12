@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import org.example.GdxGame;
 import org.example.engine.GameController;
 import org.example.entities.Player;
 import org.example.entities.Point;
@@ -29,7 +28,6 @@ import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class GameScene implements Screen {
@@ -69,9 +67,9 @@ public class GameScene implements Screen {
     private List<GridCircle> circles;
 
 //    // generate moves animation
-//    private List<Sausage> moves;
-//    private int ticker = 0;
-//    private int idx = 0;
+    private List<Sausage> moves;
+    private int ticker = 0;
+    private int idx = 0;
 
     public GameScene(GdxGame gdxGame) {
         this.game = gdxGame;
@@ -82,7 +80,7 @@ public class GameScene implements Screen {
         this.ctrl = new GameController(columns, rows, p1, p2, p2);
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
-//        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
+        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
     }
 
     @Override
@@ -227,15 +225,15 @@ public class GameScene implements Screen {
     public void render(float delta) {
 
 //        // generate moves animation
-//        ticker++;
-//        if (ticker % 2 == 0) {
-//            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
-//            if (idx >= moves.size()) {
-//                idx = 0;
-//            }
-//            ctrl.getGameBoard().addSausage(moves.get(idx));
-//            idx++;
-//        }
+        ticker++;
+        if (ticker % 2 == 0) {
+            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
+            if (idx >= moves.size()) {
+                idx = 0;
+            }
+            ctrl.getGameBoard().addSausage(moves.get(idx));
+            idx++;
+        }
 
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);

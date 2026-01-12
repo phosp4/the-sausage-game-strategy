@@ -2,7 +2,7 @@ package org.example.teavm;
 
 import com.github.xpenatan.gdx.backends.teavm.TeaApplicationConfiguration;
 import com.github.xpenatan.gdx.backends.teavm.TeaApplication;
-import org.example.Main;
+import org.example.gui.Main;
 
 /**
  * Launches the TeaVM/HTML application.
