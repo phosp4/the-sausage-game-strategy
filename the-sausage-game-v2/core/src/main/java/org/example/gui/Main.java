@@ -29,4 +29,5 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         image.dispose();
     }
+
 }
