@@ -1,8 +1,9 @@
-package org.example.utils;
+package org.example.strategy;
 
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.utils.ValidatorUtil;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 

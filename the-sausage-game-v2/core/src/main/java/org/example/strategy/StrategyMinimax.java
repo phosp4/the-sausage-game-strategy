@@ -7,7 +7,6 @@ package org.example.strategy;
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
-import org.example.utils.MoveGenerator;
 
 import java.util.HashMap;
 import java.util.Map;

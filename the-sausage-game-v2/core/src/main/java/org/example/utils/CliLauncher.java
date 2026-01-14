@@ -1,10 +1,9 @@
-package org.example;
+package org.example.utils;
 
 import org.example.engine.GameController;
 import org.example.engine.InputHandlerCli;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
-import org.example.utils.CliRendererUtil;
 
 public class CliLauncher {
     public static void main(String[] args) {

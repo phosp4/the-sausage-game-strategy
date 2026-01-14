@@ -2,10 +2,9 @@ package org.example.engine;
 
 import lombok.Data;
 import org.example.automation.AutonomousOpponent;
-import org.example.automation.RandomOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
-import org.example.utils.MoveGenerator;
+import org.example.strategy.MoveGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

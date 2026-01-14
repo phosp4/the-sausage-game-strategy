@@ -1,13 +1,12 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
-import org.example.strategy.archive.StrategyMinimaxAlt;
 import org.example.utils.CsvWriterUtil;
 
 import java.util.Arrays;
 import java.util.concurrent.*;
 
-public class StrategyMinimaxLaunchers {
+public class Launchers {
 
     public static final String PATH_PREFIX = "minimax_";
 

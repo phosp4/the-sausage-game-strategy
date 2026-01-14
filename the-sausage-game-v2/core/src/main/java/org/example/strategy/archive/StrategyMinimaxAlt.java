@@ -3,7 +3,7 @@ package org.example.strategy.archive;
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
-import org.example.utils.MoveGenerator;
+import org.example.strategy.MoveGenerator;
 
 public class StrategyMinimaxAlt {
 

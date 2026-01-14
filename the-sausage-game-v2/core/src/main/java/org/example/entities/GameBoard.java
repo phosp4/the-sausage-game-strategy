@@ -3,7 +3,7 @@ package org.example.entities;
 import lombok.Getter;
 import org.example.exceptions.IntersectingSausagesException;
 import org.example.exceptions.InvalidPointForGridException;
-import org.example.utils.MoveGenerator;
+import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 
 import java.util.ArrayDeque;

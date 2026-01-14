@@ -23,7 +23,7 @@ import org.example.entities.Sausage;
 import org.example.exceptions.IntersectingSausagesException;
 import org.example.exceptions.InvalidPointForGridException;
 import org.example.utils.CliRendererUtil;
-import org.example.utils.MoveGenerator;
+import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
