@@ -53,7 +53,7 @@ public class CliRendererUtil {
     public static void printAllPossibleMoves(GameBoard gameBoard, List<Sausage> possibleMoves) {
         for (Sausage s : possibleMoves) {
             gameBoard.addSausage(s);
-            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
+            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()) + "sausage: " + s);
             System.out.println("–––––––––––––");
             gameBoard.removeLastSausage();
         }
