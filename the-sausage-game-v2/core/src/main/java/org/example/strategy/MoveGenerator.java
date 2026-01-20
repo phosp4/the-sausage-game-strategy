@@ -29,7 +29,7 @@ public class MoveGenerator {
         int[][] vectors = {
              {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
         };
-        Set<Sausage> validMoves = new TreeSet<>();
+        Set<Sausage> validMoves = new HashSet<>();
 
         // iteruj gridom, pre kazdy point skusaj
         for (int i = 0; i < grid.length; i++) {
