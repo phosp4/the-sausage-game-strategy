@@ -1,6 +1,5 @@
 package org.example.entities;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter

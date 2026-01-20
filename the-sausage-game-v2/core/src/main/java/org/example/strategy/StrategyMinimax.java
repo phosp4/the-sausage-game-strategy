@@ -13,10 +13,10 @@ import java.util.Map;
 
 public class StrategyMinimax {
 
-    private Player p1 = new Player("A");
-    private Player p2 = new Player("B");
+    private final Player p1 = new Player("A");
+    private final Player p2 = new Player("B");
 
-    private Map<MemoCall,Integer> memoVals = new HashMap<>();
+    private final Map<MemoCall,Integer> memoVals = new HashMap<>();
 
     public Map<MemoCall,Integer> minimaxMemoVals(GameBoard gameBoardState, boolean isMaximizingPlayer) {
         memoVals.clear();
