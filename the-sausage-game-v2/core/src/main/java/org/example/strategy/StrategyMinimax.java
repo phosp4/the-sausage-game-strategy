@@ -16,9 +16,9 @@ public class StrategyMinimax {
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
 
-    private final Map<MemoCall,Integer> memoVals = new HashMap<>();
+    private final Map<GameBoard,Integer> memoVals = new HashMap<>();
 
-    public Map<MemoCall,Integer> minimaxMemoVals(GameBoard gameBoardState, boolean isMaximizingPlayer) {
+    public Map<GameBoard,Integer> minimaxMemoVals(GameBoard gameBoardState, boolean isMaximizingPlayer) {
         memoVals.clear();
         minimaxMemo(gameBoardState, isMaximizingPlayer);
         return memoVals;
@@ -31,14 +31,13 @@ public class StrategyMinimax {
             return -2; // specialna hodnota na oznacenie prerusenia
         }
 
-        MemoCall mc = new MemoCall(gameBoardState, isMaximizingPlayer);
-        if (memoVals.containsKey(mc)) {
-            return memoVals.get(mc);
+        if (memoVals.containsKey(gameBoardState)) {
+            return memoVals.get(gameBoardState);
         }
 
         int returnVal;
 
-        if (gameBoardState.isGameOver()) { // toto je tu mozno zbytocne...
+        if (gameBoardState.isGameOver()) {
             if (gameBoardState.isFirstPlayerWinner()) {
                 return 1;
             } else {
@@ -74,8 +73,7 @@ public class StrategyMinimax {
             returnVal = bestValue;
         }
 
-//        memoVals.put(mc, returnVal);
+//        memoVals.put(gameBoardState, returnVal);
         return returnVal;
     }
-
 }
