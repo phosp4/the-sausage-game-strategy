@@ -18,6 +18,12 @@ public class StrategyMinimax {
 
     private Map<MemoCall,Integer> memoVals = new HashMap<>();
 
+    public Map<MemoCall,Integer> minimaxMemoVals(GameBoard gameBoardState, boolean isMaximizingPlayer) {
+        memoVals.clear();
+        minimaxMemo(gameBoardState, isMaximizingPlayer);
+        return memoVals;
+    }
+
     public int minimaxMemo(GameBoard gameBoardState, boolean isMaximizingPlayer) {
 
         // doplnok na behu v threade
