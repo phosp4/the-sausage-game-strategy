@@ -1,18 +1,17 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
-import org.example.entities.Point;
-import org.example.utils.CsvWriterUtil;
+import org.example.utils.CsvUtil;
 
-import java.util.*;
 import java.util.concurrent.*;
 
 public class Launchers {
 
     public static final String PATH_PREFIX = "minimax_";
+    public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
 
     public static void main(String[] args) {
-        test4(40, 2000);
+        test4(20, 2000);
     }
 
     // generated with aistudio to add timeout and skip logic
@@ -27,7 +26,7 @@ public class Launchers {
             boolean[][] timedOut = new boolean[n][n];
 
             for (int i = 0; i < n; i++) {
-                for (int j = i; j < n; j++) {
+                for (int j = 0; j < n; j++) {
                     int res;
 
                     // LOGIKA PRESKAKOVANIA:
@@ -63,11 +62,11 @@ public class Launchers {
                     else if (res == -3) color = "⬜"; // Biela pre preskočené
                     else color = "⬛"; // Čierna pre timeout/remízu
 
-                    // Symetrické uloženie (keďže doska 3x5 je z hľadiska minimaxu rovnaká ako 5x3)
+                    // radsej nesymetricky - kvoli kontrole
                     results[i][j] = res;
-                    results[j][i] = res;
+//                    results[j][i] = res;
                     resultsColors[i][j] = color;
-                    resultsColors[j][i] = color;
+//                    resultsColors[j][i] = color;
 
                     // Ak v tomto riadku i nastal timeout pre rozmer j,
                     // všetky nasledujúce j v tomto riadku budú tiež timeouty (voliteľná optimalizácia)
@@ -81,7 +80,7 @@ public class Launchers {
             }
 
             // Výpis výsledkov (nezmenený)
-            CsvWriterUtil.writeIntArrayToCSV(results);
+            String path = CsvUtil.writeIntArrayToCSV(results);
             for (int i = 0; i < resultsColors.length; i++) {
                 StringBuilder line = new StringBuilder();
                 for (int j = 0; j < resultsColors[0].length; j++) {
@@ -89,6 +88,12 @@ public class Launchers {
                 }
                 System.out.println(line);
             }
+
+            // compare with ground truth
+            CsvUtil.CompareCSVsOnesMinusOnes(path, GROUND_TRUTH);
+
+            // check the symmetry
+            CsvUtil.isSymmetricCSV(path);
 
         } catch (Throwable t) {
             t.printStackTrace();
