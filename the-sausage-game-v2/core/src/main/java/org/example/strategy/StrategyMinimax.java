@@ -74,7 +74,7 @@ public class StrategyMinimax {
             returnVal = bestValue;
         }
 
-        memoVals.put(mc, returnVal);
+//        memoVals.put(mc, returnVal);
         return returnVal;
     }
 
