@@ -30,7 +30,7 @@ public class GameController {
     /** Called by a UI when a player attempts a move. Returns true if applied. */
     public boolean tryApplyMove(Sausage move) {
         lastError = null;
-        move.setPlayer(getCurrentPlayer());
+        move.setPlayer(turnManager.getCurrentPlayer());
         try {
             gameBoard.addSausage(move);
             turnManager.nextTurn();
@@ -50,10 +50,4 @@ public class GameController {
         if (possible.isEmpty()) return null;
         return possible.get(ThreadLocalRandom.current().nextInt(possible.size()));
     }
-
-    public boolean isOver() { return gameBoard.isGameOver(); }
-    public Player getWinner() { return gameBoard.getWinner(); }
-    public Player getCurrentPlayer() { return turnManager.getCurrentPlayer(); }
-    public String getLastError() { return lastError; }
-    public Sausage[][] snapshotGrid() { return gameBoard.getGrid(); } // or expose read-only fields you already have
 }

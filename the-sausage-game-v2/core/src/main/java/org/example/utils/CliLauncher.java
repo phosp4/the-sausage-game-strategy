@@ -1,7 +1,6 @@
 package org.example.utils;
 
 import org.example.engine.GameController;
-import org.example.engine.InputHandlerCli;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 
@@ -12,24 +11,24 @@ public class CliLauncher {
         GameController ctrl = new GameController(5, 5, p1, p2, null);
 
         System.out.println("Welcome to the Sausage Game!");
-        System.out.println(CliRendererUtil.gridToString(ctrl.snapshotGrid()));
+        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
-        while (!ctrl.isOver()) {
-            Player current = ctrl.getCurrentPlayer();
+        while (!ctrl.getGameBoard().isGameOver()) {
+            Player current = ctrl.getTurnManager().getCurrentPlayer();
             System.out.println("Current player: " + current.getName());
 
             Sausage move = current.getName().equals("auto")
                 ? ctrl.pickRandomLegalMove()
-                : new InputHandlerCli().nacitajSausage();
+                : new CliInputHandler().nacitajSausage();
 
             if (!ctrl.tryApplyMove(move)) {
                 System.out.println(ctrl.getLastError() + " Try again.");
                 continue;
             }
 
-            System.out.println(CliRendererUtil.gridToString(ctrl.snapshotGrid()));
+            System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
         }
-        System.out.println("Game over! Winner: " + ctrl.getWinner().getName());
+        System.out.println("Game over! Winner: " + ctrl.getGameBoard().getWinner().getName());
     }
 
 }

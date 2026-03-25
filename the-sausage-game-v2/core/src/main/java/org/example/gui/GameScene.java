@@ -3,10 +3,12 @@ package org.example.gui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -208,7 +210,7 @@ public class GameScene implements Screen {
                     circles.add(new GridCircle(
                             colToX(col, row),
                             rowToY(col, row),
-                            row, col, baseCircleRadius, enlargedCircleRadius));
+                            row, col));
                 }
             }
         }
@@ -290,37 +292,32 @@ public class GameScene implements Screen {
 
     private void handleNewSausage() {
         if (firstCircle != null && secondCircle != null && thirdCircle != null) {
-            try {
-                Sausage s = new Sausage(ctrl.getCurrentPlayer(),
-                        new Point(firstCircle.getCol(), firstCircle.getRow()),
-                        new Point(secondCircle.getCol(), secondCircle.getRow()),
-                        new Point(thirdCircle.getCol(), thirdCircle.getRow()));
-                ctrl.getGameBoard().addSausage(s);
-            } catch (InvalidPointForGridException e) {
-                System.err.println(e);
-                return;
-            } catch (IntersectingSausagesException e) {
-                System.err.println(e);
-                return;
+
+            Sausage s = new Sausage(ctrl.getTurnManager().getCurrentPlayer(),
+                new Point(firstCircle.getCol(), firstCircle.getRow()),
+                new Point(secondCircle.getCol(), secondCircle.getRow()),
+                new Point(thirdCircle.getCol(), thirdCircle.getRow()));
+
+            if (ctrl.tryApplyMove(s)) {
+                firstCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
+                secondCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
+                thirdCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
+
+                System.out.println(ctrl.getTurnManager().getCurrentPlayer());
+                System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+
+                if (ctrl.getGameBoard().isGameOver()) {
+                    String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
+                    System.out.println("Game over! Winner: " + winnerName);
+//                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
+//                    dialog.showOn(stage);
+                    firstCircle = null;
+                    secondCircle = null;
+                    thirdCircle = null;
+                }
+            } else {
+                System.out.println("Problem with handling new sausage: " + ctrl.getLastError());
             }
-
-            firstCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-            secondCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-            thirdCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-
-            System.out.println(ctrl.getTurnManager().getCurrentPlayer());
-            ctrl.getTurnManager().nextTurn();
-            System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-
-            if (ctrl.getGameBoard().isGameOver()) {
-                String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
-//                GameOverDialog dialog = new GameOverDialog(game, winnerName);
-//                dialog.showOn(stage);
-                firstCircle = null;
-                secondCircle = null;
-                thirdCircle = null;
-            }
-
 //            playStrategy();
         }
     }
@@ -331,7 +328,7 @@ public class GameScene implements Screen {
             Long bitboard = GridBitMask.encode(ctrl.getGameBoard().getGrid());
             Sausage dokonalyTah = strategy.get(bitboard);
             if (dokonalyTah != null) {
-                dokonalyTah.setPlayer(ctrl.getCurrentPlayer());
+                dokonalyTah.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
                 ctrl.getGameBoard().addSausage(dokonalyTah);
                 // todo update circles
                 ctrl.getTurnManager().nextTurn();
@@ -345,16 +342,16 @@ public class GameScene implements Screen {
 
     // toto nechavam - su to len docasne spojenia ktore sa tahaju
     private void handleTemporaryConnections() {
-        if (firstCircle == null && currentlyHoveredCircle != null && !currentlyHoveredCircle.getIsConnected()) {
+        if (firstCircle == null && currentlyHoveredCircle != null && !currentlyHoveredCircle.isConnected()) {
             firstCircle = currentlyHoveredCircle;
             SoundManager.play(selectSound);
         } else if (firstCircle != null && secondCircle == null && currentlyHoveredCircle != null
-                && currentlyHoveredCircle != firstCircle && ValidatorUtil.areNeigbours(new Point(firstCircle.getCol(), firstCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.getIsConnected()) {
+                && currentlyHoveredCircle != firstCircle && ValidatorUtil.areNeigbours(new Point(firstCircle.getCol(), firstCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.isConnected()) {
             secondCircle = currentlyHoveredCircle;
             SoundManager.play(selectSound);
         } else if (firstCircle != null && secondCircle != null && currentlyHoveredCircle != null
                 && currentlyHoveredCircle != firstCircle && currentlyHoveredCircle != secondCircle
-                && ValidatorUtil.areNeigbours(new Point(secondCircle.getCol(), secondCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.getIsConnected()) {
+                && ValidatorUtil.areNeigbours(new Point(secondCircle.getCol(), secondCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.isConnected()) {
             if (thirdCircle != currentlyHoveredCircle) { // Play sound only when thirdCircle is newly assigned
                 thirdCircle = currentlyHoveredCircle;
                 SoundManager.play(selectSound);
@@ -400,7 +397,7 @@ public class GameScene implements Screen {
             circle.setY(newY);
 
             // Teraz skontrolujeme hover s aktualizovanou pozíciou
-            boolean isHovered = circle.updateIfHovered(mouseX, mouseY, isTouched, ctrl.getTurnManager());
+            boolean isHovered = updateCircleIfHovered(circle);
 
             if (isHovered) {
                 currentlyHoveredCircle = circle;
@@ -411,10 +408,26 @@ public class GameScene implements Screen {
             drawer.filledCircle(
                 newX,
                 newY,
-                circle.isEnlarged() ? circle.getEnlargedRadius() : circle.getBaseRadius());
+                circle.isEnlarged() ? enlargedCircleRadius : baseCircleRadius);
         }
     }
 
+    /**
+     * Updates the circle's hover state and radius based on mouse position and touch state.
+     */
+    public boolean updateCircleIfHovered(GridCircle circle) {
+        float currentRadius = circle.isEnlarged() ? enlargedCircleRadius : baseCircleRadius;
+        boolean isHovered = Math.hypot(mouseX - circle.getX(), mouseY - circle.getY()) <= currentRadius;
+        if (isHovered) {
+            circle.setColor(circle.isConnected() ? circle.getColor() : ctrl.getTurnManager().getCurrentPlayer().getColor());
+            circle.setEnlarged(isTouched);
+            return true;
+        } else {
+            circle.setColor(circle.isConnected() ? circle.getColor() : Color.BLACK);
+            circle.setEnlarged(false);
+            return false;
+        }
+    }
 
     private void drawSausages() {
         // Draw all connections
@@ -458,12 +471,12 @@ public class GameScene implements Screen {
             drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
             for (GridCircle circle : circles) {
-                if (circle != firstCircle && circle != secondCircle && !circle.getIsConnected() &&
+                if (circle != firstCircle && circle != secondCircle && !circle.isConnected() &&
                         ValidatorUtil.areNeigbours(new Point(anchor.getCol(), anchor.getRow()), new Point(circle.getCol(), circle.getRow())) &&
                         ValidatorUtil.haveNoIntersectionInGrid(
                                 new Point(anchor.getCol(), anchor.getRow()),
                                 new Point(circle.getCol(), circle.getRow()), ctrl.getGameBoard().getGrid())) {
-                    drawer.circle(sx(circle), sy(circle), circle.getBaseRadius() + 6f);
+                    drawer.circle(sx(circle), sy(circle), baseCircleRadius + 6f);
                 }
             }
         }

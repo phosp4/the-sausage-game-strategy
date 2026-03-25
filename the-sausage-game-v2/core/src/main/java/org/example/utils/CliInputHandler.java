@@ -1,24 +1,21 @@
-package org.example.engine;
+package org.example.utils;
 
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.utils.ValidatorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class InputHandlerCli implements InputHandler {
+public class CliInputHandler {
 
     Scanner scanner = new Scanner(System.in);
 
-    @Override
     public String getPlayerName() {
         System.out.println("Enter player name: ");
         return scanner.nextLine();
     }
 
-    @Override
     public Sausage nacitajSausage() {
         List<Point> points = new ArrayList<>();
 

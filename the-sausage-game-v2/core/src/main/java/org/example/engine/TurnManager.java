@@ -22,14 +22,7 @@ public class TurnManager {
         return isPlayer1Turn ? player2 : player1;
     }
 
-
     public void nextTurn() {
         isPlayer1Turn = !isPlayer1Turn;
     }
-//    public boolean isGameOver(Grid grid) {
-////        // delegate to some WinChecker or RuleEngine
-////        return grid.checkWin() || grid.isFull();
-//        // todo
-//        return false;
-//    }
 }
