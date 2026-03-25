@@ -10,28 +10,30 @@ public class Player {
     private Character oneLetterNickname;
     private Color color;
 
-    public Player(String name) {
-        this.name = name;
-        this.oneLetterNickname = name.charAt(0);
-        this.color = new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1f);
-    }
-
-    public Player(String name, Color color) {
-        this.name = name;
-        this.oneLetterNickname = name.charAt(0);
-        this.color = color;
-    }
-
-    public Player(String name, Character oneLetterNickname) {
-        this.name = name;
-        this.oneLetterNickname = oneLetterNickname;
-        this.color = new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1f);
-    }
-
     public Player(String name, Character oneLetterNickname, Color color) {
         this.name = name;
         this.oneLetterNickname = oneLetterNickname;
         this.color = color;
+    }
+
+    public Player(String name) {
+        this(name, name.charAt(0), getRandomColor());
+    }
+
+    public Player(String name, Color color) {
+        this(name, name.charAt(0), color);
+    }
+
+    public Player(String name, Character oneLetterNickname) {
+        this(name, oneLetterNickname, getRandomColor());
+    }
+
+    // Helper method to keep the constructors clean
+    private static Color getRandomColor() {
+//        return new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1f);
+        Color c = new Color(0.03F, 0.878F, 0, 1f);
+        System.out.println(c);
+        return c;
     }
 
     @Override

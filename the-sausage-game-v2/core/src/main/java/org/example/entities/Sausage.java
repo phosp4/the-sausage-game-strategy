@@ -3,14 +3,15 @@ package org.example.entities;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Data
 //@EqualsAndHashCode
-public class Sausage {
+public class Sausage implements Serializable {
 //    private Set<Point> threePoints = new HashSet<>();
     private List<Point> threePoints = new ArrayList<>();
-    private Player player;
+    transient private Player player; // neuklada sa pri serializacii
 
     public Sausage(Player player, Point p1, Point p2, Point p3) {
 

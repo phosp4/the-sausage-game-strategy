@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.engine.TurnManager;
+import org.example.entities.Player;
 
 @Data
 public class GridCircle {
@@ -34,11 +35,11 @@ public class GridCircle {
         float currentRadius = isEnlarged ? enlargedRadius : baseRadius;
         boolean isHovered = Math.hypot(mouseX - x, mouseY - y) <= currentRadius;
         if (isHovered) {
-            color = isConnected ? Color.GRAY : turnManager.getCurrentPlayer().getColor();
+            color = isConnected ? color : turnManager.getCurrentPlayer().getColor();
             isEnlarged = isTouched;
             return true;
         } else {
-            color = isConnected ? Color.GRAY : Color.BLACK;
+            color = isConnected ? color : Color.BLACK;
             isEnlarged = false;
             return false;
         }
@@ -48,7 +49,8 @@ public class GridCircle {
     public boolean getIsConnected() {
         return isConnected;
     }
-    public void setIsConnected(boolean isConnected) {
+    public void setIsConnected(boolean isConnected, Player p) {
         this.isConnected = isConnected;
+        color = p.getColor().cpy().mul(0.7f);
     }
 }

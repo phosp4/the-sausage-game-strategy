@@ -1,11 +1,12 @@
 package org.example.engine;
 
+import lombok.Getter;
 import org.example.entities.Player;
 
 public class TurnManager {
     private Player player1;
     private Player player2;
-    private boolean isPlayer1Turn;
+    @Getter private boolean isPlayer1Turn;
 
     public TurnManager(Player player1, Player player2) {
         this.player1 = player1;

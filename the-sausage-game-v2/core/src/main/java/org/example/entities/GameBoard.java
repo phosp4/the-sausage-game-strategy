@@ -150,4 +150,26 @@ public class GameBoard {
         return result;
     }
 
+    // ###########################
+
+    /**
+     * Converts a 2D Object array to a 2D boolean array.
+     * true = field is occupied (not null)
+     * false = field is null
+     */
+    public boolean[][] toBooleanArray() {
+        if (grid == null || grid.length == 0) return new boolean[0][0];
+
+        int rows = grid.length;
+        int cols = grid[0].length;
+        boolean[][] boolArray = new boolean[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                // If the field is not null, it's occupied (true)
+                boolArray[i][j] = (grid[i][j] != null);
+            }
+        }
+        return boolArray;
+    }
 }

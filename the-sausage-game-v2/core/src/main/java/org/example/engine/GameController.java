@@ -15,8 +15,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameController {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
-    private AutonomousOpponent auto;
-    private Player autonomousPlayer;
+//    private AutonomousOpponent auto;
+//    private Player autonomousPlayer;
 
     private String lastError = null; // todo toto asi dat inak
 

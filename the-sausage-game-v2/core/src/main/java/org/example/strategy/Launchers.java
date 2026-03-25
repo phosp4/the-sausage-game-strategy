@@ -1,8 +1,13 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
+import org.example.entities.Sausage;
 import org.example.utils.CsvUtil;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class Launchers {
@@ -11,7 +16,26 @@ public class Launchers {
     public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
 
     public static void main(String[] args) {
-        test4(20, 2000);
+//        test4(20, 2000);
+        test6(6,8);
+    }
+
+    public static void test6(int x, int y) {
+        StrategyMinimax sm = new StrategyMinimax();
+        GameBoard g = new GameBoard(x, y);
+        int whoIsWinner = sm.minimaxMemo(g, true);
+        System.out.println("Winner: " + whoIsWinner);
+    }
+
+    public static void test5(int x, int y) {
+        Map<Long, Sausage> firstPlayerStrategy = StrategyMinimax.getFirstPlayerStrategy(x, y);
+        System.out.println(firstPlayerStrategy);
+
+//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("strategy.ser"))) {
+//            oos.writeObject(firstPlayerStrategy);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     // generated with aistudio to add timeout and skip logic

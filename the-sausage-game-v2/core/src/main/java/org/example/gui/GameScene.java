@@ -17,18 +17,23 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import org.example.engine.GameController;
+import org.example.engine.TurnManager;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.exceptions.IntersectingSausagesException;
 import org.example.exceptions.InvalidPointForGridException;
+import org.example.strategy.GridBitMask;
+import org.example.strategy.StrategyMinimax;
 import org.example.utils.CliRendererUtil;
 import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class GameScene implements Screen {
 
@@ -71,16 +76,23 @@ public class GameScene implements Screen {
     private int ticker = 0;
     private int idx = 0;
 
+    // todo temporary
+    Map<Long, Sausage> strategy;
+
     public GameScene(GdxGame gdxGame) {
         this.game = gdxGame;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
-        this.columns = 7; // temporary
+        this.columns = 9; // temporary
         this.rows = 7; // temporary
         this.ctrl = new GameController(columns, rows, p1, p2, p2);
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
         moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
+
+//        // todo temporary
+//        strategy = StrategyMinimax.getFirstPlayerStrategy(columns, rows);
+//        System.out.println("strategy is: " + strategy);
     }
 
     @Override
@@ -157,6 +169,9 @@ public class GameScene implements Screen {
 //        // testing
 //        System.out.println(moves.size());
 //        System.out.println(new HashSet<>(moves).size());
+
+        // docasne
+//        playStrategy();
     }
 
     @Override
@@ -225,15 +240,15 @@ public class GameScene implements Screen {
     public void render(float delta) {
 
 //        // generate moves animation
-        ticker++;
-        if (ticker % 2 == 0) {
-            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
-            if (idx >= moves.size()) {
-                idx = 0;
-            }
-            ctrl.getGameBoard().addSausage(moves.get(idx));
-            idx++;
-        }
+//        ticker++;
+//        if (ticker % 2 == 0) {
+//            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
+//            if (idx >= moves.size()) {
+//                idx = 0;
+//            }
+//            ctrl.getGameBoard().addSausage(moves.get(idx));
+//            idx++;
+//        }
 
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);
@@ -258,7 +273,6 @@ public class GameScene implements Screen {
 
         batch.begin();
         drawCircleHints();
-        drawExistingCircles();
         drawSausages();
         if (isTouched) { handleTemporaryConnections(); }
         else {
@@ -267,6 +281,7 @@ public class GameScene implements Screen {
             secondCircle = null;
             thirdCircle = null;
         }
+        drawExistingCircles();
         batch.end();
 
         stage.act(delta);
@@ -289,9 +304,9 @@ public class GameScene implements Screen {
                 return;
             }
 
-            firstCircle.setIsConnected(true);
-            secondCircle.setIsConnected(true);
-            thirdCircle.setIsConnected(true);
+            firstCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
+            secondCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
+            thirdCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
 
             System.out.println(ctrl.getTurnManager().getCurrentPlayer());
             ctrl.getTurnManager().nextTurn();
@@ -304,6 +319,26 @@ public class GameScene implements Screen {
                 firstCircle = null;
                 secondCircle = null;
                 thirdCircle = null;
+            }
+
+//            playStrategy();
+        }
+    }
+
+    private void playStrategy() {
+        // strategy player demo
+        if (ctrl.getTurnManager().isPlayer1Turn()) {
+            Long bitboard = GridBitMask.encode(ctrl.getGameBoard().getGrid());
+            Sausage dokonalyTah = strategy.get(bitboard);
+            if (dokonalyTah != null) {
+                dokonalyTah.setPlayer(ctrl.getCurrentPlayer());
+                ctrl.getGameBoard().addSausage(dokonalyTah);
+                // todo update circles
+                ctrl.getTurnManager().nextTurn();
+                System.out.println("Strategy played for player 1: " + dokonalyTah);
+            } else {
+                System.out.println(bitboard);
+                System.out.println("problem");
             }
         }
     }

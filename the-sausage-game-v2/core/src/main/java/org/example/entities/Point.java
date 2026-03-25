@@ -2,8 +2,10 @@ package org.example.entities;
 
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
-public class Point implements Comparable<Point> {
+public class Point implements Comparable<Point>, Serializable {
     private final int x;
     private final int y;
 
