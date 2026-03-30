@@ -7,6 +7,7 @@ import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
@@ -24,6 +25,26 @@ public class GameBoard {
 
         grid = new Sausage[y][x]; // using doubled coordinates
         sausages = new ArrayDeque<>();
+    }
+
+    // metoda getXthPoint pridat
+
+    public List<Point> getNeighbours(Point anchor) {
+        List<Point> neighbours = new ArrayList<>();
+
+        int[][] vectors = {
+            {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
+        };
+        for (int[] v1 : vectors) {
+            Point p = new Point(anchor.getX() + v1[0], anchor.getY() + v1[1]);
+
+            if (ValidatorUtil.isPointValidForGrid(p, grid) &&
+                ValidatorUtil.haveNoIntersectionInGrid(anchor, p, grid)) {
+                neighbours.add(p);
+            };
+        }
+
+        return neighbours;
     }
 
     public void addSausage(Sausage sausage) throws InvalidPointForGridException, IntersectingSausagesException {
@@ -66,6 +87,10 @@ public class GameBoard {
     // <=> is full
     public boolean isGameOver() {
         return MoveGenerator.getAllPossibleMoves(grid).isEmpty();
+    }
+
+    public boolean isOccupied(int x, int y) {
+        return !(grid[y][x] == null);
     }
 
     // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat

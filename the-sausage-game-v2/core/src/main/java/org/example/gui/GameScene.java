@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -49,29 +50,26 @@ public class GameScene implements Screen {
     private ShapeDrawer drawer;
 
     // temporal ui data
-    private GridCircle firstCircle = null;
-    private GridCircle secondCircle = null;
-    private GridCircle thirdCircle = null;
-    private GridCircle currentlyHoveredCircle;
     private float mouseX;
     private float mouseY;
-    private float baseCircleRadius;
-    private float enlargedCircleRadius;
-    private boolean isTouched;
+    private Point firstPoint = null;
+    private Point secondPoint = null;
+    private Point thirdPoint = null;
+    private Point hoveredPoint = null;
 
     // libgdx assets
-//    private Texture background;
     private Sound selectSound;
 
+    // constants
     private final int columns;
     private final int rows;
+    private float baseCircleRadius;
+    private float enlargedCircleRadius;
 
     // pre vypocet rovnomernej mriezky
     private float cellSize;
     private float gridOffsetX;
     private float gridOffsetY;
-
-    private List<GridCircle> circles;
 
 //    // generate moves animation
     private List<Sausage> moves;
@@ -109,7 +107,6 @@ public class GameScene implements Screen {
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-//        background = new Texture(Gdx.files.internal("white-paper-texture.png"));
 
         // Create a 1x1 pixel texture to use as a pixel for drawing
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -121,9 +118,6 @@ public class GameScene implements Screen {
 
         batch = stage.getBatch();
         drawer = new ShapeDrawer(batch, new TextureRegion(pixelTexture));
-
-        circles = new ArrayList<>();
-        generateCircles();
 
         // sounds
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
@@ -168,10 +162,6 @@ public class GameScene implements Screen {
 //        table.padBottom(0); // Add padding from the bottom edge
         stage.addActor(table);
 
-//        // testing
-//        System.out.println(moves.size());
-//        System.out.println(new HashSet<>(moves).size());
-
         // docasne
 //        playStrategy();
     }
@@ -198,41 +188,14 @@ public class GameScene implements Screen {
 
     }
 
-    private void generateCircles() {
-
-        // Clear existing circles and connections
-        circles.clear();
-
-        // Generate circles based on the Checkerboard parity logic
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
-                if ((row + col) % 2 == 0) {
-                    circles.add(new GridCircle(
-                            colToX(col, row),
-                            rowToY(col, row),
-                            row, col));
-                }
-            }
-        }
-    }
-
-    private float colToX(int col, int row) {
+    private float colToX(int col) {
         // Začiatok mriežky + jedna bunka (padding zľava) + pozícia stĺpca
         return gridOffsetX + cellSize + col * cellSize;
     }
 
-    private float rowToY(int col, int row) {
+    private float rowToY(int row) {
         // Začiatok mriežky + celá výška - pozícia riadku (odpočítavame, lebo Y=0 je dole)
         return gridOffsetY + (rows + 1f) * cellSize - cellSize * (row + 1);
-    }
-
-    // screen x and screen y
-    private float sx(GridCircle c) {
-        return colToX(c.getCol(), c.getRow());
-    }
-
-    private float sy(GridCircle c) {
-        return rowToY(c.getCol(), c.getRow());
     }
 
     /*
@@ -254,11 +217,14 @@ public class GameScene implements Screen {
 
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);
+        stage.getViewport().apply(); // Zabezpečí, že viewport aplikuje svoje rozmery na aktuálny frame (nutné pri resize)
         updateGridMetrics();
 
-        mouseX = Gdx.input.getX();
-        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        isTouched = Gdx.input.isTouched();
+        // Bezpečné získanie súradníc myši vo svete (rieši HDPI a rôzne pomery strán)
+        Vector2 mousePos = stage.getViewport().unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
+        mouseX = mousePos.x; // Gdx.input.getX();
+        mouseY = mousePos.y; // Gdx.graphics.getHeight() - Gdx.input.getY();
 
         // todo docasne, na skusku - nesynchronizovane s circles...
 //        if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutonomousPlayer())) {
@@ -273,17 +239,18 @@ public class GameScene implements Screen {
 //            }
 //        }
 
+        // KĽÚČOVÁ ZMENA: Zladenie Batch matice s kamerou tvojho Stage!
+        batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
+
         batch.begin();
         drawCircleHints();
         drawSausages();
-        if (isTouched) { handleTemporaryConnections(); }
+        if (Gdx.input.isTouched()) { handleTemporaryConnections(); }
         else {
             handleNewSausage();
-            firstCircle = null;
-            secondCircle = null;
-            thirdCircle = null;
         }
-        drawExistingCircles();
+//        drawExistingCircles();
+        drawCircles();
         batch.end();
 
         stage.act(delta);
@@ -291,18 +258,14 @@ public class GameScene implements Screen {
     }
 
     private void handleNewSausage() {
-        if (firstCircle != null && secondCircle != null && thirdCircle != null) {
+        if (firstPoint != null && secondPoint != null && thirdPoint != null) {
 
             Sausage s = new Sausage(ctrl.getTurnManager().getCurrentPlayer(),
-                new Point(firstCircle.getCol(), firstCircle.getRow()),
-                new Point(secondCircle.getCol(), secondCircle.getRow()),
-                new Point(thirdCircle.getCol(), thirdCircle.getRow()));
+                new Point(firstPoint.getX(), firstPoint.getY()),
+                new Point(secondPoint.getX(), secondPoint.getY()),
+                new Point(thirdPoint.getX(), thirdPoint.getY()));
 
             if (ctrl.tryApplyMove(s)) {
-                firstCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-                secondCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-                thirdCircle.setIsConnected(true, ctrl.getTurnManager().getCurrentPlayer());
-
                 System.out.println(ctrl.getTurnManager().getCurrentPlayer());
                 System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
@@ -311,15 +274,16 @@ public class GameScene implements Screen {
                     System.out.println("Game over! Winner: " + winnerName);
 //                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
 //                    dialog.showOn(stage);
-                    firstCircle = null;
-                    secondCircle = null;
-                    thirdCircle = null;
                 }
             } else {
                 System.out.println("Problem with handling new sausage: " + ctrl.getLastError());
             }
 //            playStrategy();
         }
+        // toto je potrebne aby zabudlo, aj ked sa nevytvorila klobaska
+        firstPoint = null;
+        secondPoint = null;
+        thirdPoint = null;
     }
 
     private void playStrategy() {
@@ -340,93 +304,94 @@ public class GameScene implements Screen {
         }
     }
 
-    // toto nechavam - su to len docasne spojenia ktore sa tahaju
     private void handleTemporaryConnections() {
-        if (firstCircle == null && currentlyHoveredCircle != null && !currentlyHoveredCircle.isConnected()) {
-            firstCircle = currentlyHoveredCircle;
-            SoundManager.play(selectSound);
-        } else if (firstCircle != null && secondCircle == null && currentlyHoveredCircle != null
-                && currentlyHoveredCircle != firstCircle && ValidatorUtil.areNeigbours(new Point(firstCircle.getCol(), firstCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.isConnected()) {
-            secondCircle = currentlyHoveredCircle;
-            SoundManager.play(selectSound);
-        } else if (firstCircle != null && secondCircle != null && currentlyHoveredCircle != null
-                && currentlyHoveredCircle != firstCircle && currentlyHoveredCircle != secondCircle
-                && ValidatorUtil.areNeigbours(new Point(secondCircle.getCol(), secondCircle.getRow()), new Point(currentlyHoveredCircle.getCol(), currentlyHoveredCircle.getRow())) && !currentlyHoveredCircle.isConnected()) {
-            if (thirdCircle != currentlyHoveredCircle) { // Play sound only when thirdCircle is newly assigned
-                thirdCircle = currentlyHoveredCircle;
-                SoundManager.play(selectSound);
-            }
-            thirdCircle = currentlyHoveredCircle;
+        boolean isHoveredPointOccupied = true;
+
+        if (hoveredPoint != null) {
+            isHoveredPointOccupied = ctrl.getGameBoard().isOccupied(hoveredPoint.getX(), hoveredPoint.getY());
         }
 
-        // Draw connection-in-progress lines
+        if (hoveredPoint != null && !isHoveredPointOccupied) {
+            if (firstPoint == null) {
+                firstPoint = hoveredPoint;
+                SoundManager.play(selectSound);
+            } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
+                secondPoint = hoveredPoint;
+                SoundManager.play(selectSound);
+            } else if (secondPoint != null && !hoveredPoint.equals(firstPoint) && !hoveredPoint.equals(secondPoint) && ValidatorUtil.areNeigbours(secondPoint, hoveredPoint)) {
+                if (!hoveredPoint.equals(thirdPoint)) {
+                    thirdPoint = hoveredPoint;
+                    SoundManager.play(selectSound);
+                }
+            }
+        }
+
+        // draw in progress connection lines
         drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
         drawer.setDefaultLineWidth(enlargedCircleRadius);
 
-        if (firstCircle != null && secondCircle == null) {
-            drawer.line(sx(firstCircle), sy(firstCircle), mouseX, mouseY);
-            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
+        // mozno sa to da aj krajsie, ale whatever
+        if (firstPoint != null && secondPoint == null && thirdPoint == null) {
+            drawer.line(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), mouseX, mouseY);
+            drawer.filledCircle(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), baseCircleRadius); // zaoblene konce ciar
+            drawer.filledCircle(mouseX, mouseY, baseCircleRadius); // zaoblene konce ciar
+        } else if (firstPoint != null && secondPoint != null && thirdPoint == null) {
+            drawer.line(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), colToX(secondPoint.getX()), rowToY(secondPoint.getY()));
+            drawer.line(colToX(secondPoint.getX()), rowToY(secondPoint.getY()), mouseX, mouseY);
+            drawer.filledCircle(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), baseCircleRadius);
+            drawer.filledCircle(colToX(secondPoint.getX()), rowToY(secondPoint.getY()), baseCircleRadius);
             drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
-        } else if (firstCircle != null && secondCircle != null && thirdCircle == null) {
-            drawer.line(sx(firstCircle), sy(firstCircle), sx(secondCircle), sy(secondCircle));
-            drawer.line(sx(secondCircle), sy(secondCircle), mouseX, mouseY);
-            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
-            drawer.filledCircle(sx(secondCircle), sy(secondCircle), baseCircleRadius);
-            drawer.filledCircle(mouseX, mouseY, baseCircleRadius);
-        } else if (firstCircle != null && secondCircle != null && thirdCircle != null) {
-            drawer.line(sx(firstCircle), sy(firstCircle), sx(secondCircle), sy(secondCircle));
-            drawer.line(sx(secondCircle), sy(secondCircle), sx(thirdCircle), sy(thirdCircle));
-            drawer.filledCircle(sx(firstCircle), sy(firstCircle), baseCircleRadius);
-            drawer.filledCircle(sx(secondCircle), sy(secondCircle), baseCircleRadius);
-            drawer.filledCircle(sx(thirdCircle), sy(thirdCircle), baseCircleRadius);
-        }
-
-    }
-
-    // toto nechavam - myslim ze ma zmysel ukladat ui circle samostatne
-    private void drawExistingCircles() {
-        currentlyHoveredCircle = null;
-        for (GridCircle circle : circles) {
-
-            // FIX: Musíme aktualizovať uloženú pozíciu kruhu, aby sedela s novým výpočtom mriežky
-            float newX = sx(circle);
-            float newY = sy(circle);
-
-            // Ak máte prístup k x/y priamo alebo cez setter:
-            circle.setX(newX);
-            circle.setY(newY);
-
-            // Teraz skontrolujeme hover s aktualizovanou pozíciou
-            boolean isHovered = updateCircleIfHovered(circle);
-
-            if (isHovered) {
-                currentlyHoveredCircle = circle;
-            }
-
-            drawer.setColor(circle.getColor());
-
-            drawer.filledCircle(
-                newX,
-                newY,
-                circle.isEnlarged() ? enlargedCircleRadius : baseCircleRadius);
+        } else if (firstPoint != null && secondPoint != null && thirdPoint != null) {
+            drawer.line(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), colToX(secondPoint.getX()), rowToY(secondPoint.getY()));
+            drawer.line(colToX(secondPoint.getX()), rowToY(secondPoint.getY()), colToX(thirdPoint.getX()), rowToY(thirdPoint.getY()));
+            drawer.filledCircle(colToX(firstPoint.getX()), rowToY(firstPoint.getY()), baseCircleRadius);
+            drawer.filledCircle(colToX(secondPoint.getX()), rowToY(secondPoint.getY()), baseCircleRadius);
+            drawer.filledCircle(colToX(thirdPoint.getX()), rowToY(thirdPoint.getY()), baseCircleRadius);
         }
     }
 
-    /**
-     * Updates the circle's hover state and radius based on mouse position and touch state.
-     */
-    public boolean updateCircleIfHovered(GridCircle circle) {
-        float currentRadius = circle.isEnlarged() ? enlargedCircleRadius : baseCircleRadius;
-        boolean isHovered = Math.hypot(mouseX - circle.getX(), mouseY - circle.getY()) <= currentRadius;
-        if (isHovered) {
-            circle.setColor(circle.isConnected() ? circle.getColor() : ctrl.getTurnManager().getCurrentPlayer().getColor());
-            circle.setEnlarged(isTouched);
-            return true;
+    private void drawCircles() {
+        hoveredPoint = null;
+
+        // iterate circles
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < columns; col++) {
+                if ((row + col) % 2 == 0) {
+                    float newX = colToX(col);
+                    float newY = rowToY(row);
+
+                    //
+                    boolean isHovered = Math.hypot(mouseX - newX, mouseY - newY) <= baseCircleRadius;
+                    Color circleColor = getCircleColor(col, row, isHovered);
+
+                    if (isHovered) {
+                        hoveredPoint = new Point(col, row);
+                    }
+
+                    drawer.setColor(circleColor);
+                    if (hoveredPoint != null && hoveredPoint.getX() == col && hoveredPoint.getY() == row) {
+                        drawer.filledCircle(newX, newY, enlargedCircleRadius);
+                    } else {
+                        drawer.filledCircle(newX, newY, baseCircleRadius);
+                    }
+                }
+             }
+        }
+    }
+
+    // pomocna metoda k drawCircles
+    private Color getCircleColor(int col, int row, boolean isHovered) {
+        boolean isConnected = ctrl.getGameBoard().getGrid()[row][col] != null;
+        Color circleColor;
+
+        if (isHovered && isConnected) {
+            circleColor = ctrl.getGameBoard().getGrid()[row][col].getPlayer().getColor();
+        } else if (isHovered) {
+            circleColor = ctrl.getTurnManager().getCurrentPlayer().getColor();
         } else {
-            circle.setColor(circle.isConnected() ? circle.getColor() : Color.BLACK);
-            circle.setEnlarged(false);
-            return false;
+            circleColor = Color.BLACK;
         }
+        return circleColor;
     }
 
     private void drawSausages() {
@@ -439,20 +404,20 @@ public class GameScene implements Screen {
             drawer.setColor(s.getPlayer().getColor());
 
             drawer.line(
-                    colToX(points.get(0).getX(), points.get(0).getY()),
-                    rowToY(points.get(0).getX(), points.get(0).getY()),
-                    colToX(points.get(1).getX(), points.get(1).getY()),
-                    rowToY(points.get(1).getX(), points.get(1).getY()));
+                    colToX(points.get(0).getX()),
+                    rowToY(points.get(0).getY()),
+                    colToX(points.get(1).getX()),
+                    rowToY(points.get(1).getY()));
             drawer.line(
-                    colToX(points.get(1).getX(), points.get(1).getY()),
-                    rowToY(points.get(1).getX(), points.get(1).getY()),
-                    colToX(points.get(2).getX(), points.get(2).getY()),
-                    rowToY(points.get(2).getX(), points.get(2).getY()));
+                    colToX(points.get(1).getX()),
+                    rowToY(points.get(1).getY()),
+                    colToX(points.get(2).getX()),
+                    rowToY(points.get(2).getY()));
 
             for (Point p : points) {
                 drawer.filledCircle(
-                        colToX(p.getX(), p.getY()),
-                        rowToY(p.getX(), p.getY()),
+                        colToX(p.getX()),
+                        rowToY(p.getY()),
                         baseCircleRadius);
             }
 
@@ -460,31 +425,27 @@ public class GameScene implements Screen {
     }
 
     private void drawCircleHints() {
-        // draw the highlight around circles
-        GridCircle anchor = null;
-        if (firstCircle != null && secondCircle == null) {
-            anchor = firstCircle;
-        } else if (secondCircle != null && thirdCircle == null) {
-            anchor = secondCircle;
+        Point anchor = null;
+        if (firstPoint != null && secondPoint == null) {
+            anchor = firstPoint;
+        } else if (secondPoint != null && thirdPoint == null) {
+            anchor = secondPoint;
         }
         if (anchor != null) {
             drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
-            for (GridCircle circle : circles) {
-                if (circle != firstCircle && circle != secondCircle && !circle.isConnected() &&
-                        ValidatorUtil.areNeigbours(new Point(anchor.getCol(), anchor.getRow()), new Point(circle.getCol(), circle.getRow())) &&
-                        ValidatorUtil.haveNoIntersectionInGrid(
-                                new Point(anchor.getCol(), anchor.getRow()),
-                                new Point(circle.getCol(), circle.getRow()), ctrl.getGameBoard().getGrid())) {
-                    drawer.circle(sx(circle), sy(circle), baseCircleRadius + 6f);
+            for (Point p : ctrl.getGameBoard().getNeighbours(anchor)) {
+                if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameBoard().isOccupied(p.getX(), p.getY())) {
+                    drawer.circle(colToX(p.getX()), rowToY(p.getY()), baseCircleRadius + 6f);
                 }
             }
         }
     }
 
     private void updateGridMetrics() {
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
+        // pred tym tu boli tie zakomentovane, ale bol to problem na inych displejoch
+        float screenWidth = stage.getViewport().getWorldWidth(); // Gdx.graphics.getWidth();
+        float screenHeight = stage.getViewport().getWorldHeight(); // Gdx.graphics.getHeight();
         float scale = Gdx.graphics.getDensity();
 
         // Vaša pôvodná logika pre padding zdola

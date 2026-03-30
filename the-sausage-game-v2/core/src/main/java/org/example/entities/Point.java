@@ -1,13 +1,15 @@
 package org.example.entities;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
+@Setter
 public class Point implements Comparable<Point>, Serializable {
-    private final int x;
-    private final int y;
+    private int x;
+    private int y;
 
     public Point(int x, int y) {
 
