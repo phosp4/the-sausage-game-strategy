@@ -4,9 +4,6 @@ import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.utils.CsvUtil;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -21,14 +18,14 @@ public class Launchers {
     }
 
     public static void test6(int x, int y) {
-        StrategyMinimax sm = new StrategyMinimax();
+        MinimaxRunner sm = new MinimaxRunner();
         GameBoard g = new GameBoard(x, y);
         int whoIsWinner = sm.minimaxMemo(g, true);
         System.out.println("Winner: " + whoIsWinner);
     }
 
     public static void test5(int x, int y) {
-        Map<Long, Sausage> firstPlayerStrategy = StrategyMinimax.getFirstPlayerStrategy(x, y);
+        Map<Long, Sausage> firstPlayerStrategy = MinimaxRunner.getFirstPlayerStrategy(x, y);
         System.out.println(firstPlayerStrategy);
 
 //        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("strategy.ser"))) {
@@ -43,7 +40,7 @@ public class Launchers {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
-            StrategyMinimax sfm = new StrategyMinimax();
+            MinimaxRunner sfm = new MinimaxRunner();
             int[][] results = new int[n][n];
             String[][] resultsColors = new String[n][n];
             // Pomocné pole na sledovanie timeoutov

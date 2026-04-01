@@ -6,17 +6,16 @@ import org.example.exceptions.InvalidPointForGridException;
 import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 @Getter
 //@EqualsAndHashCode // nepouziavat - chceme custom
-public class GameBoard {
+public class GameBoard implements Serializable {
 
     private Sausage[][] grid;
-    private Deque<Sausage> sausages;
+//    transient private Deque<Sausage> sausages;
+    private Sausage lastSausage = null;
 
     public GameBoard(int x, int y) {
         if (x < 0 || y < 0) {
@@ -24,7 +23,6 @@ public class GameBoard {
         }
 
         grid = new Sausage[y][x]; // using doubled coordinates
-        sausages = new ArrayDeque<>();
     }
 
     // metoda getXthPoint pridat
@@ -45,6 +43,19 @@ public class GameBoard {
         }
 
         return neighbours;
+    }
+
+    public List<Sausage> getSausages() {
+        Set<Sausage> sausages = new HashSet<>();
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] != null) {
+                    sausages.add(grid[i][j]);
+                }
+            }
+        }
+        return new ArrayList<>(sausages);
     }
 
     public void addSausage(Sausage sausage) throws InvalidPointForGridException, IntersectingSausagesException {
@@ -81,7 +92,7 @@ public class GameBoard {
         for (Point point : sausage.getThreePoints()) {
             grid[point.getY()][point.getX()] = sausage; // adds the reference
         }
-        sausages.add(sausage);
+        lastSausage = sausage;
     }
 
     // <=> is full
@@ -93,44 +104,29 @@ public class GameBoard {
         return !(grid[y][x] == null);
     }
 
-    // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat
-    public boolean isFirstPlayerWinner() {
-        if (!sausages.isEmpty()) {
-            return this.isGameOver() && sausages.getLast().getPlayer() == sausages.getFirst().getPlayer();
-        } else {
-            return false;
-        }
-    }
+//    // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat
+//    public boolean isFirstPlayerWinner() {
+//        if (lastSausage != null) {
+//            return this.isGameOver() && sausages.getLast().getPlayer() == sausages.getFirst().getPlayer();
+//        } else {
+//            return false;
+//        }
+//    }
 
     public Player getWinner() {
         if (!this.isGameOver()) {
             return null;
         }
-        return sausages.getLast().getPlayer();
+        return lastSausage.getPlayer();
     }
 
     public void removeLastSausage() {
-        if (sausages.isEmpty()) {
+        if (lastSausage == null) {
             throw new IllegalStateException("No sausages to remove");
         }
-        Sausage lastSausage = sausages.removeLast();
         for (Point p : lastSausage.getThreePoints()) {
             grid[p.getY()][p.getX()] = null; // reset to empty
         }
-    }
-
-    // equals and hash code by chatgpt - este skontrolovat //
-
-    private static boolean[][] sausageGridToBooleanGrid(Sausage[][] grid) {
-
-        boolean[][] out = new boolean[grid.length][grid[0].length];
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                out[i][j] = (grid[i][j] != null);
-            }
-        }
-        return out;
     }
 
     @Override
@@ -156,12 +152,11 @@ public class GameBoard {
                 if (aNull != bNull) {
                     return false;
                 }
-        }
+            }
         }
         return true;
     }
 
-    // je toto naozaj dobre?
     @Override
     public int hashCode() {
         Sausage[][] grid = this.getGrid();
@@ -169,32 +164,11 @@ public class GameBoard {
 
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                result = 31 * result + (grid[i][j] == null ? 0 : 1);
+                if (((i + j) % 2 == 0)) {
+                    result = 31 * result + (grid[i][j] == null ? 0 : 1);
+                }
             }
         }
         return result;
-    }
-
-    // ###########################
-
-    /**
-     * Converts a 2D Object array to a 2D boolean array.
-     * true = field is occupied (not null)
-     * false = field is null
-     */
-    public boolean[][] toBooleanArray() {
-        if (grid == null || grid.length == 0) return new boolean[0][0];
-
-        int rows = grid.length;
-        int cols = grid[0].length;
-        boolean[][] boolArray = new boolean[rows][cols];
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                // If the field is not null, it's occupied (true)
-                boolArray[i][j] = (grid[i][j] != null);
-            }
-        }
-        return boolArray;
     }
 }

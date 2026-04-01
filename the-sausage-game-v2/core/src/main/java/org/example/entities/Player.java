@@ -32,7 +32,6 @@ public class Player {
     private static Color getRandomColor() {
 //        return new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1f);
         Color c = new Color(0.03F, 0.878F, 0, 1f);
-        System.out.println(c);
         return c;
     }
 

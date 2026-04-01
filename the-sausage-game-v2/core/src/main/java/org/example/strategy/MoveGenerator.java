@@ -12,24 +12,10 @@ import org.example.utils.ValidatorUtil;
 import java.util.*;
 
 public class MoveGenerator {
-
-//    private static final Logger log = LoggerFactory.getLogger(MoveGenerator.class);
-
-    public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid) {
-        return getAllPossibleMoves(grid, new Player("tester"));
-    }
-
-    // tu sa da pouzit aj getNeighbours a bude to krajsie
     public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid, Player player) {
 
-//        int[][] vectors = {
-//                {0,2}, {0,-2},
-//                {2,0}, {-2,0},
-//                {1,1}, {-1,-1},
-//                {1,-1}, {-1,1}
-//        };
         int[][] vectors = {
-             {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
+            {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
         };
         Set<Sausage> validMoves = new HashSet<>();
 
@@ -69,6 +55,14 @@ public class MoveGenerator {
         }
         return validMoves;
     }
+
+
+//    private static final Logger log = LoggerFactory.getLogger(MoveGenerator.class);
+
+    public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid) {
+        return getAllPossibleMoves(grid, new Player("tester"));
+    }
+    // tu sa da pouzit aj getNeighbours a bude to krajsie
 
 
     /**

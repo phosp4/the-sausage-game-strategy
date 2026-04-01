@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,21 +19,16 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import org.example.engine.GameController;
-import org.example.engine.TurnManager;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.exceptions.IntersectingSausagesException;
-import org.example.exceptions.InvalidPointForGridException;
 import org.example.strategy.GridBitMask;
-import org.example.strategy.StrategyMinimax;
 import org.example.utils.CliRendererUtil;
 import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +81,7 @@ public class GameScene implements Screen {
         this.rows = 7; // temporary
         this.ctrl = new GameController(columns, rows, p1, p2, p2);
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+        System.out.println(ctrl.getGameBoard().hashCode());
 
         moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
 
@@ -266,8 +261,8 @@ public class GameScene implements Screen {
                 new Point(thirdPoint.getX(), thirdPoint.getY()));
 
             if (ctrl.tryApplyMove(s)) {
-                System.out.println(ctrl.getTurnManager().getCurrentPlayer());
                 System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+                System.out.println(ctrl.getGameBoard().hashCode());
 
                 if (ctrl.getGameBoard().isGameOver()) {
                     String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();

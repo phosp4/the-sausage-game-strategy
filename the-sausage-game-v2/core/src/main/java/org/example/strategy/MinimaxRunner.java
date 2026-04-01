@@ -1,7 +1,3 @@
-/**
- * originalna implementacia
- */
-
 package org.example.strategy;
 
 import lombok.Getter;
@@ -9,11 +5,10 @@ import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StrategyMinimax {
+public class MinimaxRunner {
 
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
@@ -35,7 +30,8 @@ public class StrategyMinimax {
         int returnVal;
 
         if (gameBoardState.isGameOver()) {
-            if (gameBoardState.isFirstPlayerWinner()) {
+            // maximalizator je prvy hrac (pred tym to bolo inak...)
+            if (isMaximizingPlayer) {
                 return 1;
             } else {
                 return -1;
@@ -81,7 +77,7 @@ public class StrategyMinimax {
      * returns the optimal strategy for the first player IF EXISTS
      */
     public static Map<Long, Sausage> getFirstPlayerStrategy(int x, int y) {
-        StrategyMinimax sm = new StrategyMinimax();
+        MinimaxRunner sm = new MinimaxRunner();
         GameBoard g = new GameBoard(x, y);
         int whoIsWinner = sm.minimaxMemo(g, true);
         Map<Long, Sausage> firstPlayerStrategy = sm.getStrategy();

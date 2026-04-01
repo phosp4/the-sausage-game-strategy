@@ -16,7 +16,7 @@ public class StrategyMinimaxAlt {
     public int minimax(GameBoard gameBoardState, boolean isMaximizingPlayer) {
 
         if (gameBoardState.isGameOver()) {
-            if (gameBoardState.isFirstPlayerWinner()) {
+            if (isMaximizingPlayer) {
                 return 1;
             } else {
                 return -1;
@@ -54,7 +54,7 @@ public class StrategyMinimaxAlt {
     public int minimaxAB(GameBoard gameBoardState, boolean isMaximizingPlayer, int alpha, int beta) {
 
         if (gameBoardState.isGameOver()) {
-            if (gameBoardState.isFirstPlayerWinner()) {
+            if (isMaximizingPlayer) {
                 return 1;
             } else {
                 return -1;
