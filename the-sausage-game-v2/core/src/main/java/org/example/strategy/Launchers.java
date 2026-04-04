@@ -1,42 +1,55 @@
 package org.example.strategy;
 
-import org.example.entities.GameBoard;
-import org.example.entities.Sausage;
-import org.example.utils.CsvUtil;
+import org.example.entities.GameState;
+import org.example.utils.WriterUtil;
 
-import java.util.Map;
 import java.util.concurrent.*;
 
 public class Launchers {
 
     public static final String PATH_PREFIX = "minimax_";
     public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
+    public static final String STRATEGY_PATH = "strategies_minimax";
 
     public static void main(String[] args) {
-//        test4(20, 2000);
-        test6(6,8);
+//        getResultsTable(20, 2000);
+//        getResultForBoard(15,1);
+        getStrategyForBoard(9, 7);
     }
 
-    public static void test6(int x, int y) {
+    public static void getStrategyForBoard(int x, int y) {
+        MinimaxRunner mr = new MinimaxRunner();
+        GameState g = new GameState(x, y);
+        int winner = mr.minimaxMemo(g, true);
+        System.out.println(winner);
+        if (winner == 1) {
+            System.out.println(mr.getStrategyP1());
+        } else if (winner == -1) {
+            System.out.println(mr.getStrategyP2());
+        }
+    }
+
+    public static void getResultForBoard(int x, int y) {
         MinimaxRunner sm = new MinimaxRunner();
-        GameBoard g = new GameBoard(x, y);
+        GameState g = new GameState(x, y);
         int whoIsWinner = sm.minimaxMemo(g, true);
         System.out.println("Winner: " + whoIsWinner);
+        System.out.println(sm.getCounter());
     }
 
-    public static void test5(int x, int y) {
-        Map<Long, Sausage> firstPlayerStrategy = MinimaxRunner.getFirstPlayerStrategy(x, y);
-        System.out.println(firstPlayerStrategy);
-
-//        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("strategy.ser"))) {
-//            oos.writeObject(firstPlayerStrategy);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
+//    public static void test5(int x, int y) {
+//        Map<Integer, Sausage> firstPlayerStrategy = MinimaxRunner.getFirstPlayerStrategy(x, y);
+//        System.out.println(firstPlayerStrategy);
+//
+////        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("strategy.ser"))) {
+////            oos.writeObject(firstPlayerStrategy);
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////        }
+//    }
 
     // generated with aistudio to add timeout and skip logic
-    public static void test4(int n, int timeout) {
+    public static void getResultsTable(int n, int timeout) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
@@ -61,7 +74,7 @@ public class Launchers {
                         timedOut[i][j] = true;
                         res = -3;
                     } else {
-                        GameBoard g = new GameBoard(i + 1, j + 1);
+                        GameState g = new GameState(i + 1, j + 1);
                         Future<Integer> future = executor.submit(() -> sfm.minimaxMemo(g, true));
 
                         try {
@@ -101,7 +114,7 @@ public class Launchers {
             }
 
             // Výpis výsledkov (nezmenený)
-            String path = CsvUtil.writeIntArrayToCSV(results);
+            String path = WriterUtil.writeIntArrayToCSV(results);
             for (int i = 0; i < resultsColors.length; i++) {
                 StringBuilder line = new StringBuilder();
                 for (int j = 0; j < resultsColors[0].length; j++) {
@@ -111,10 +124,10 @@ public class Launchers {
             }
 
             // compare with ground truth
-            CsvUtil.CompareCSVsOnesMinusOnes(path, GROUND_TRUTH);
+            WriterUtil.CompareCSVsOnesMinusOnes(path, GROUND_TRUTH);
 
             // check the symmetry
-            CsvUtil.isSymmetricCSV(path);
+            WriterUtil.isSymmetricCSV(path);
 
         } catch (Throwable t) {
             t.printStackTrace();

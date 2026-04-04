@@ -1,6 +1,6 @@
 package org.example.strategy.archive;
 
-import org.example.entities.GameBoard;
+import org.example.entities.GameState;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 import org.example.strategy.MoveGenerator;
@@ -13,9 +13,9 @@ public class StrategyMinimaxAlt {
     /**
      * povodny minimax, plus pruning
      */
-    public int minimax(GameBoard gameBoardState, boolean isMaximizingPlayer) {
+    public int minimax(GameState gameState, boolean isMaximizingPlayer) {
 
-        if (gameBoardState.isGameOver()) {
+        if (gameState.isGameOver()) {
             if (isMaximizingPlayer) {
                 return 1;
             } else {
@@ -25,10 +25,10 @@ public class StrategyMinimaxAlt {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
-                gameBoardState.addSausage(move);
-                int value = minimax(gameBoardState, false);
-                gameBoardState.removeLastSausage();
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+                gameState.addSausage(move);
+                int value = minimax(gameState, false);
+                gameState.removeSausage(move);
                 bestValue = Math.max(value, bestValue);
                 if (bestValue == 1) break;
             }
@@ -37,10 +37,10 @@ public class StrategyMinimaxAlt {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid(), p2)) {
-                gameBoardState.addSausage(move);
-                int value = minimax(gameBoardState, true);
-                gameBoardState.removeLastSausage();
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p2)) {
+                gameState.addSausage(move);
+                int value = minimax(gameState, true);
+                gameState.removeSausage(move);
                 bestValue = Math.min(value, bestValue);
                 // tu nedavame podmienku - chceme hladat pre vsetky
             }
@@ -51,9 +51,9 @@ public class StrategyMinimaxAlt {
     /**
      * toto by malo ist, ale je to zbytocne vseobecne pre nase ucely
      */
-    public int minimaxAB(GameBoard gameBoardState, boolean isMaximizingPlayer, int alpha, int beta) {
+    public int minimaxAB(GameState gameState, boolean isMaximizingPlayer, int alpha, int beta) {
 
-        if (gameBoardState.isGameOver()) {
+        if (gameState.isGameOver()) {
             if (isMaximizingPlayer) {
                 return 1;
             } else {
@@ -63,10 +63,10 @@ public class StrategyMinimaxAlt {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
-                gameBoardState.addSausage(move);
-                int value = minimaxAB(gameBoardState, false, alpha, beta);
-                gameBoardState.removeLastSausage();
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+                gameState.addSausage(move);
+                int value = minimaxAB(gameState, false, alpha, beta);
+                gameState.removeSausage(move);
                 bestValue = Math.max(value, bestValue);
                 alpha = Math.max(alpha, value);
                 if (beta <= alpha) break;
@@ -77,10 +77,10 @@ public class StrategyMinimaxAlt {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoardState.getGrid(), p2)) {
-                gameBoardState.addSausage(move);
-                int value = minimaxAB(gameBoardState, true, alpha, beta);
-                gameBoardState.removeLastSausage();
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p2)) {
+                gameState.addSausage(move);
+                int value = minimaxAB(gameState, true, alpha, beta);
+                gameState.removeSausage(move);
                 bestValue = Math.min(value, bestValue);
                 beta = Math.min(beta, value);
                 if (beta <= alpha) break;

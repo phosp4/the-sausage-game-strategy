@@ -1,3 +1,8 @@
+/**
+ * problem - last sausage a metoda removeLastSausage nevedia spolu fungovat
+ * aktualne tu je ale kazda na nieco ine, takze by to malo byt ok
+ */
+
 package org.example.entities;
 
 import lombok.Getter;
@@ -5,29 +10,33 @@ import org.example.exceptions.IntersectingSausagesException;
 import org.example.exceptions.InvalidPointForGridException;
 import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
+import org.example.utils.ZobristHasher;
 
 import java.io.Serializable;
 import java.util.*;
 
 @Getter
 //@EqualsAndHashCode // nepouziavat - chceme custom
-public class GameBoard implements Serializable {
+// predtym sa volala GameBoard, ale GameState je vystiznejsie
+public class GameState implements Serializable {
 
     private Sausage[][] grid;
+    private long zobristHash;
 //    transient private Deque<Sausage> sausages;
-    private Sausage lastSausage = null;
+//    private Sausage lastSausage = null; // nepotrebujeme - to riesi turnmanager
 
-    public GameBoard(int x, int y) {
+    public GameState(int x, int y) {
         if (x < 0 || y < 0) {
             throw new IllegalArgumentException("Grid dimensions cannot be negative");
         }
 
         grid = new Sausage[y][x]; // using doubled coordinates
+        zobristHash = ZobristHasher.calculateInitialHash(this);
     }
 
     // metoda getXthPoint pridat
 
-    public List<Point> getNeighbours(Point anchor) {
+    public List<Point> getFreeNeighbours(Point anchor) {
         List<Point> neighbours = new ArrayList<>();
 
         int[][] vectors = {
@@ -45,6 +54,9 @@ public class GameBoard implements Serializable {
         return neighbours;
     }
 
+    /**
+     * pozor - O(n) metoda, v minimaxe toto nepouzivat
+     */
     public List<Sausage> getSausages() {
         Set<Sausage> sausages = new HashSet<>();
 
@@ -92,11 +104,13 @@ public class GameBoard implements Serializable {
         for (Point point : sausage.getThreePoints()) {
             grid[point.getY()][point.getX()] = sausage; // adds the reference
         }
-        lastSausage = sausage;
+
+        zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
     }
 
     // <=> is full
     public boolean isGameOver() {
+        // zbytocne - staci skoncit, ked sa najde aspon jedna klobaska
         return MoveGenerator.getAllPossibleMoves(grid).isEmpty();
     }
 
@@ -104,40 +118,36 @@ public class GameBoard implements Serializable {
         return !(grid[y][x] == null);
     }
 
-//    // todo porozmyslat nad efektivnostou lebo toto bude behat velakrat
-//    public boolean isFirstPlayerWinner() {
-//        if (lastSausage != null) {
-//            return this.isGameOver() && sausages.getLast().getPlayer() == sausages.getFirst().getPlayer();
-//        } else {
-//            return false;
-//        }
-//    }
+    public void removeSausage(Sausage s) {
+        List<Point> threePoints = s.getThreePoints();
 
-    public Player getWinner() {
-        if (!this.isGameOver()) {
-            return null;
+        // kontrola - ci existuju take body a ci tam klobaska takeho tvaru
+        for (Point p : threePoints) {
+            if (!grid[p.getY()][p.getX()].equals(s)) {
+                throw new IllegalArgumentException("cannot remove this sausage: " + s);
+            } else if (!ValidatorUtil.isPointValidForGridBounds(p, grid)) {
+                throw new InvalidPointForGridException(p);
+            }
         }
-        return lastSausage.getPlayer();
-    }
-
-    public void removeLastSausage() {
-        if (lastSausage == null) {
-            throw new IllegalStateException("No sausages to remove");
+        // samotne vymazanie klobasky
+        for (Point p : threePoints) {
+            grid[p.getY()][p.getX()] = null;
         }
-        for (Point p : lastSausage.getThreePoints()) {
-            grid[p.getY()][p.getX()] = null; // reset to empty
-        }
+        zobristHash = ZobristHasher.updateHashForSausage(zobristHash, s);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GameBoard)) return false;
-        GameBoard other = (GameBoard) o;
+        if (!(o instanceof GameState)) return false;
+        GameState other = (GameState) o;
 
+        // staci porovnat hashe
+        if (zobristHash != other.getZobristHash()) return false;
+
+        // ak by teoreticky nastala kolizia
         Sausage[][] g1 = this.getGrid();
         Sausage[][] g2 = other.getGrid();
-
         if (g1.length != g2.length || g1[0].length != g2[0].length) {
             return false;
         }
@@ -159,16 +169,21 @@ public class GameBoard implements Serializable {
 
     @Override
     public int hashCode() {
-        Sausage[][] grid = this.getGrid();
-        int result = 31 * grid.length + grid[0].length;
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                if (((i + j) % 2 == 0)) {
-                    result = 31 * result + (grid[i][j] == null ? 0 : 1);
-                }
-            }
-        }
-        return result;
+        return ZobristHasher.toJavaHashCode(zobristHash);
     }
+
+//    @Override
+//    public int hashCode() {
+//        Sausage[][] grid = this.getGrid();
+//        int result = 31 * grid.length + grid[0].length;
+//
+//        for (int i = 0; i < grid.length; i++) {
+//            for (int j = 0; j < grid[0].length; j++) {
+//                if (((i + j) % 2 == 0)) {
+//                    result = 31 * result + (grid[i][j] == null ? 0 : 1);
+//                }
+//            }
+//        }
+//        return result;
+//    }
 }

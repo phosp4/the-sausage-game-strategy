@@ -2,17 +2,17 @@ package org.example.utils;
 
 import org.example.strategy.Launchers;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-public class CsvUtil {
+public class WriterUtil {
 
     public static String writeIntArrayToCSV(int[][] data) {
 
@@ -99,7 +99,7 @@ public class CsvUtil {
                             (cell2.equals("-1") || cell2.equals("1"))) {
 
                         identical = false;
-                        System.out.println("Difference at row " + row + ", column " + col +
+                        System.out.println("Difference from groud truth at row " + row + ", column " + col +
                             ": '" + cell1 + "' != '" + cell2 + "'");
                         }
                     }
@@ -178,4 +178,42 @@ public class CsvUtil {
         }
     }
 
+    public static void saveStrategyBinary(Map<Integer,Long> strategy, String filePath) throws  IOException {
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
+
+            // na zaciatku zapiseme pocet poloziek na citanie
+            dos.writeInt(strategy.size());
+
+            for (Map.Entry<Integer, Long> entry : strategy.entrySet()) {
+                dos.writeInt(entry.getKey());
+                dos.writeLong(entry.getValue());
+            }
+        }
+    }
+
+    public static Map<Integer, Long> loadStrategyBinary(String filePath) throws IOException {
+        HashMap<Integer, Long> strategy = new HashMap<>();
+
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)))) {
+
+            // prvy int je pocet prvkov
+            int size = dis.readInt();
+
+            for (int i = 0; i < size; i++) {
+                int key = dis.readInt();
+                long val = dis.readLong();
+                strategy.put(key, val);
+            }
+        }
+
+        return strategy;
+    }
+
+    public void saveStrategyCSV(HashMap<Integer, Long> strategy, String filepath) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filepath)))) {
+            for (Map.Entry<Integer, Long> entry : strategy.entrySet()) {
+                writer.println(entry.getKey() + "," + entry.getValue());
+            }
+        }
+    }
 }

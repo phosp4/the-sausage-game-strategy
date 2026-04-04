@@ -11,9 +11,9 @@ public class CliLauncher {
         GameController ctrl = new GameController(5, 5, p1, p2, null);
 
         System.out.println("Welcome to the Sausage Game!");
-        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+        System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
 
-        while (!ctrl.getGameBoard().isGameOver()) {
+        while (!ctrl.getGameState().isGameOver()) {
             Player current = ctrl.getTurnManager().getCurrentPlayer();
             System.out.println("Current player: " + current.getName());
 
@@ -26,9 +26,9 @@ public class CliLauncher {
                 continue;
             }
 
-            System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+            System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
         }
-        System.out.println("Game over! Winner: " + ctrl.getGameBoard().getWinner().getName());
+        System.out.println("Game over! Winner: " + ctrl.getTurnManager().getNotCurrentPlayer());
     }
 
 }

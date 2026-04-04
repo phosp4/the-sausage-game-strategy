@@ -1,10 +1,14 @@
+/**
+ * hlavny algoritmus sa da prerobit cez getNeighbours, zatial nechavam tak, nech nebabrem do vsetkeho
+ * chat odporucal robit to dokonca cez primitives, ze ani nevytvarat body
+ */
+
 package org.example.strategy;
 
-import org.example.entities.GameBoard;
+import org.example.entities.GameState;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.utils.CliRendererUtil;
 import org.example.utils.ValidatorUtil;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
@@ -12,8 +16,13 @@ import org.example.utils.ValidatorUtil;
 import java.util.*;
 
 public class MoveGenerator {
-    public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid, Player player) {
 
+    // pozor - toto teraz nie je thread safe
+    private static final Point p1 = new Point(0,0);
+    private static final Point p2 = new Point(0,0);
+    private static final Point p3 = new Point(0,0);
+
+    public static Set<Sausage> getAllPossibleMoves(Sausage[][] grid, Player player) {
         int[][] vectors = {
             {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
         };
@@ -22,13 +31,13 @@ public class MoveGenerator {
         // iteruj gridom, pre kazdy point skusaj
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                Point p1 = new Point(j, i);
+                p1.setLocation(j, i);
                 if (!ValidatorUtil.isPointValidForGrid(p1, grid)) {
                     continue;
                 };
 
                 for (int[] v1 : vectors) {
-                    Point p2 = new Point(j + v1[0], i + v1[1]);
+                    p2.setLocation(j + v1[0], i + v1[1]);
                     if (!ValidatorUtil.isPointValidForGrid(p2, grid)) {
                         continue;
                     };
@@ -37,7 +46,7 @@ public class MoveGenerator {
                     };
 
                     for (int[] v2 : vectors) {
-                        Point p3 = new Point(j + v1[0] + v2[0], i + v1[1] + v2[1]); // p3 is relative to p2, not p1!
+                        p3.setLocation(j + v1[0] + v2[0], i + v1[1] + v2[1]); // p3 is relative to p2, not p1!
                         if (!ValidatorUtil.isPointValidForGrid(p3, grid)) {
                             continue;
                         };
@@ -45,7 +54,7 @@ public class MoveGenerator {
                             continue;
                         };
 
-                        Sausage sausage = new Sausage(player, p1,p2,p3);
+                        Sausage sausage = new Sausage(player, p1.clone(),p2.clone(),p3.clone()); // nove referencie
                         if (ValidatorUtil.isSausageValid(sausage)) {
                             validMoves.add(sausage);
                         }
@@ -73,7 +82,7 @@ public class MoveGenerator {
     }
 
     public static void moveGeneratorTester(int x, int y, int maxDepth) {
-        GameBoard g = new GameBoard(x, y);
+        GameState g = new GameState(x, y);
 
         for (int d = 1; d <= maxDepth; d++) {
             long nodes = countNodes(g, d);
@@ -87,7 +96,7 @@ public class MoveGenerator {
     /**
      * toto ma mozno nejaku chybu, treba skontrolovat ak chcem pouzivat
      */
-    private static Set<Sausage> countNodesUnique(GameBoard g, int depth) {
+    private static Set<Sausage> countNodesUnique(GameState g, int depth) {
         // Get all legal moves for the current state
         Set<Sausage> nodes = getAllPossibleMoves(g.getGrid());
 
@@ -101,13 +110,13 @@ public class MoveGenerator {
         for (Sausage s : nodes) {
             g.addSausage(s);             // Make the move
             allChildNodes.addAll(countNodesUnique(g, depth - 1)); // Recurse
-            g.removeLastSausage();       // Un-make the move (backtrack)
+            g.removeSausage(s);       // Un-make the move (backtrack)
         }
 
         return allChildNodes;
     }
 
-    private static long countNodes(GameBoard g, int depth) {
+    private static long countNodes(GameState g, int depth) {
         // Get all legal moves for the current state
         List<Sausage> moves = new ArrayList<>(getAllPossibleMoves(g.getGrid()));
 
@@ -121,7 +130,7 @@ public class MoveGenerator {
         for (Sausage s : moves) {
             g.addSausage(s);             // Make the move
             totalNodes += countNodes(g, depth - 1); // Recurse
-            g.removeLastSausage();       // Un-make the move (backtrack)
+            g.removeSausage(s);       // Un-make the move (backtrack)
         }
 
         return totalNodes;

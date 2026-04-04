@@ -1,7 +1,11 @@
+/**
+ * teoreticky, tu by sa dal pridat deque sausages, ak by sme sa chceli v hre hybat
+ * zatial to ale neriesim, nie je to nevyhnutne
+ */
+
 package org.example.engine;
 
 import lombok.Data;
-import org.example.automation.AutonomousOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
 import org.example.strategy.MoveGenerator;
@@ -13,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Data
 /** Owns the game state. No printing, no LibGDX. */
 public class GameController {
-    private final GameBoard gameBoard;
+    private final GameState gameState;
     private final TurnManager turnManager;
 //    private AutonomousOpponent auto;
 //    private Player autonomousPlayer;
@@ -21,7 +25,7 @@ public class GameController {
     private String lastError = null; // todo toto asi dat inak
 
     public GameController(int width, int height, Player p1, Player p2, Player auto) {
-        this.gameBoard = new GameBoard(width, height);
+        this.gameState = new GameState(width, height);
         this.turnManager = new TurnManager(p1, p2);
 //        this.autonomousPlayer = auto;
 //        this.auto = new RandomOpponent();
@@ -32,7 +36,7 @@ public class GameController {
         lastError = null;
         move.setPlayer(turnManager.getCurrentPlayer());
         try {
-            gameBoard.addSausage(move);
+            gameState.addSausage(move);
             turnManager.nextTurn();
             return true;
         } catch (InvalidPointForGridException e) {
@@ -46,7 +50,7 @@ public class GameController {
 
     /** Optional helper for AI/auto player. */
     public Sausage pickRandomLegalMove() {
-        List<Sausage> possible = new ArrayList<>(MoveGenerator.getAllPossibleMoves(gameBoard.getGrid()));
+        List<Sausage> possible = new ArrayList<>(MoveGenerator.getAllPossibleMoves(gameState.getGrid()));
         if (possible.isEmpty()) return null;
         return possible.get(ThreadLocalRandom.current().nextInt(possible.size()));
     }

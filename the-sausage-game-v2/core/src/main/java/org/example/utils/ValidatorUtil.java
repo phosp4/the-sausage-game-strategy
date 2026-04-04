@@ -2,6 +2,7 @@ package org.example.utils;
 
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.exceptions.InvalidPointForGridException;
 
 import java.util.List;
 
@@ -27,19 +28,27 @@ public class ValidatorUtil {
         return true;
     }
 
+    public static boolean isPointValidForGridBounds(Point p, Sausage[][] grid) {
+        if (p.getX() < 0 || p.getX() >= grid[0].length ||
+            p.getY() < 0 || p.getY() >= grid.length) {
+//            throw new InvalidPointForGridException(p, "Sausage point out of bounds");
+            return false;
+        }
+        return true;
+    }
+
     public static boolean isPointValidForGrid(Point p, Sausage[][] grid) {
 
         if (!isPointValid(p)) {
             return false;
             }
 
-        if (p.getX() < 0 || p.getX() >= grid[0].length ||
-                p.getY() < 0 || p.getY() >= grid.length) {
-//            log.debug("Sausage point out of bounds: {}", p);
+        if (!isPointValidForGridBounds(p, grid)) {
             return false;
         }
+
         if (grid[p.getY()][p.getX()] != null) {
-//            log.debug("Sausage point already occupied: {}", p);
+//            throw new InvalidPointForGridException(p, "Sausage point already occupied");
             return false;
         }
 

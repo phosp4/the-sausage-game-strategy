@@ -80,10 +80,10 @@ public class GameScene implements Screen {
         this.columns = 9; // temporary
         this.rows = 7; // temporary
         this.ctrl = new GameController(columns, rows, p1, p2, p2);
-        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-        System.out.println(ctrl.getGameBoard().hashCode());
+        System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
+        System.out.println(ctrl.getGameState().hashCode());
 
-        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameBoard().getGrid()));
+        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameState().getGrid()));
 
 //        // todo temporary
 //        strategy = StrategyMinimax.getFirstPlayerStrategy(columns, rows);
@@ -261,10 +261,10 @@ public class GameScene implements Screen {
                 new Point(thirdPoint.getX(), thirdPoint.getY()));
 
             if (ctrl.tryApplyMove(s)) {
-                System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-                System.out.println(ctrl.getGameBoard().hashCode());
+                System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
+                System.out.println(ctrl.getGameState().hashCode());
 
-                if (ctrl.getGameBoard().isGameOver()) {
+                if (ctrl.getGameState().isGameOver()) {
                     String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
                     System.out.println("Game over! Winner: " + winnerName);
 //                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
@@ -284,11 +284,11 @@ public class GameScene implements Screen {
     private void playStrategy() {
         // strategy player demo
         if (ctrl.getTurnManager().isPlayer1Turn()) {
-            Long bitboard = GridBitMask.encode(ctrl.getGameBoard().getGrid());
+            Long bitboard = GridBitMask.encode(ctrl.getGameState().getGrid());
             Sausage dokonalyTah = strategy.get(bitboard);
             if (dokonalyTah != null) {
                 dokonalyTah.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
-                ctrl.getGameBoard().addSausage(dokonalyTah);
+                ctrl.getGameState().addSausage(dokonalyTah);
                 // todo update circles
                 ctrl.getTurnManager().nextTurn();
                 System.out.println("Strategy played for player 1: " + dokonalyTah);
@@ -303,14 +303,14 @@ public class GameScene implements Screen {
         boolean isHoveredPointOccupied = true;
 
         if (hoveredPoint != null) {
-            isHoveredPointOccupied = ctrl.getGameBoard().isOccupied(hoveredPoint.getX(), hoveredPoint.getY());
+            isHoveredPointOccupied = ctrl.getGameState().isOccupied(hoveredPoint.getX(), hoveredPoint.getY());
         }
 
         if (hoveredPoint != null && !isHoveredPointOccupied) {
             if (firstPoint == null) {
                 firstPoint = hoveredPoint;
                 SoundManager.play(selectSound);
-            } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
+            } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameState().getGrid())) {
                 secondPoint = hoveredPoint;
                 SoundManager.play(selectSound);
             } else if (secondPoint != null && !hoveredPoint.equals(firstPoint) && !hoveredPoint.equals(secondPoint) && ValidatorUtil.areNeigbours(secondPoint, hoveredPoint)) {
@@ -376,11 +376,11 @@ public class GameScene implements Screen {
 
     // pomocna metoda k drawCircles
     private Color getCircleColor(int col, int row, boolean isHovered) {
-        boolean isConnected = ctrl.getGameBoard().getGrid()[row][col] != null;
+        boolean isConnected = ctrl.getGameState().getGrid()[row][col] != null;
         Color circleColor;
 
         if (isHovered && isConnected) {
-            circleColor = ctrl.getGameBoard().getGrid()[row][col].getPlayer().getColor();
+            circleColor = ctrl.getGameState().getGrid()[row][col].getPlayer().getColor();
         } else if (isHovered) {
             circleColor = ctrl.getTurnManager().getCurrentPlayer().getColor();
         } else {
@@ -393,7 +393,7 @@ public class GameScene implements Screen {
         // Draw all connections
         drawer.setDefaultLineWidth(enlargedCircleRadius);
 
-        for (Sausage s : ctrl.getGameBoard().getSausages()) {
+        for (Sausage s : ctrl.getGameState().getSausages()) {
             List<Point> points = s.getThreePoints();
 
             drawer.setColor(s.getPlayer().getColor());
@@ -429,8 +429,8 @@ public class GameScene implements Screen {
         if (anchor != null) {
             drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
-            for (Point p : ctrl.getGameBoard().getNeighbours(anchor)) {
-                if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameBoard().isOccupied(p.getX(), p.getY())) {
+            for (Point p : ctrl.getGameState().getFreeNeighbours(anchor)) {
+                if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameState().isOccupied(p.getX(), p.getY())) {
                     drawer.circle(colToX(p.getX()), rowToY(p.getY()), baseCircleRadius + 6f);
                 }
             }

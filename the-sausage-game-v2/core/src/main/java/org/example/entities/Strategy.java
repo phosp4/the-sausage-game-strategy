@@ -9,6 +9,6 @@ import java.util.Map;
 @Data
 public class Strategy implements Serializable {
 
-    private Map<GameBoard,Sausage> table = new HashMap<>();
+    private Map<GameState,Sausage> table = new HashMap<>();
 
 }

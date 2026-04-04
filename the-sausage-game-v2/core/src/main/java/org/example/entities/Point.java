@@ -17,6 +17,15 @@ public class Point implements Comparable<Point>, Serializable {
         this.y = y;
     }
 
+    public void setLocation(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Point clone() {
+        return new Point(x, y);
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
