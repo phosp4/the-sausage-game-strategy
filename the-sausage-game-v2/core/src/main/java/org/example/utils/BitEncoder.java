@@ -1,12 +1,10 @@
 package org.example.utils;
 
-import com.badlogic.gdx.Game;
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.strategy.MoveGenerator;
 
-import java.util.List;
 import java.util.Set;
 
 public class BitEncoder {
@@ -42,7 +40,7 @@ public class BitEncoder {
 
     // testing
     public static void main(String[] args) {
-        GameState g = new GameState(100, 100);
+        GameBoard g = new GameBoard(100, 100);
         Set<Sausage> moves = MoveGenerator.getAllPossibleMoves(g.getGrid());
         for (Sausage s : moves) {
             if (!s.equals(decodeSausage(encodeSausage(s)))) {

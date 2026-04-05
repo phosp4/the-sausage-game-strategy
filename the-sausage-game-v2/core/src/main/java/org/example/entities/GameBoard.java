@@ -18,20 +18,27 @@ import java.util.*;
 @Getter
 //@EqualsAndHashCode // nepouziavat - chceme custom
 // predtym sa volala GameBoard, ale GameState je vystiznejsie
-public class GameState implements Serializable {
+public class GameBoard implements Serializable {
 
     private Sausage[][] grid;
     private long zobristHash;
 //    transient private Deque<Sausage> sausages;
 //    private Sausage lastSausage = null; // nepotrebujeme - to riesi turnmanager
 
-    public GameState(int x, int y) {
+    public GameBoard(int x, int y) {
         if (x < 0 || y < 0) {
             throw new IllegalArgumentException("Grid dimensions cannot be negative");
         }
 
         grid = new Sausage[y][x]; // using doubled coordinates
         zobristHash = ZobristHasher.calculateInitialHash(this);
+    }
+
+    public int getColumns() {
+        return grid[0].length;
+    }
+    public int getRows() {
+        return grid.length;
     }
 
     // metoda getXthPoint pridat
@@ -139,8 +146,8 @@ public class GameState implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GameState)) return false;
-        GameState other = (GameState) o;
+        if (!(o instanceof GameBoard)) return false;
+        GameBoard other = (GameBoard) o;
 
         // staci porovnat hashe
         if (zobristHash != other.getZobristHash()) return false;

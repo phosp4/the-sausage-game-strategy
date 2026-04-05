@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
+public class LibgdxTestMain extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
 
@@ -29,5 +29,4 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         image.dispose();
     }
-
 }

@@ -6,6 +6,8 @@ import com.github.xpenatan.gdx.backends.teavm.config.TeaBuilder;
 
 import java.io.File;
 import java.io.IOException;
+
+import com.github.xpenatan.gdx.backends.teavm.config.plugins.TeaReflectionSupplier;
 import org.teavm.tooling.TeaVMSourceFilePolicy;
 import org.teavm.tooling.TeaVMTargetType;
 import org.teavm.tooling.TeaVMTool;
@@ -43,7 +45,7 @@ public class TeaVMBuilder {
         TeaVMTool tool = new TeaVMTool();
 
         // JavaScript is the default target type for TeaVM, and it works better during debugging.
-        tool.setTargetType(TeaVMTargetType.JAVASCRIPT);
+        tool.setTargetType(TeaVMTargetType.JAVASCRIPT); /// vo videu tu odporucal WEBASSEMBLY_GC
         // You can choose to use the WebAssembly (WASM) GC target instead, which tends to perform better, but isn't
         // as easy to debug. It might be a good idea to alternate target types during development if you plan on using
         // WASM at release time.

@@ -1,6 +1,6 @@
 package org.example.strategy;
 
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.utils.WriterUtil;
 
 import java.util.concurrent.*;
@@ -19,7 +19,7 @@ public class Launchers {
 
     public static void getStrategyForBoard(int x, int y) {
         MinimaxRunner mr = new MinimaxRunner();
-        GameState g = new GameState(x, y);
+        GameBoard g = new GameBoard(x, y);
         int winner = mr.minimaxMemo(g, true);
         System.out.println(winner);
         if (winner == 1) {
@@ -31,7 +31,7 @@ public class Launchers {
 
     public static void getResultForBoard(int x, int y) {
         MinimaxRunner sm = new MinimaxRunner();
-        GameState g = new GameState(x, y);
+        GameBoard g = new GameBoard(x, y);
         int whoIsWinner = sm.minimaxMemo(g, true);
         System.out.println("Winner: " + whoIsWinner);
         System.out.println(sm.getCounter());
@@ -74,7 +74,7 @@ public class Launchers {
                         timedOut[i][j] = true;
                         res = -3;
                     } else {
-                        GameState g = new GameState(i + 1, j + 1);
+                        GameBoard g = new GameBoard(i + 1, j + 1);
                         Future<Integer> future = executor.submit(() -> sfm.minimaxMemo(g, true));
 
                         try {

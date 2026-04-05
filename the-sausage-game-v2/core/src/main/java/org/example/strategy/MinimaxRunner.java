@@ -5,7 +5,7 @@
 package org.example.strategy;
 
 import lombok.Getter;
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
@@ -18,14 +18,14 @@ public class MinimaxRunner {
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
 
-    private final Map<GameState,Integer> memoVals = new HashMap<>();
+    private final Map<GameBoard,Integer> memoVals = new HashMap<>();
     @Getter private final Map<Integer,Long> strategyP1 = new HashMap<>();
     @Getter private final Map<Integer,Long> strategyP2 = new HashMap<>();
 
     // testing
     @Getter private int counter = 0;
 
-    public int minimaxMemo(GameState gameState, boolean isMaximizingPlayer) {
+    public int minimaxMemo(GameBoard gameBoard, boolean isMaximizingPlayer) {
 
 //        System.out.println("gamestate: " + CliRendererUtil.gridToString(gameState.getGrid()) + ", isMax: " + isMaximizingPlayer);
 
@@ -34,14 +34,14 @@ public class MinimaxRunner {
             return -2; // specialna hodnota na oznacenie prerusenia
         }
 
-        if (memoVals.containsKey(gameState)) {
+        if (memoVals.containsKey(gameBoard)) {
             counter++;
-            return memoVals.get(gameState);
+            return memoVals.get(gameBoard);
         }
 
         int returnVal;
 
-        if (gameState.isGameOver()) {
+        if (gameBoard.isGameOver()) {
             if (isMaximizingPlayer) {
                 return -1; // nema tah, teda vyhrava druhy
             } else {
@@ -51,16 +51,16 @@ public class MinimaxRunner {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
 //                System.out.println(Possible);
-                gameState.addSausage(move);
+                gameBoard.addSausage(move);
 
-                int value = minimaxMemo(gameState, false);
+                int value = minimaxMemo(gameBoard, false);
 
-                gameState.removeSausage(move);
+                gameBoard.removeSausage(move);
                 bestValue = Math.max(value, bestValue);
                 if (bestValue == 1) {
-                    strategyP1.put(gameState.hashCode(), BitEncoder.encodeSausage(move));
+                    strategyP1.put(gameBoard.hashCode(), BitEncoder.encodeSausage(move));
                     break;
                 }
             }
@@ -69,33 +69,22 @@ public class MinimaxRunner {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameState.getGrid(), p2)) {
-                gameState.addSausage(move);
+            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p2)) {
+                gameBoard.addSausage(move);
 
-                int value = minimaxMemo(gameState, true);
+                int value = minimaxMemo(gameBoard, true);
 
-                gameState.removeSausage(move);
+                gameBoard.removeSausage(move);
                 bestValue = Math.min(value, bestValue);
                 if (bestValue == -1) {
-                    strategyP2.put(gameState.hashCode(), BitEncoder.encodeSausage(move));
+                    strategyP2.put(gameBoard.hashCode(), BitEncoder.encodeSausage(move));
 //                    break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                 }
             }
             returnVal = bestValue;
         }
 
-        memoVals.put(gameState, returnVal);
+        memoVals.put(gameBoard, returnVal);
         return returnVal;
     }
-
-//    /**
-//     * returns the optimal strategy for the first player IF EXISTS
-//     */
-//    public static Map<Integer, Sausage> getFirstPlayerStrategy(int x, int y) {
-//        MinimaxRunner sm = new MinimaxRunner();
-//        GameState g = new GameState(x, y);
-//        int whoIsWinner = sm.minimaxMemo(g, true);
-//        Map<Integer, Sausage> firstPlayerStrategy = sm.getStrategyP1();
-//        return firstPlayerStrategy;
-//    }
 }

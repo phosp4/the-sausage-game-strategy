@@ -5,7 +5,7 @@
 
 package org.example.strategy;
 
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
@@ -82,7 +82,7 @@ public class MoveGenerator {
     }
 
     public static void moveGeneratorTester(int x, int y, int maxDepth) {
-        GameState g = new GameState(x, y);
+        GameBoard g = new GameBoard(x, y);
 
         for (int d = 1; d <= maxDepth; d++) {
             long nodes = countNodes(g, d);
@@ -96,7 +96,7 @@ public class MoveGenerator {
     /**
      * toto ma mozno nejaku chybu, treba skontrolovat ak chcem pouzivat
      */
-    private static Set<Sausage> countNodesUnique(GameState g, int depth) {
+    private static Set<Sausage> countNodesUnique(GameBoard g, int depth) {
         // Get all legal moves for the current state
         Set<Sausage> nodes = getAllPossibleMoves(g.getGrid());
 
@@ -116,7 +116,7 @@ public class MoveGenerator {
         return allChildNodes;
     }
 
-    private static long countNodes(GameState g, int depth) {
+    private static long countNodes(GameBoard g, int depth) {
         // Get all legal moves for the current state
         List<Sausage> moves = new ArrayList<>(getAllPossibleMoves(g.getGrid()));
 

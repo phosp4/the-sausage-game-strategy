@@ -2,10 +2,14 @@ package org.example.gui;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import org.example.engine.GameEngine;
 
 public class GdxGame extends Game {
     @Override public void create() {
-        setScreen(new GameScene(this));
+
+        // odtialto by sa tiez dali dohadzovat rozmery...
+        GameEngine engine = new GameEngine();
+        setScreen(new GameScene(this, engine));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 
 import java.util.List;
@@ -50,12 +50,12 @@ public class CliRendererUtil {
         return out.toString();
     }
 
-    public static void printAllPossibleMoves(GameState gameState, List<Sausage> possibleMoves) {
+    public static void printAllPossibleMoves(GameBoard gameBoard, List<Sausage> possibleMoves) {
         for (Sausage s : possibleMoves) {
-            gameState.addSausage(s);
-            System.out.println(CliRendererUtil.gridToString(gameState.getGrid()) + "sausage: " + s);
+            gameBoard.addSausage(s);
+            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()) + "sausage: " + s);
             System.out.println("–––––––––––––");
-            gameState.removeSausage(s);
+            gameBoard.removeSausage(s);
         }
     }
 }

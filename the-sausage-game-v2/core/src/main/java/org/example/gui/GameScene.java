@@ -15,30 +15,26 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+//import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import org.example.engine.GameController;
-import org.example.entities.Player;
+import org.example.engine.GameEngine;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.strategy.GridBitMask;
 import org.example.utils.CliRendererUtil;
-import org.example.strategy.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GameScene implements Screen {
 
-    // main stuff
-    private final GdxGame game;
-    private final GameController ctrl;
+    // data and game state
+    private final GameEngine ctrl;
 
     // libgdx stuff
+    private final GdxGame game;
     private Stage stage;
     private Batch batch;
     private ShapeDrawer drawer;
@@ -55,8 +51,6 @@ public class GameScene implements Screen {
     private Sound selectSound;
 
     // constants
-    private final int columns;
-    private final int rows;
     private float baseCircleRadius;
     private float enlargedCircleRadius;
 
@@ -70,24 +64,14 @@ public class GameScene implements Screen {
     private int ticker = 0;
     private int idx = 0;
 
-    // todo temporary
-    Map<Long, Sausage> strategy;
+    public GameScene(GdxGame gdxGame, GameEngine ctrl) {
 
-    public GameScene(GdxGame gdxGame) {
         this.game = gdxGame;
-        Player p1 = new Player("P1");
-        Player p2 = new Player("P2");
-        this.columns = 9; // temporary
-        this.rows = 7; // temporary
-        this.ctrl = new GameController(columns, rows, p1, p2, p2);
-        System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
-        System.out.println(ctrl.getGameState().hashCode());
+        this.ctrl = ctrl;
+        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+        System.out.println(ctrl.getGameBoard().hashCode());
 
-        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameState().getGrid()));
-
-//        // todo temporary
-//        strategy = StrategyMinimax.getFirstPlayerStrategy(columns, rows);
-//        System.out.println("strategy is: " + strategy);
+//        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameState().getGrid()));
     }
 
     @Override
@@ -117,6 +101,11 @@ public class GameScene implements Screen {
         // sounds
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
 
+        // toto robilo problemy v prehliadaci
+        loadVisUIElements(scale);
+    }
+
+    private void loadVisUIElements(float scale) {
         // rest of ui
         VisTable table = new VisTable();
         table.setFillParent(true);
@@ -130,7 +119,7 @@ public class GameScene implements Screen {
         restartButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScene(game));
+                game.setScreen(new GameScene(game, new GameEngine()));
                 GameScene.this.dispose();
             }
         });
@@ -157,8 +146,6 @@ public class GameScene implements Screen {
 //        table.padBottom(0); // Add padding from the bottom edge
         stage.addActor(table);
 
-        // docasne
-//        playStrategy();
     }
 
     @Override
@@ -190,7 +177,7 @@ public class GameScene implements Screen {
 
     private float rowToY(int row) {
         // Začiatok mriežky + celá výška - pozícia riadku (odpočítavame, lebo Y=0 je dole)
-        return gridOffsetY + (rows + 1f) * cellSize - cellSize * (row + 1);
+        return gridOffsetY + (ctrl.getGameBoard().getRows() + 1f) * cellSize - cellSize * (row + 1);
     }
 
     /*
@@ -221,20 +208,8 @@ public class GameScene implements Screen {
         mouseX = mousePos.x; // Gdx.input.getX();
         mouseY = mousePos.y; // Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        // todo docasne, na skusku - nesynchronizovane s circles...
-//        if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutonomousPlayer())) {
-//            System.out.println(ctrl.getAutonomousPlayer());
-//            Sausage s = ctrl.getAuto().getAMove(ctrl.getGameBoard().getGrid());
-//            if (s == null) {
-//                // game over action
-//            } else {
-//                s.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
-//                ctrl.getGameBoard().addSausage(s);
-//                ctrl.getTurnManager().nextTurn();
-//            }
-//        }
-
         // KĽÚČOVÁ ZMENA: Zladenie Batch matice s kamerou tvojho Stage!
+        // od chatu, ale nepomohlo to...
         batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
 
         batch.begin();
@@ -255,16 +230,15 @@ public class GameScene implements Screen {
     private void handleNewSausage() {
         if (firstPoint != null && secondPoint != null && thirdPoint != null) {
 
-            Sausage s = new Sausage(ctrl.getTurnManager().getCurrentPlayer(),
-                new Point(firstPoint.getX(), firstPoint.getY()),
-                new Point(secondPoint.getX(), secondPoint.getY()),
-                new Point(thirdPoint.getX(), thirdPoint.getY()));
+            Point p1 = new Point(firstPoint.getX(), firstPoint.getY());
+            Point p2 = new Point(secondPoint.getX(), secondPoint.getY());
+            Point p3 = new Point(thirdPoint.getX(), thirdPoint.getY());
 
-            if (ctrl.tryApplyMove(s)) {
-                System.out.println(CliRendererUtil.gridToString(ctrl.getGameState().getGrid()));
-                System.out.println(ctrl.getGameState().hashCode());
+            if (ctrl.tryApplyMove(p1, p2, p3)) {
+                System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+                System.out.println(ctrl.getGameBoard().hashCode());
 
-                if (ctrl.getGameState().isGameOver()) {
+                if (ctrl.getGameBoard().isGameOver()) {
                     String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
                     System.out.println("Game over! Winner: " + winnerName);
 //                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
@@ -273,7 +247,6 @@ public class GameScene implements Screen {
             } else {
                 System.out.println("Problem with handling new sausage: " + ctrl.getLastError());
             }
-//            playStrategy();
         }
         // toto je potrebne aby zabudlo, aj ked sa nevytvorila klobaska
         firstPoint = null;
@@ -281,36 +254,18 @@ public class GameScene implements Screen {
         thirdPoint = null;
     }
 
-    private void playStrategy() {
-        // strategy player demo
-        if (ctrl.getTurnManager().isPlayer1Turn()) {
-            Long bitboard = GridBitMask.encode(ctrl.getGameState().getGrid());
-            Sausage dokonalyTah = strategy.get(bitboard);
-            if (dokonalyTah != null) {
-                dokonalyTah.setPlayer(ctrl.getTurnManager().getCurrentPlayer());
-                ctrl.getGameState().addSausage(dokonalyTah);
-                // todo update circles
-                ctrl.getTurnManager().nextTurn();
-                System.out.println("Strategy played for player 1: " + dokonalyTah);
-            } else {
-                System.out.println(bitboard);
-                System.out.println("problem");
-            }
-        }
-    }
-
     private void handleTemporaryConnections() {
         boolean isHoveredPointOccupied = true;
 
         if (hoveredPoint != null) {
-            isHoveredPointOccupied = ctrl.getGameState().isOccupied(hoveredPoint.getX(), hoveredPoint.getY());
+            isHoveredPointOccupied = ctrl.getGameBoard().isOccupied(hoveredPoint.getX(), hoveredPoint.getY());
         }
 
         if (hoveredPoint != null && !isHoveredPointOccupied) {
             if (firstPoint == null) {
                 firstPoint = hoveredPoint;
                 SoundManager.play(selectSound);
-            } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameState().getGrid())) {
+            } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
                 secondPoint = hoveredPoint;
                 SoundManager.play(selectSound);
             } else if (secondPoint != null && !hoveredPoint.equals(firstPoint) && !hoveredPoint.equals(secondPoint) && ValidatorUtil.areNeigbours(secondPoint, hoveredPoint)) {
@@ -349,8 +304,8 @@ public class GameScene implements Screen {
         hoveredPoint = null;
 
         // iterate circles
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < columns; col++) {
+        for (int row = 0; row < ctrl.getGameBoard().getRows(); row++) {
+            for (int col = 0; col < ctrl.getGameBoard().getColumns(); col++) {
                 if ((row + col) % 2 == 0) {
                     float newX = colToX(col);
                     float newY = rowToY(row);
@@ -376,11 +331,11 @@ public class GameScene implements Screen {
 
     // pomocna metoda k drawCircles
     private Color getCircleColor(int col, int row, boolean isHovered) {
-        boolean isConnected = ctrl.getGameState().getGrid()[row][col] != null;
+        boolean isConnected = ctrl.getGameBoard().getGrid()[row][col] != null;
         Color circleColor;
 
         if (isHovered && isConnected) {
-            circleColor = ctrl.getGameState().getGrid()[row][col].getPlayer().getColor();
+            circleColor = ctrl.getGameBoard().getGrid()[row][col].getPlayer().getColor();
         } else if (isHovered) {
             circleColor = ctrl.getTurnManager().getCurrentPlayer().getColor();
         } else {
@@ -393,7 +348,7 @@ public class GameScene implements Screen {
         // Draw all connections
         drawer.setDefaultLineWidth(enlargedCircleRadius);
 
-        for (Sausage s : ctrl.getGameState().getSausages()) {
+        for (Sausage s : ctrl.getGameBoard().getSausages()) {
             List<Point> points = s.getThreePoints();
 
             drawer.setColor(s.getPlayer().getColor());
@@ -429,8 +384,8 @@ public class GameScene implements Screen {
         if (anchor != null) {
             drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
             drawer.setDefaultLineWidth(4f);
-            for (Point p : ctrl.getGameState().getFreeNeighbours(anchor)) {
-                if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameState().isOccupied(p.getX(), p.getY())) {
+            for (Point p : ctrl.getGameBoard().getFreeNeighbours(anchor)) {
+                if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameBoard().isOccupied(p.getX(), p.getY())) {
                     drawer.circle(colToX(p.getX()), rowToY(p.getY()), baseCircleRadius + 6f);
                 }
             }
@@ -448,16 +403,16 @@ public class GameScene implements Screen {
         float availableHeight = screenHeight - bottomPadding;
 
         // Vypočítame, aká by bola medzera, keby sme išli podľa šírky alebo podľa výšky
-        float spacingX = screenWidth / (columns + 1f);
-        float spacingY = availableHeight / (rows + 1f);
+        float spacingX = screenWidth / (ctrl.getGameBoard().getColumns() + 1f);
+        float spacingY = availableHeight / (ctrl.getGameBoard().getRows() + 1f);
 
         // KĽÚČOVÝ KROK: Vyberieme menšiu medzeru.
         // Tým zaručíme, že sa mriežka zmestí a body budú rovnako ďaleko v X aj Y smeroch.
         cellSize = Math.min(spacingX, spacingY);
 
         // Aká veľká bude celá mriežka v pixeloch?
-        float totalGridWidth = cellSize * (columns + 1f);
-        float totalGridHeight = cellSize * (rows + 1f);
+        float totalGridWidth = cellSize * (ctrl.getGameBoard().getColumns() + 1f);
+        float totalGridHeight = cellSize * (ctrl.getGameBoard().getRows() + 1f);
 
         // Vypočítame offsety na vycentrovanie mriežky
         gridOffsetX = (screenWidth - totalGridWidth) / 2f;

@@ -6,7 +6,7 @@
 
 package org.example.utils;
 
-import org.example.entities.GameState;
+import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 
@@ -40,7 +40,7 @@ public class ZobristHasher {
         return newHash;
     }
 
-    public static long calculateInitialHash(GameState g) {
+    public static long calculateInitialHash(GameBoard g) {
         int height = g.getGrid().length;
         int width = g.getGrid()[0].length;
 

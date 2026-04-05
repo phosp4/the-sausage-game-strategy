@@ -2,7 +2,7 @@ package org.example.teavm;
 
 import com.github.xpenatan.gdx.backends.teavm.TeaApplicationConfiguration;
 import com.github.xpenatan.gdx.backends.teavm.TeaApplication;
-import org.example.gui.Main;
+import org.example.gui.GdxGame;
 
 /**
  * Launches the TeaVM/HTML application.
@@ -16,6 +16,6 @@ public class TeaVMLauncher {
         //// If width and height are both 0, then the app will use all available space.
         config.width = 0;
         config.height = 0;
-        new TeaApplication(new Main(), config);
+        new TeaApplication(new GdxGame(), config);
     }
 }
