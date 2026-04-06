@@ -115,7 +115,7 @@ public class GameBoard implements Serializable {
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
     }
 
-    // <=> is full
+//    // <=> is full
     public boolean isGameOver() {
         // zbytocne - staci skoncit, ked sa najde aspon jedna klobaska
         return MoveGenerator.getAllPossibleMoves(grid).isEmpty();

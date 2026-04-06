@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.strategy.Launchers;
+import org.example.strategy.MinimaxLaunchers;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,13 +10,16 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public class WriterUtil {
+public class FileHandlingUtil {
+
+    public static final String PATH_PREFIX = "minimax_";
+    public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
+    public static final String STRATEGY_PATH = "minimax_strategies";
 
     public static String writeIntArrayToCSV(int[][] data) {
 
-        String fileName = Launchers.PATH_PREFIX + data.length + "x" + data[0].length + ".csv";
+        String fileName = PATH_PREFIX + data.length + "x" + data[0].length + ".csv";
 
         String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE); // e.g. 2026-01-12
         Path dailyDir = Paths.get("minimax_results", today);
@@ -209,11 +212,13 @@ public class WriterUtil {
         return strategy;
     }
 
-    public void saveStrategyCSV(HashMap<Integer, Long> strategy, String filepath) throws IOException {
+    public static void saveStrategyCSV(Map<Integer, Long> strategy, String filepath) {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filepath)))) {
             for (Map.Entry<Integer, Long> entry : strategy.entrySet()) {
                 writer.println(entry.getKey() + "," + entry.getValue());
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

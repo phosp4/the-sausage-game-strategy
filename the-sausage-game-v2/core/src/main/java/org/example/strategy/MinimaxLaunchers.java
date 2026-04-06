@@ -1,31 +1,44 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
-import org.example.utils.WriterUtil;
+import org.example.utils.FileHandlingUtil;
 
+import java.util.Map;
 import java.util.concurrent.*;
 
-public class Launchers {
-
-    public static final String PATH_PREFIX = "minimax_";
-    public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
-    public static final String STRATEGY_PATH = "strategies_minimax";
+public class MinimaxLaunchers {
 
     public static void main(String[] args) {
 //        getResultsTable(20, 2000);
-//        getResultForBoard(15,1);
-        getStrategyForBoard(9, 7);
+        getResultForBoard(1,70);
+//        getStrategyForBoard(1, 16);
+//        saveStrategyForBoardCSV(1,16);
     }
 
-    public static void getStrategyForBoard(int x, int y) {
+    public static Map<Integer, Long> getStrategyForBoard(int x, int y) {
         MinimaxRunner mr = new MinimaxRunner();
         GameBoard g = new GameBoard(x, y);
         int winner = mr.minimaxMemo(g, true);
         System.out.println(winner);
         if (winner == 1) {
             System.out.println(mr.getStrategyP1());
+            return mr.getStrategyP1();
         } else if (winner == -1) {
             System.out.println(mr.getStrategyP2());
+            return mr.getStrategyP2();
+        }
+        System.err.println("Problem loading a strategy...");
+        return null;
+    }
+
+    // skor na testing
+    public static void saveStrategyForBoardCSV(int x, int y) {
+        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + ".csv";
+        Map<Integer, Long> strategy = getStrategyForBoard(x, y);
+        if (strategy != null) {
+            FileHandlingUtil.saveStrategyCSV(strategy, fileName);
+        } else {
+            System.err.println("Error saving the file...");
         }
     }
 
@@ -34,7 +47,7 @@ public class Launchers {
         GameBoard g = new GameBoard(x, y);
         int whoIsWinner = sm.minimaxMemo(g, true);
         System.out.println("Winner: " + whoIsWinner);
-        System.out.println(sm.getCounter());
+        System.out.println("number of TT calls: " + sm.getTtCallsCount());
     }
 
 //    public static void test5(int x, int y) {
@@ -114,7 +127,7 @@ public class Launchers {
             }
 
             // Výpis výsledkov (nezmenený)
-            String path = WriterUtil.writeIntArrayToCSV(results);
+            String path = FileHandlingUtil.writeIntArrayToCSV(results);
             for (int i = 0; i < resultsColors.length; i++) {
                 StringBuilder line = new StringBuilder();
                 for (int j = 0; j < resultsColors[0].length; j++) {
@@ -124,10 +137,10 @@ public class Launchers {
             }
 
             // compare with ground truth
-            WriterUtil.CompareCSVsOnesMinusOnes(path, GROUND_TRUTH);
+            FileHandlingUtil.CompareCSVsOnesMinusOnes(path, FileHandlingUtil.GROUND_TRUTH);
 
             // check the symmetry
-            WriterUtil.isSymmetricCSV(path);
+            FileHandlingUtil.isSymmetricCSV(path);
 
         } catch (Throwable t) {
             t.printStackTrace();

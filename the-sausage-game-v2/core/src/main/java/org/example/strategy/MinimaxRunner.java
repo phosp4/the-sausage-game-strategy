@@ -12,6 +12,7 @@ import org.example.utils.BitEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MinimaxRunner {
 
@@ -23,7 +24,8 @@ public class MinimaxRunner {
     @Getter private final Map<Integer,Long> strategyP2 = new HashMap<>();
 
     // testing
-    @Getter private int counter = 0;
+    @Getter private int ttCallsCount = 0;
+//    @Getter
 
     public int minimaxMemo(GameBoard gameBoard, boolean isMaximizingPlayer) {
 
@@ -35,13 +37,15 @@ public class MinimaxRunner {
         }
 
         if (memoVals.containsKey(gameBoard)) {
-            counter++;
+            ttCallsCount++;
             return memoVals.get(gameBoard);
         }
 
         int returnVal;
 
-        if (gameBoard.isGameOver()) {
+        Set<Sausage> moves = MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), isMaximizingPlayer ? p1 : p2);
+
+        if (moves.isEmpty()) {
             if (isMaximizingPlayer) {
                 return -1; // nema tah, teda vyhrava druhy
             } else {
@@ -51,7 +55,7 @@ public class MinimaxRunner {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+            for (Sausage move : moves) { // pojde to asi aj s O(1) priestorovou
 //                System.out.println(Possible);
                 gameBoard.addSausage(move);
 
@@ -69,7 +73,7 @@ public class MinimaxRunner {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p2)) {
+            for (Sausage move : moves) {
                 gameBoard.addSausage(move);
 
                 int value = minimaxMemo(gameBoard, true);

@@ -1,4 +1,4 @@
-package org.example.strategy;
+package org.example.strategy.archive;
 
 public class GridBitMask {
 

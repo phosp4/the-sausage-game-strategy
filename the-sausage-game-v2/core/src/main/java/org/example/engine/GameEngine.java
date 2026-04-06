@@ -6,13 +6,10 @@
 package org.example.engine;
 
 import lombok.Getter;
+import org.example.automation.AutonomousOpponent;
+import org.example.automation.MinimaxOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
-import org.example.strategy.MoveGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 /**
@@ -22,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class GameEngine {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
+    private final AutonomousOpponent auto;
 
 //    private AutonomousOpponent auto;
 //    private Player autonomousPlayer;
@@ -35,11 +33,10 @@ public class GameEngine {
         int rows = 7;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
+        auto = new MinimaxOpponent(columns, rows);
 
         this.gameBoard = new GameBoard(columns, rows);
         this.turnManager = new TurnManager(p1, p2);
-//        this.autonomousPlayer = auto;
-//        this.auto = new RandomOpponent();
     }
 
     /** Called by a UI when a player attempts a move. Returns true if applied. */
@@ -59,12 +56,5 @@ public class GameEngine {
             lastError = "Sausage intersects with another sausage.";
             return false;
         }
-    }
-
-    /** Optional helper for AI/auto player. */
-    public Sausage pickRandomLegalMove() {
-        List<Sausage> possible = new ArrayList<>(MoveGenerator.getAllPossibleMoves(gameBoard.getGrid()));
-        if (possible.isEmpty()) return null;
-        return possible.get(ThreadLocalRandom.current().nextInt(possible.size()));
     }
 }
