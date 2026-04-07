@@ -25,7 +25,7 @@ public class StrategyMinimaxAlt {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+            for (Sausage move : MoveGenerator.getPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
                 gameBoard.addSausage(move);
                 int value = minimax(gameBoard, false);
                 gameBoard.removeSausage(move);
@@ -37,7 +37,7 @@ public class StrategyMinimaxAlt {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p2)) {
+            for (Sausage move : MoveGenerator.getPossibleMoves(gameBoard.getGrid(), p2)) {
                 gameBoard.addSausage(move);
                 int value = minimax(gameBoard, true);
                 gameBoard.removeSausage(move);
@@ -63,7 +63,7 @@ public class StrategyMinimaxAlt {
 
         if (isMaximizingPlayer) {
             int bestValue = -1; // to je ako -infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
+            for (Sausage move : MoveGenerator.getPossibleMoves(gameBoard.getGrid(), p1)) { // pojde to asi aj s O(1) priestorovou
                 gameBoard.addSausage(move);
                 int value = minimaxAB(gameBoard, false, alpha, beta);
                 gameBoard.removeSausage(move);
@@ -77,7 +77,7 @@ public class StrategyMinimaxAlt {
 
         else {
             int bestValue = 1; // to je ako +infinity
-            for (Sausage move : MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), p2)) {
+            for (Sausage move : MoveGenerator.getPossibleMoves(gameBoard.getGrid(), p2)) {
                 gameBoard.addSausage(move);
                 int value = minimaxAB(gameBoard, true, alpha, beta);
                 gameBoard.removeSausage(move);

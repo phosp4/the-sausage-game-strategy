@@ -15,17 +15,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-//import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import org.example.engine.GameEngine;
+import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.strategy.MoveGenerator;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameScene implements Screen {
@@ -60,6 +62,7 @@ public class GameScene implements Screen {
     private float gridOffsetY;
 
 //    // generate moves animation
+    private boolean animateMoves = true;
     private List<Sausage> moves;
     private int ticker = 0;
     private int idx = 0;
@@ -71,7 +74,10 @@ public class GameScene implements Screen {
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
         System.out.println(ctrl.getGameBoard().hashCode());
 
-//        moves = new ArrayList<>(MoveGenerator.getAllPossibleMoves(ctrl.getGameState().getGrid()));
+        if (animateMoves) {
+            ctrl.tryApplyMove(new Point(4, 2), new Point(6, 2), new Point(8, 2));
+            moves = MoveGenerator.getPossibleMovesList(ctrl.getGameBoard().getGrid(), new Player("asdf"));
+        }
     }
 
     @Override
@@ -186,16 +192,20 @@ public class GameScene implements Screen {
     @Override
     public void render(float delta) {
 
-//        // generate moves animation
-//        ticker++;
-//        if (ticker % 2 == 0) {
-//            if (!ctrl.getGameBoard().getSausages().isEmpty()) ctrl.getGameBoard().removeLastSausage();
-//            if (idx >= moves.size()) {
-//                idx = 0;
-//            }
-//            ctrl.getGameBoard().addSausage(moves.get(idx));
-//            idx++;
-//        }
+        // generate moves animation
+        if (animateMoves) {
+            ticker++;
+            if (ticker % 2 == 0) {
+                if (idx >= moves.size()) {
+                    idx = 0;
+                }
+                if (!ctrl.getGameBoard().getSausages().isEmpty() && idx - 1 >= 0) {
+                    ctrl.getGameBoard().removeSausage(moves.get(idx - 1));
+                }
+                ctrl.getGameBoard().addSausage(moves.get(idx));
+                idx++;
+            }
+        }
 
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);

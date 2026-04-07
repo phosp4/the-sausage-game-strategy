@@ -19,7 +19,7 @@ import org.example.exceptions.*;
 public class GameEngine {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
-    private final AutonomousOpponent auto;
+//    private final AutonomousOpponent auto;
 
 //    private AutonomousOpponent auto;
 //    private Player autonomousPlayer;
@@ -33,7 +33,7 @@ public class GameEngine {
         int rows = 7;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
-        auto = new MinimaxOpponent(columns, rows);
+//        auto = new MinimaxOpponent(columns, rows);
 
         this.gameBoard = new GameBoard(columns, rows);
         this.turnManager = new TurnManager(p1, p2);

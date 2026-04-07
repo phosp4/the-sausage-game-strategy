@@ -105,6 +105,11 @@ public class GameBoard implements Serializable {
             throw new IntersectingSausagesException(p2, p3);
         }
 
+        // toto tu dlho chybalo !!!
+        if (!ValidatorUtil.haveNoIntersectionInGrid(p3, p1, grid)) {
+            throw new IntersectingSausagesException(p2, p3);
+        }
+
         // mozno tu este raz validovatPointForGrid?
 
         // add sausage to the grid
@@ -115,10 +120,39 @@ public class GameBoard implements Serializable {
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
     }
 
-//    // <=> is full
+    public boolean tryAddingSausageMinimax(Sausage sausage) {
+
+        if (!ValidatorUtil.haveNoIntersectionInGrid(
+            sausage.getThreePoints().get(0),
+            sausage.getThreePoints().get(1), grid)) {
+            return false;
+        }
+        if (!ValidatorUtil.haveNoIntersectionInGrid(
+            sausage.getThreePoints().get(1),
+            sausage.getThreePoints().get(2), grid)) {
+            return false;
+        }
+        if (!ValidatorUtil.haveNoIntersectionInGrid(
+            sausage.getThreePoints().get(2),
+            sausage.getThreePoints().get(0), grid)) {
+            return false;
+        }
+
+        // add sausage to the grid
+        for (Point point : sausage.getThreePoints()) {
+            grid[point.getY()][point.getX()] = sausage; // adds the reference
+        }
+
+        zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
+
+        return true;
+    }
+
+
+    //    // <=> is full
     public boolean isGameOver() {
         // zbytocne - staci skoncit, ked sa najde aspon jedna klobaska
-        return MoveGenerator.getAllPossibleMoves(grid).isEmpty();
+        return MoveGenerator.getPossibleMoves(grid).isEmpty();
     }
 
     public boolean isOccupied(int x, int y) {

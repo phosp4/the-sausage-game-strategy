@@ -41,7 +41,7 @@ public class BitEncoder {
     // testing
     public static void main(String[] args) {
         GameBoard g = new GameBoard(100, 100);
-        Set<Sausage> moves = MoveGenerator.getAllPossibleMoves(g.getGrid());
+        Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
         for (Sausage s : moves) {
             if (!s.equals(decodeSausage(encodeSausage(s)))) {
                 System.out.println("problem with sausage " + s);

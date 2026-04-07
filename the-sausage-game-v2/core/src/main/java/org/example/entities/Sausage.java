@@ -30,6 +30,30 @@ public class Sausage implements Serializable {
         this(null, p1, p2, p3);
     }
 
+//    public boolean intersects(Sausage another) {
+//        for (Point pA : threePoints) {
+//            for (Point pB : another.threePoints) {
+//                if (pA.equals(pB)) {
+//                    return true;
+//                }
+//            }
+//        }
+//
+//
+//
+//        // ++ ak sa akokolvek pretinaju, return true
+////        int[] xCoords = {threePoints.get(0).getX(), threePoints.get(1).getX(), threePoints.get(2).getX()};
+//
+//        return false;
+//    }
+
+//    public static void main(String[] args) {
+//        Sausage s1 = new Sausage(new Point(0,0), new Point(0,2), new Point(0,4));
+//        Sausage s2 = new Sausage(new Point(1,0), new Point(2,0), new Point(4,0));
+//
+//        System.out.println(s1.intersects(s2));
+//    }
+
     @Override
     public String toString() {
         return "{" + threePoints + ", " + player + '}';

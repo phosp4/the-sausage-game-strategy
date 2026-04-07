@@ -65,12 +65,12 @@ public class ValidatorUtil {
     public static boolean haveNoIntersectionInGrid(Point p1, Point p2, Sausage[][] grid) {
 
         // trivial intersection
-        if (p1.getX() == p2.getX() && p1.getY() == p2.getY()) {
+        if (p1.equals(p2)) {
             return false;
         }
 
         // ak je to vodorovne spojenie
-        if (Math.abs(p2.getX() - p1.getX()) == 2) {
+        if (Math.abs(p2.getX() - p1.getX()) == 2 && p2.getY() == p1.getY()) {
 
             // zober suradnice bodu nalavo
             int ii = p2.getX() - p1.getX() > 0 ? p1.getX() : p2.getX();
@@ -87,14 +87,10 @@ public class ValidatorUtil {
                     return false;
                 }
             }
-//            System.out.println("----");
-//            System.out.println(p1);
-//            System.out.println(p2);
-//            System.out.println(CliRendererUtil.gridToString(grid));
         }
 
         // ak je to zvisle spojenie
-        if (Math.abs(p2.getY() - p1.getY()) == 2) {
+        if (Math.abs(p2.getY() - p1.getY()) == 2 && p2.getX() == p1.getX()) {
 
             // zober suradnice bodu hore
             int ii = p2.getY() - p1.getY() > 0 ? p1.getX() : p2.getX();
@@ -114,4 +110,28 @@ public class ValidatorUtil {
         }
         return true;
     }
+
+//    public static int[] getMiddlePoint(Point p1, Point p2) {
+//        // ak je to vodorovne spojenie
+//        if (Math.abs(p2.getX() - p1.getX()) == 2 && p2.getY() == p1.getY()) {
+//
+//            // zober suradnice bodu nalavo
+//            int ii = p2.getX() - p1.getX() > 0 ? p1.getX() : p2.getX();
+//            int jj = p2.getX() - p1.getX() > 0 ? p1.getY() : p2.getY();
+//
+//            return new int[]{ii + 1, jj};
+//        }
+//
+//        // ak je to zvisle spojenie
+//        if (Math.abs(p2.getY() - p1.getY()) == 2 && p2.getX() == p1.getX()) {
+//
+//            // zober suradnice bodu hore
+//            int ii = p2.getY() - p1.getY() > 0 ? p1.getX() : p2.getX();
+//            int jj = p2.getY() - p1.getY() > 0 ? p1.getY() : p2.getY();
+//
+//            return new int[]{ii, jj + 1};
+//        }
+//
+//        return null;
+//    }
 }

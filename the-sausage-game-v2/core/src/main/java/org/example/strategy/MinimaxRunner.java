@@ -43,7 +43,7 @@ public class MinimaxRunner {
 
         int returnVal;
 
-        Set<Sausage> moves = MoveGenerator.getAllPossibleMoves(gameBoard.getGrid(), isMaximizingPlayer ? p1 : p2);
+        Set<Sausage> moves = MoveGenerator.getPossibleMoves(gameBoard.getGrid(), isMaximizingPlayer ? p1 : p2);
 
         if (moves.isEmpty()) {
             if (isMaximizingPlayer) {
