@@ -212,13 +212,27 @@ public class FileHandlingUtil {
         return strategy;
     }
 
-    public static void saveStrategyCSV(Map<Integer, Long> strategy, String filepath) {
+    public static void saveStrategyCSV(Map<Long, Long> strategy, String filepath) {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filepath)))) {
-            for (Map.Entry<Integer, Long> entry : strategy.entrySet()) {
+            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
                 writer.println(entry.getKey() + "," + entry.getValue());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static HashMap<Integer, Long> loadStrategyCSV(String filepath) throws IOException {
+        HashMap<Integer, Long> map = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    map.put(Integer.parseInt(parts[0]), Long.parseLong(parts[1]));
+                }
+            }
+        }
+        return map;
     }
 }

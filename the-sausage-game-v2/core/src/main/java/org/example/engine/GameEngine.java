@@ -10,6 +10,9 @@ import org.example.automation.AutonomousOpponent;
 import org.example.automation.MinimaxOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
+import org.example.strategy.MinimaxRunner;
+import org.example.utils.CliInputHandler;
+import org.example.utils.CliRendererUtil;
 
 @Getter
 /**
@@ -19,7 +22,8 @@ import org.example.exceptions.*;
 public class GameEngine {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
-//    private final AutonomousOpponent auto;
+    private AutonomousOpponent auto;
+    private Player autoPlayer = null;
 
 //    private AutonomousOpponent auto;
 //    private Player autonomousPlayer;
@@ -30,13 +34,22 @@ public class GameEngine {
 
         // hlavne miesto, kde sa to nastavuje
         int columns = 9;
-        int rows = 7;
+        int rows = 6;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
-//        auto = new MinimaxOpponent(columns, rows);
+
+        auto = new MinimaxOpponent(columns, rows);
+        autoPlayer = null;
 
         this.gameBoard = new GameBoard(columns, rows);
         this.turnManager = new TurnManager(p1, p2);
+
+        // testing
+//        gameBoard.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 3,1"));
+//        gameBoard.addSausage(CliInputHandler.spracujRiadokVstupu("0,4 2,4 4,4"));
+//        gameBoard.addSausage(CliInputHandler.spracujRiadokVstupu("7,1 6,2 4,2"));
+//        gameBoard.addSausage(CliInputHandler.spracujRiadokVstupu("3,5 5,5 7,5"));
+
     }
 
     /** Called by a UI when a player attempts a move. Returns true if applied. */
@@ -48,6 +61,18 @@ public class GameEngine {
         try {
             gameBoard.addSausage(move);
             turnManager.nextTurn();
+
+//            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
+            System.out.println(CliRendererUtil.gridToStringAsArray(gameBoard.getGrid()));
+            System.out.println(gameBoard.hashCode());
+            if (gameBoard.isGameOver()) {
+                String winnerName = turnManager.getNotCurrentPlayer().getName();
+                System.out.println("Game over! Winner: " + winnerName);
+//                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
+//                    dialog.showOn(stage);
+            }
+            System.out.println(gameBoard.getSausages());
+
             return true;
         } catch (InvalidPointForGridException e) {
             lastError = "Invalid sausage placement.";

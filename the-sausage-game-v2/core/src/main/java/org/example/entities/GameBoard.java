@@ -116,11 +116,28 @@ public class GameBoard implements Serializable {
         for (Point point : sausage.getThreePoints()) {
             grid[point.getY()][point.getX()] = sausage; // adds the reference
         }
+        for (Point point : sausage.getTwoAdditionalPoints()) {
+            grid[point.getY()][point.getX()] = sausage;
+        }
 
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
     }
 
     public boolean tryAddingSausageMinimax(Sausage sausage) {
+
+        if (sausage == null) {
+            throw new IllegalArgumentException("Sausage cannot be null.");
+        }
+
+        if (!ValidatorUtil.isPointValidForGrid(sausage.getThreePoints().get(0), this.grid)) {
+            return false;
+        }
+        if (!ValidatorUtil.isPointValidForGrid(sausage.getThreePoints().get(1), this.grid)) {
+            return false;
+        }
+        if (!ValidatorUtil.isPointValidForGrid(sausage.getThreePoints().get(2), this.grid)) {
+            return false;
+        }
 
         if (!ValidatorUtil.haveNoIntersectionInGrid(
             sausage.getThreePoints().get(0),
@@ -141,6 +158,9 @@ public class GameBoard implements Serializable {
         // add sausage to the grid
         for (Point point : sausage.getThreePoints()) {
             grid[point.getY()][point.getX()] = sausage; // adds the reference
+        }
+        for (Point point : sausage.getTwoAdditionalPoints()) {
+            grid[point.getY()][point.getX()] = sausage;
         }
 
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, sausage);
@@ -174,6 +194,10 @@ public class GameBoard implements Serializable {
         for (Point p : threePoints) {
             grid[p.getY()][p.getX()] = null;
         }
+        for (Point p : s.getTwoAdditionalPoints()) {
+            grid[p.getY()][p.getX()] = null;
+        }
+
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, s);
     }
 

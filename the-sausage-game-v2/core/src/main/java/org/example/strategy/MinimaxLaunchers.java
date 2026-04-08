@@ -1,6 +1,7 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
+import org.example.utils.CliInputHandler;
 import org.example.utils.FileHandlingUtil;
 
 import java.util.Map;
@@ -9,16 +10,37 @@ import java.util.concurrent.*;
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-//        getResultsTable(20, 2000);
-        getResultForBoard(1,70);
-//        getStrategyForBoard(1, 16);
-//        saveStrategyForBoardCSV(1,16);
+//        getResultsTable(20, 3000);
+//        getResultForBoard(9,6);
+//        getStrategyForBoard(9, 6);
+        getAndSaveStrategyForBoardCSV(9,6);
+//        fixChybyTemp();
     }
 
-    public static Map<Integer, Long> getStrategyForBoard(int x, int y) {
+    /**
+     * mozno vyskusat inu - jednoduchsiu implementaciu minimaxu?
+     */
+    public static void fixChybyTemp() {
+        MinimaxRunner mr = new MinimaxRunner();
+        GameBoard g = new GameBoard(6,9);
+        CliInputHandler cih = new CliInputHandler();
+
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 1,3"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,7 2,6 2,4"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("5,3 5,5 5,7"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("4,0 4,2 4,4"));
+
+        // tu nastava zmena
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("3,5 3,7 4,6"));
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("0,6 0,8 2,8"));
+
+        System.out.println("Winner: " + mr.minimaxMemoStart(g));
+    }
+
+    public static Map<Long, Long> getStrategyForBoard(int x, int y) {
         MinimaxRunner mr = new MinimaxRunner();
         GameBoard g = new GameBoard(x, y);
-        int winner = mr.minimaxMemo(g, true);
+        int winner = mr.minimaxMemoStart(g);
         System.out.println(winner);
         if (winner == 1) {
             System.out.println(mr.getStrategyP1());
@@ -32,9 +54,16 @@ public class MinimaxLaunchers {
     }
 
     // skor na testing
-    public static void saveStrategyForBoardCSV(int x, int y) {
-        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + ".csv";
-        Map<Integer, Long> strategy = getStrategyForBoard(x, y);
+    public static void getAndSaveStrategyForBoardCSV(int x, int y) {
+        int smaller = x;
+        int bigger = y;
+        if (x > y) {
+            smaller = y;
+            bigger = x;
+        }
+
+        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + smaller + "x" + bigger + ".csv";
+        Map<Long, Long> strategy = getStrategyForBoard(x, y);
         if (strategy != null) {
             FileHandlingUtil.saveStrategyCSV(strategy, fileName);
         } else {
@@ -45,7 +74,7 @@ public class MinimaxLaunchers {
     public static void getResultForBoard(int x, int y) {
         MinimaxRunner sm = new MinimaxRunner();
         GameBoard g = new GameBoard(x, y);
-        int whoIsWinner = sm.minimaxMemo(g, true);
+        int whoIsWinner = sm.minimaxMemoStart(g);
         System.out.println("Winner: " + whoIsWinner);
         System.out.println("number of TT calls: " + sm.getTtCallsCount());
     }
@@ -88,7 +117,7 @@ public class MinimaxLaunchers {
                         res = -3;
                     } else {
                         GameBoard g = new GameBoard(i + 1, j + 1);
-                        Future<Integer> future = executor.submit(() -> sfm.minimaxMemo(g, true));
+                        Future<Integer> future = executor.submit(() -> sfm.minimaxMemoStart(g));
 
                         try {
                             res = future.get(timeout, TimeUnit.MILLISECONDS);

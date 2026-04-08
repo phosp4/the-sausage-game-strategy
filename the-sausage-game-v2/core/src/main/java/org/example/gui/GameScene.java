@@ -62,7 +62,7 @@ public class GameScene implements Screen {
     private float gridOffsetY;
 
 //    // generate moves animation
-    private boolean animateMoves = true;
+    private boolean animateMoves = false;
     private List<Sausage> moves;
     private int ticker = 0;
     private int idx = 0;
@@ -75,7 +75,6 @@ public class GameScene implements Screen {
         System.out.println(ctrl.getGameBoard().hashCode());
 
         if (animateMoves) {
-            ctrl.tryApplyMove(new Point(4, 2), new Point(6, 2), new Point(8, 2));
             moves = MoveGenerator.getPossibleMovesList(ctrl.getGameBoard().getGrid(), new Player("asdf"));
         }
     }
@@ -195,8 +194,9 @@ public class GameScene implements Screen {
         // generate moves animation
         if (animateMoves) {
             ticker++;
-            if (ticker % 2 == 0) {
+            if (ticker % 16 == 0) {
                 if (idx >= moves.size()) {
+                    ctrl.getGameBoard().removeSausage(moves.get(idx-1));
                     idx = 0;
                 }
                 if (!ctrl.getGameBoard().getSausages().isEmpty() && idx - 1 >= 0) {
@@ -205,6 +205,12 @@ public class GameScene implements Screen {
                 ctrl.getGameBoard().addSausage(moves.get(idx));
                 idx++;
             }
+        }
+
+        // v pripade automatizacie
+        if (ctrl.getAutoPlayer() == ctrl.getTurnManager().getCurrentPlayer()) {
+            Sausage move = ctrl.getAuto().getNextMove(ctrl.getGameBoard());
+            ctrl.tryApplyMove(move.getThreePoints().get(0), move.getThreePoints().get(1), move.getThreePoints().get(2));
         }
 
         // this used to cause flickering, idk why
@@ -244,17 +250,7 @@ public class GameScene implements Screen {
             Point p2 = new Point(secondPoint.getX(), secondPoint.getY());
             Point p3 = new Point(thirdPoint.getX(), thirdPoint.getY());
 
-            if (ctrl.tryApplyMove(p1, p2, p3)) {
-                System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-                System.out.println(ctrl.getGameBoard().hashCode());
-
-                if (ctrl.getGameBoard().isGameOver()) {
-                    String winnerName = ctrl.getTurnManager().getNotCurrentPlayer().getName();
-                    System.out.println("Game over! Winner: " + winnerName);
-//                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
-//                    dialog.showOn(stage);
-                }
-            } else {
+            if (!ctrl.tryApplyMove(p1, p2, p3)) {
                 System.out.println("Problem with handling new sausage: " + ctrl.getLastError());
             }
         }

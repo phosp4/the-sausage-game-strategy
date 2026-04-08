@@ -2,6 +2,7 @@ package org.example.entities;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.example.utils.ValidatorUtil;
 
 import java.io.Serializable;
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.*;
 public class Sausage implements Serializable {
 //    private Set<Point> threePoints = new HashSet<>();
     private List<Point> threePoints = new ArrayList<>();
+    private List<Point> twoAdditionalPoints = new ArrayList<>();
     transient private Player player; // neuklada sa pri serializacii
 
     public Sausage(Player player, Point p1, Point p2, Point p3) {
@@ -23,11 +25,14 @@ public class Sausage implements Serializable {
         threePoints.add(p2);
         threePoints.add(p3);
 
+        // add additional two points, if there are ones
+        twoAdditionalPoints = ValidatorUtil.detectTwoAdditionalPoints(this);
+
         this.player = player;
     }
 
     public Sausage(Point p1, Point p2, Point p3) {
-        this(null, p1, p2, p3);
+        this(new Player("null"), p1, p2, p3);
     }
 
 //    public boolean intersects(Sausage another) {

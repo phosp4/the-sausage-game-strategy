@@ -4,6 +4,7 @@ import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.exceptions.InvalidPointForGridException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //import org.slf4j.Logger;
@@ -16,6 +17,42 @@ public class ValidatorUtil {
     public static boolean areNeigbours(Point p1, Point p2) {
         return (Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX()) +
                 Math.max(p1.getY(), p2.getY()) - Math.min(p1.getY(), p2.getY()) <= 2);
+    }
+
+    public static List<Point> detectTwoAdditionalPoints(Sausage s) {
+        List<Point> out = new ArrayList<>();
+        Point p1 = s.getThreePoints().get(0);
+        Point p2 = s.getThreePoints().get(1);
+        Point p3 = s.getThreePoints().get(2);
+
+        Point middle1 = getMiddlePointIfExists(p1, p2);
+        if (middle1 != null) out.add(middle1);
+
+        Point middle2 = getMiddlePointIfExists(p2, p3);
+        if (middle2 != null) out.add(middle2);
+
+        // toto je skor pre istotu, ale budu tam vzdy max dva body
+        Point middle3 = getMiddlePointIfExists(p3, p1);
+        if (middle3 != null) out.add(middle3);
+
+        return out;
+    }
+
+    /**
+     * po vytvoreni metody detectTwoAdditionalPoints by sa to dalo zlepsit, zatial ale nechavam tak
+     */
+    private static Point getMiddlePointIfExists(Point p1, Point p2) {
+        int dx = p2.getX() - p1.getX();
+        int dy = p2.getY() - p1.getY();
+
+        // musí to byť presne o 2 v jednom smere a 0 v druhom
+        if ((Math.abs(dx) == 2 && dy == 0) || (Math.abs(dy) == 2 && dx == 0)) {
+            int midX = (p1.getX() + p2.getX()) / 2;
+            int midY = (p1.getY() + p2.getY()) / 2;
+            return new Point(midX, midY);
+        }
+
+        return null; // neexistuje platný stred
     }
 
     private static boolean isPointValid(Point p) {

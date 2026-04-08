@@ -10,6 +10,8 @@ import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SplittableRandom;
 
 public class ZobristHasher {
@@ -24,6 +26,7 @@ public class ZobristHasher {
 
         for (int y = 0; y < MAX_DIMENSION; y++) {
             for (int x = 0; x < MAX_DIMENSION; x++) {
+                // vratane mensich (additional) bodov - to je velmi dolezite!!
                 TABLE[y][x] = random.nextLong();
             }
         }
@@ -35,6 +38,9 @@ public class ZobristHasher {
     public static long updateHashForSausage(long currentHash, Sausage s) {
         long newHash = currentHash;
         for (Point p : s.getThreePoints()) {
+            newHash ^= TABLE[p.getY()][p.getX()];
+        }
+        for (Point p : s.getTwoAdditionalPoints()) {
             newHash ^= TABLE[p.getY()][p.getX()];
         }
         return newHash;
@@ -62,4 +68,16 @@ public class ZobristHasher {
     public static int toJavaHashCode(long hash) {
         return Long.hashCode(hash);
     }
+
+//    public static void main(String[] args) {
+//        GameBoard g = new GameBoard(6,6);
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 3,3"));
+//
+//        Map<Long, String> test = new HashMap<>();
+//        test.put(g.getZobristHash(), "asdf");
+//
+//        System.out.println(g.getZobristHash());
+//        System.out.println(test);
+//        System.out.println(Long.hashCode(g.getZobristHash()));
+//    }
 }
