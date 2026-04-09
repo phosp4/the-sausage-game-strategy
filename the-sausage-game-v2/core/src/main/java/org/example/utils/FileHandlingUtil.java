@@ -17,9 +17,7 @@ public class FileHandlingUtil {
     public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
     public static final String STRATEGY_PATH = "minimax_strategies";
 
-    public static String writeIntArrayToCSV(int[][] data) {
-
-        String fileName = PATH_PREFIX + data.length + "x" + data[0].length + ".csv";
+    public static String writeIntArrayToCSV(int[][] data, String fileName) {
 
         String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE); // e.g. 2026-01-12
         Path dailyDir = Paths.get("minimax_results", today);

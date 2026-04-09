@@ -15,14 +15,11 @@ import java.util.Set;
 
 public class MinimaxBitboard {
 
-    // v bitboard reprezentacii musim pouzivat len primitivne longy, objekty zatazia heap a GC
-//    private final Map<Long,Integer> memoVals = new HashMap<>();
-//    @Getter private final Map<Long,Long> strategyP1 = new HashMap<>();
-//    @Getter private final Map<Long,Long> strategyP2 = new HashMap<>();
     private long[] allPossibleMoves;
+    private TranspositionTable tt;
 
     // testing
-    @Getter private int ttCallsCount = 0;
+    @Getter private int ttCallsCount;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
         Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
@@ -33,8 +30,11 @@ public class MinimaxBitboard {
             allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
             i++;
         }
-
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
+
+        // treba to tu, aby sa to kazdym volanim resetovalo
+        tt = new TranspositionTable(25);
+        ttCallsCount = 0;
 
         return minimaxMemo(bitGameBoard, true);
     }
@@ -46,10 +46,10 @@ public class MinimaxBitboard {
             return -2; // specialna hodnota na oznacenie prerusenia
         }
 
-//        if (memoVals.containsKey(gameBoard)) {
-//            ttCallsCount++;
-//            return memoVals.get(gameBoard);
-//        }
+        if (tt.contains(gameBoard)) {
+            ttCallsCount++;
+            return tt.getValue(gameBoard);
+        }
 
         int returnVal;
 
@@ -65,10 +65,10 @@ public class MinimaxBitboard {
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, false);
 
+                    if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1) {
-//                        strategyP1.put(gameBoard, move);
                         break;
                     }
                 }
@@ -93,10 +93,10 @@ public class MinimaxBitboard {
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, true);
 
+                    if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1) {
-//                        strategyP2.put(gameBoard, move);
                         break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }
@@ -108,7 +108,7 @@ public class MinimaxBitboard {
             returnVal = bestValue;
         }
 
-//        memoVals.put(gameBoard, returnVal);
+        tt.put(gameBoard, returnVal);
         return returnVal;
     }
 
