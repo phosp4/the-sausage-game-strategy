@@ -10,8 +10,6 @@ import org.example.automation.AutonomousOpponent;
 import org.example.automation.MinimaxOpponent;
 import org.example.entities.*;
 import org.example.exceptions.*;
-import org.example.strategy.MinimaxRunner;
-import org.example.utils.CliInputHandler;
 import org.example.utils.CliRendererUtil;
 
 @Getter

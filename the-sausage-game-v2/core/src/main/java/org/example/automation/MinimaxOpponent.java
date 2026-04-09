@@ -2,11 +2,9 @@ package org.example.automation;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
-import org.example.strategy.MinimaxLaunchers;
 import org.example.utils.BitEncoder;
 import org.example.utils.FileHandlingUtil;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -32,6 +30,6 @@ public class MinimaxOpponent implements AutonomousOpponent {
 
     @Override
     public Sausage getNextMove(GameBoard g) {
-        return BitEncoder.decodeSausage(moves.get(g.hashCode()));
+        return BitEncoder.decodeSausageWithOffsets(moves.get(g.hashCode()));
     }
 }

@@ -1,7 +1,3 @@
-/**
- * vtedy raz to zahralo strategiu zle - hodilo by sa zistit, ze preco
- */
-
 package org.example.strategy;
 
 import lombok.Getter;
@@ -9,14 +5,12 @@ import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
-import org.example.utils.CliRendererUtil;
-import org.example.utils.ZobristHasher;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class MinimaxRunner {
+public class Minimax {
 
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
@@ -62,7 +56,7 @@ public class MinimaxRunner {
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1) {
-                        strategyP1.put(gameBoard.getZobristHash(), BitEncoder.encodeSausage(move));
+                        strategyP1.put(gameBoard.getZobristHash(), BitEncoder.encodeSausageWithOffsets(move));
                         break;
                     }
                 }
@@ -87,7 +81,7 @@ public class MinimaxRunner {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1) {
-                        strategyP2.put(gameBoard.getZobristHash(), BitEncoder.encodeSausage(move));
+                        strategyP2.put(gameBoard.getZobristHash(), BitEncoder.encodeSausageWithOffsets(move));
                         break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }

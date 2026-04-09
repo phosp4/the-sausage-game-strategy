@@ -126,7 +126,7 @@ public class GameBoard implements Serializable {
     public boolean tryAddingSausageMinimax(Sausage sausage) {
 
         if (sausage == null) {
-            throw new IllegalArgumentException("Sausage cannot be null.");
+            return false;
         }
 
         if (!ValidatorUtil.isPointValidForGrid(sausage.getThreePoints().get(0), this.grid)) {

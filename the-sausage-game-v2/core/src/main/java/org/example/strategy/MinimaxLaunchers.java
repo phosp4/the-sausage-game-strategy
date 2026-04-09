@@ -10,35 +10,35 @@ import java.util.concurrent.*;
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-//        getResultsTable(20, 3000);
+        getResultsTable(20, 3000);
 //        getResultForBoard(9,6);
 //        getStrategyForBoard(9, 6);
-        getAndSaveStrategyForBoardCSV(9,6);
+//        getAndSaveStrategyForBoardCSV(9,6);
 //        fixChybyTemp();
     }
 
-    /**
-     * mozno vyskusat inu - jednoduchsiu implementaciu minimaxu?
-     */
-    public static void fixChybyTemp() {
-        MinimaxRunner mr = new MinimaxRunner();
-        GameBoard g = new GameBoard(6,9);
-        CliInputHandler cih = new CliInputHandler();
-
-        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 1,3"));
-        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,7 2,6 2,4"));
-        g.addSausage(CliInputHandler.spracujRiadokVstupu("5,3 5,5 5,7"));
-        g.addSausage(CliInputHandler.spracujRiadokVstupu("4,0 4,2 4,4"));
-
-        // tu nastava zmena
-        g.addSausage(CliInputHandler.spracujRiadokVstupu("3,5 3,7 4,6"));
-//        g.addSausage(CliInputHandler.spracujRiadokVstupu("0,6 0,8 2,8"));
-
-        System.out.println("Winner: " + mr.minimaxMemoStart(g));
-    }
+//    /**
+//     * mozno vyskusat inu - jednoduchsiu implementaciu minimaxu?
+//     */
+//    public static void fixChybyTemp() {
+//        Minimax mr = new Minimax();
+//        GameBoard g = new GameBoard(6,9);
+//        CliInputHandler cih = new CliInputHandler();
+//
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 1,3"));
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,7 2,6 2,4"));
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("5,3 5,5 5,7"));
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("4,0 4,2 4,4"));
+//
+//        // tu nastava zmena
+//        g.addSausage(CliInputHandler.spracujRiadokVstupu("3,5 3,7 4,6"));
+////        g.addSausage(CliInputHandler.spracujRiadokVstupu("0,6 0,8 2,8"));
+//
+//        System.out.println("Winner: " + mr.minimaxMemoStart(g));
+//    }
 
     public static Map<Long, Long> getStrategyForBoard(int x, int y) {
-        MinimaxRunner mr = new MinimaxRunner();
+        Minimax mr = new Minimax();
         GameBoard g = new GameBoard(x, y);
         int winner = mr.minimaxMemoStart(g);
         System.out.println(winner);
@@ -72,7 +72,7 @@ public class MinimaxLaunchers {
     }
 
     public static void getResultForBoard(int x, int y) {
-        MinimaxRunner sm = new MinimaxRunner();
+        Minimax sm = new Minimax();
         GameBoard g = new GameBoard(x, y);
         int whoIsWinner = sm.minimaxMemoStart(g);
         System.out.println("Winner: " + whoIsWinner);
@@ -95,7 +95,7 @@ public class MinimaxLaunchers {
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
-            MinimaxRunner sfm = new MinimaxRunner();
+            MinimaxBitboard sfm = new MinimaxBitboard();
             int[][] results = new int[n][n];
             String[][] resultsColors = new String[n][n];
             // Pomocné pole na sledovanie timeoutov
