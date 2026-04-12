@@ -31,13 +31,13 @@ public class GameEngine {
     public GameEngine() {
 
         // hlavne miesto, kde sa to nastavuje
-        int columns = 9;
-        int rows = 6;
+        int columns = 6;
+        int rows = 7;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
 
         auto = new MinimaxOpponent(columns, rows);
-        autoPlayer = null;
+        autoPlayer = p2;
 
         this.gameBoard = new GameBoard(columns, rows);
         this.turnManager = new TurnManager(p1, p2);

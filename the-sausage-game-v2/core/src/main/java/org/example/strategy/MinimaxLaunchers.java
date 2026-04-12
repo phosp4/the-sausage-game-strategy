@@ -10,10 +10,10 @@ import java.util.concurrent.*;
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-        getResultsTable(20, 30000);
-//        getResultForBoard(9,7);
+//        getResultsTable(20, 30000);
+        getResultForBoard(9,7);
 //        getStrategyForBoard(9, 6);
-//        getAndSaveStrategyForBoardCSV(9,6);
+//        getAndSaveStrategyForBoardCSV(6,7);
 //        fixChybyTemp();
     }
 
@@ -43,10 +43,10 @@ public class MinimaxLaunchers {
         int winner = mr.minimaxMemoStart(g);
         System.out.println(winner);
         if (winner == 1) {
-            System.out.println(mr.getStrategyP1());
+//            System.out.println(mr.getStrategyP1());
             return mr.getStrategyP1();
         } else if (winner == -1) {
-            System.out.println(mr.getStrategyP2());
+//            System.out.println(mr.getStrategyP2());
             return mr.getStrategyP2();
         }
         System.err.println("Problem loading a strategy...");
@@ -77,6 +77,7 @@ public class MinimaxLaunchers {
         int whoIsWinner = sm.minimaxMemoStart(g);
         System.out.println("Winner: " + whoIsWinner);
         System.out.println("number of TT calls: " + sm.getTtCallsCount());
+        System.out.println("number of nodes investigated: " + sm.getNodesInvestigated());
     }
 
 //    public static void test5(int x, int y) {

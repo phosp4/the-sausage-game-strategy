@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MinimaxOpponent implements AutonomousOpponent {
 
-    private Map<Integer, Long> moves = null;
+    private Map<Long, Long> moves = null;
 
     public MinimaxOpponent(int x, int y) {
         // hm, ale prveho ci druheho je to strategia? to by sa hodilo vediet...
@@ -30,6 +30,6 @@ public class MinimaxOpponent implements AutonomousOpponent {
 
     @Override
     public Sausage getNextMove(GameBoard g) {
-        return BitEncoder.decodeSausageWithOffsets(moves.get(g.hashCode()));
+        return BitEncoder.decodeSausageWithOffsets(moves.get(g.getZobristHash()));
     }
 }

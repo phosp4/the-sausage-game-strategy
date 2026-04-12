@@ -82,7 +82,7 @@ public class Minimax {
 
                     if (bestValue == -1) {
                         strategyP2.put(gameBoard.getZobristHash(), BitEncoder.encodeSausageWithOffsets(move));
-                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+//                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }
             }

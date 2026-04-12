@@ -220,14 +220,14 @@ public class FileHandlingUtil {
         }
     }
 
-    public static HashMap<Integer, Long> loadStrategyCSV(String filepath) throws IOException {
-        HashMap<Integer, Long> map = new HashMap<>();
+    public static HashMap<Long, Long> loadStrategyCSV(String filepath) throws IOException {
+        HashMap<Long, Long> map = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 2) {
-                    map.put(Integer.parseInt(parts[0]), Long.parseLong(parts[1]));
+                    map.put(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
                 }
             }
         }

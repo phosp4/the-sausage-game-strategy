@@ -5,12 +5,6 @@ import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
-import org.example.utils.CliRendererUtil;
-import org.example.utils.ZobristHasher;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class MinimaxBitboard {
@@ -18,10 +12,12 @@ public class MinimaxBitboard {
     private long[] allPossibleMoves;
     private TranspositionTable tt;
 
-    // testing
+    // benchmarks
     @Getter private int ttCallsCount;
+    @Getter private long nodesInvestigated;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
+        // just for and empty grid - all options
         Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
 
         allPossibleMoves = new long[allPossibleMovesObjects.size()];
@@ -60,6 +56,9 @@ public class MinimaxBitboard {
                 long move = allPossibleMoves[i];
 
                 if (BitEncoder.validateSausageForGrid(gameBoard, move)) {
+                    nodesInvestigated++;
+                    if (nodesInvestigated > 1_000_000_000) return -2;
+
                     long childGameBoard = BitEncoder.addSausage(gameBoard, move);
 
                     atLeastOne = true;
@@ -97,7 +96,7 @@ public class MinimaxBitboard {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1) {
-                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }
             }
