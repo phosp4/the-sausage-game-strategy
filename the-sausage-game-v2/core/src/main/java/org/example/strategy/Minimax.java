@@ -15,7 +15,7 @@ public class Minimax {
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
 
-    private final Map<Long,Integer> memoVals = new HashMap<>();
+    private final Map<GameBoard,Integer> memoVals = new HashMap<>();
     @Getter private final Map<Long,Long> strategyP1 = new HashMap<>();
     @Getter private final Map<Long,Long> strategyP2 = new HashMap<>();
     private Set<Sausage> allPossibleMoves = null;
@@ -37,9 +37,9 @@ public class Minimax {
             return -2; // specialna hodnota na oznacenie prerusenia
         }
 
-        if (memoVals.containsKey(gameBoard.getZobristHash())) {
+        if (memoVals.containsKey(gameBoard)) {
             ttCallsCount++;
-            return memoVals.get(gameBoard.getZobristHash());
+            return memoVals.get(gameBoard);
         }
 
         int returnVal;
@@ -56,7 +56,7 @@ public class Minimax {
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1) {
-                        strategyP1.put(gameBoard.getZobristHash(), BitEncoder.encodeSausageWithOffsets(move));
+                        strategyP1.put(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()), BitEncoder.encodeSausageWithOffsets(move));
                         break;
                     }
                 }
@@ -81,8 +81,8 @@ public class Minimax {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1) {
-                        strategyP2.put(gameBoard.getZobristHash(), BitEncoder.encodeSausageWithOffsets(move));
-//                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+                        strategyP2.put(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()), BitEncoder.encodeSausageWithOffsets(move));
+                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }
             }
@@ -93,7 +93,7 @@ public class Minimax {
             returnVal = bestValue;
         }
 
-        memoVals.put(gameBoard.getZobristHash(), returnVal);
+        memoVals.put(gameBoard, returnVal);
         return returnVal;
     }
 }

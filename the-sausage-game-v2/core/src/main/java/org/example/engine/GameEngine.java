@@ -31,15 +31,15 @@ public class GameEngine {
     public GameEngine() {
 
         // hlavne miesto, kde sa to nastavuje
-        int columns = 6;
-        int rows = 7;
+        int width = 20;
+        int height = 2;
         Player p1 = new Player("P1");
         Player p2 = new Player("P2");
 
-        auto = new MinimaxOpponent(columns, rows);
-        autoPlayer = p2;
+        auto = new MinimaxOpponent(width, height);
+        autoPlayer = p1;
 
-        this.gameBoard = new GameBoard(columns, rows);
+        this.gameBoard = new GameBoard(width, height);
         this.turnManager = new TurnManager(p1, p2);
 
         // testing

@@ -5,7 +5,33 @@ import org.example.entities.Player;
 import org.example.entities.Sausage;
 
 public class CliLauncher {
+
     public static void main(String[] args) {
+        twoPlayers();
+//        aiTester();
+    }
+
+//    public static void aiTester() {
+//        GameEngine ctrl = new GameEngine();
+//
+//        System.out.println("Welcome to the Sausage Game!");
+//        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+//
+//        while (!ctrl.getGameBoard().isGameOver()) {
+//
+//            Player current = ctrl.getTurnManager().getCurrentPlayer();
+//            System.out.println("Current player: " + current.getName());
+//
+//            if (ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getAutoPlayer())) {
+//                //todo - not so ez
+//            }
+//
+//            System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+//        }
+//        System.out.println("Game over! Winner: " + ctrl.getTurnManager().getNotCurrentPlayer());
+//    }
+
+    public static void twoPlayers() {
         GameEngine ctrl = new GameEngine();
         CliInputHandler cih = new CliInputHandler();
 

@@ -1,20 +1,32 @@
 package org.example.strategy;
 
 import org.example.entities.GameBoard;
+import org.example.entities.Sausage;
 import org.example.utils.CliInputHandler;
+import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
 //        getResultsTable(20, 30000);
-        getResultForBoard(9,7);
-//        getStrategyForBoard(9, 6);
-//        getAndSaveStrategyForBoardCSV(6,7);
+//        getResultForBoard(9,7);
+//        getStrategyForBoard(7, 4);
+        getAndSaveStrategyForBoardCSV(20,2);
 //        fixChybyTemp();
+
+//        for (int i = 3; i < 9; i++) {
+//            int size = MoveGenerator.getPossibleMoves(new GameBoard(i,i).getGrid()).size();
+//            System.out.println("rozmer " + i + " velkost " + size);
+//        }
+
+//        MinimaxRunConfig config = new MinimaxRunConfig().builder
+//            .width()
     }
 
 //    /**
@@ -55,14 +67,7 @@ public class MinimaxLaunchers {
 
     // skor na testing
     public static void getAndSaveStrategyForBoardCSV(int x, int y) {
-        int smaller = x;
-        int bigger = y;
-        if (x > y) {
-            smaller = y;
-            bigger = x;
-        }
-
-        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + smaller + "x" + bigger + ".csv";
+        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + ".csv";
         Map<Long, Long> strategy = getStrategyForBoard(x, y);
         if (strategy != null) {
             FileHandlingUtil.saveStrategyCSV(strategy, fileName);

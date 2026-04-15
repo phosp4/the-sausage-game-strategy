@@ -15,13 +15,7 @@ public class MinimaxOpponent implements AutonomousOpponent {
     public MinimaxOpponent(int x, int y) {
         // hm, ale prveho ci druheho je to strategia? to by sa hodilo vediet...
         try {
-            int smaller = x;
-            int bigger = y;
-            if (x > y) {
-                smaller = y;
-                bigger = x;
-            }
-            String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + smaller + "x" + bigger + ".csv";
+            String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + ".csv";
             moves = FileHandlingUtil.loadStrategyCSV(fileName);
         } catch (IOException e) {
             System.err.println("The file was not found");
@@ -30,6 +24,6 @@ public class MinimaxOpponent implements AutonomousOpponent {
 
     @Override
     public Sausage getNextMove(GameBoard g) {
-        return BitEncoder.decodeSausageWithOffsets(moves.get(g.getZobristHash()));
+        return BitEncoder.decodeSausageWithOffsets(moves.get(BitEncoder.sausageGridToLongBitboard(g.getGrid())));
     }
 }

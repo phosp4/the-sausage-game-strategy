@@ -20,4 +20,12 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
 
   implementation "space.earlygrey:shapedrawer:2.5.0"
+
+//  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+//  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+
+test {
+  useJUnitPlatform()
 }
