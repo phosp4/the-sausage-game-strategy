@@ -14,10 +14,10 @@ import java.util.concurrent.*;
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-//        getResultsTable(20, 30000);
+//        getResultsTable(20, 3000);
 //        getResultForBoard(9,7);
 //        getStrategyForBoard(7, 4);
-        getAndSaveStrategyForBoardCSV(20,2);
+        getAndSaveStrategyForBoardCSV(9,6);
 //        fixChybyTemp();
 
 //        for (int i = 3; i < 9; i++) {
@@ -67,13 +67,21 @@ public class MinimaxLaunchers {
 
     // skor na testing
     public static void getAndSaveStrategyForBoardCSV(int x, int y) {
-        String fileName = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + ".csv";
-        Map<Long, Long> strategy = getStrategyForBoard(x, y);
-        if (strategy != null) {
-            FileHandlingUtil.saveStrategyCSV(strategy, fileName);
-        } else {
-            System.err.println("Error saving the file...");
-        }
+
+        Minimax mr = new Minimax();
+        GameBoard g = new GameBoard(x, y);
+        int winner = mr.minimaxMemoStart(g);
+        System.out.println(winner);
+
+        Map<Long, Long> strategyP1 = mr.getStrategyP1();
+        Map<Long, Long> strategyP2 = mr.getStrategyP2();
+
+        // files naming
+        String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.csv";
+        String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.csv";
+
+        FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
+        FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
     }
 
     public static void getResultForBoard(int x, int y) {

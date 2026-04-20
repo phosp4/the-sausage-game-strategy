@@ -11,7 +11,7 @@ public class TurnManager {
     public TurnManager(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
-        this.isPlayer1Turn = true; // or randomize for fairness
+        this.isPlayer1Turn = true;
     }
 
     public Player getCurrentPlayer() {

@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+import org.example.automation.StrategyAgent;
 import org.example.engine.GameEngine;
 import org.example.entities.Player;
 import org.example.entities.Point;
@@ -208,8 +209,9 @@ public class GameScene implements Screen {
         }
 
         // v pripade automatizacie
-        if (ctrl.getAutoPlayer() == ctrl.getTurnManager().getCurrentPlayer()) {
-            Sausage move = ctrl.getAuto().getNextMove(ctrl.getGameBoard());
+        StrategyAgent sg = ctrl.getTurnManager().getCurrentPlayer().getStrategyAgent();
+        if (sg != null && !ctrl.isGameOver()) {
+            Sausage move = sg.getNextMove(ctrl.getGameBoard());
             ctrl.tryApplyMove(move.getThreePoints().get(0), move.getThreePoints().get(1), move.getThreePoints().get(2));
         }
 
