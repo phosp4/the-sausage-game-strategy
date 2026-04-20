@@ -1,4 +1,4 @@
-package org.example.strategy;
+package org.example.strategy_minimax;
 
 import lombok.Getter;
 import org.example.entities.GameBoard;
@@ -16,6 +16,7 @@ public class Minimax {
     private final Player p2 = new Player("B");
 
     private final Map<GameBoard,Integer> memoVals = new HashMap<>();
+    // tu technicky mozem pouzit Strategy triedu
     @Getter private final Map<Long,Long> strategyP1 = new HashMap<>();
     @Getter private final Map<Long,Long> strategyP2 = new HashMap<>();
     private Set<Sausage> allPossibleMoves = null;

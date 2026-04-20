@@ -1,4 +1,4 @@
-package org.example.strategy.archive;
+package org.example.strategy_minimax.archive;
 
 public class GridBitMask {
 

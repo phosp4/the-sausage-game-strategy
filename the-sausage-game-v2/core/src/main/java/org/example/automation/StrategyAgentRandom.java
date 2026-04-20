@@ -2,12 +2,10 @@ package org.example.automation;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
-import org.example.strategy.MoveGenerator;
+import org.example.strategy_minimax.MoveGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StrategyAgentRandom implements StrategyAgent {

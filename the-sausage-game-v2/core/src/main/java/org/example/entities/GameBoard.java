@@ -8,8 +8,7 @@ package org.example.entities;
 import lombok.Getter;
 import org.example.exceptions.IntersectingSausagesException;
 import org.example.exceptions.InvalidPointForGridException;
-import org.example.strategy.MoveGenerator;
-import org.example.utils.CliRendererUtil;
+import org.example.strategy_minimax.MoveGenerator;
 import org.example.utils.ValidatorUtil;
 import org.example.utils.ZobristHasher;
 

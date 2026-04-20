@@ -18,17 +18,15 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import org.example.automation.StrategyAgent;
 import org.example.engine.GameEngine;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.strategy.MoveGenerator;
+import org.example.strategy_minimax.MoveGenerator;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GameScene implements Screen {
@@ -50,8 +48,10 @@ public class GameScene implements Screen {
     private Point thirdPoint = null;
     private Point hoveredPoint = null;
 
-    // libgdx assets
+    // assets and UX
     private Sound selectSound;
+    private float aiThinkTimer = 0f;
+    private final float AI_DELAY_SECONDS = 1f;
 
     // constants
     private float baseCircleRadius;
@@ -62,7 +62,7 @@ public class GameScene implements Screen {
     private float gridOffsetX;
     private float gridOffsetY;
 
-//    // generate moves animation
+    // generate moves animation
     private boolean animateMoves = false;
     private List<Sausage> moves;
     private int ticker = 0;
@@ -194,25 +194,16 @@ public class GameScene implements Screen {
 
         // generate moves animation
         if (animateMoves) {
-            ticker++;
-            if (ticker % 16 == 0) {
-                if (idx >= moves.size()) {
-                    ctrl.getGameBoard().removeSausage(moves.get(idx-1));
-                    idx = 0;
-                }
-                if (!ctrl.getGameBoard().getSausages().isEmpty() && idx - 1 >= 0) {
-                    ctrl.getGameBoard().removeSausage(moves.get(idx - 1));
-                }
-                ctrl.getGameBoard().addSausage(moves.get(idx));
-                idx++;
-            }
+            showMovesAnimation();
         }
 
-        // v pripade automatizacie
-        StrategyAgent sg = ctrl.getTurnManager().getCurrentPlayer().getStrategyAgent();
-        if (sg != null && !ctrl.isGameOver()) {
-            Sausage move = sg.getNextMove(ctrl.getGameBoard());
-            ctrl.tryApplyMove(move.getThreePoints().get(0), move.getThreePoints().get(1), move.getThreePoints().get(2));
+        // automatizacia
+        if (!ctrl.isGameOver() && ctrl.getAiManager().isCurrentPlayerAi()) {
+            aiThinkTimer += delta;
+            if (aiThinkTimer >= AI_DELAY_SECONDS) {
+                ctrl.getAiManager().executeAiMove();
+                aiThinkTimer = 0f;
+            }
         }
 
         // this used to cause flickering, idk why
@@ -220,29 +211,46 @@ public class GameScene implements Screen {
         stage.getViewport().apply(); // Zabezpečí, že viewport aplikuje svoje rozmery na aktuálny frame (nutné pri resize)
         updateGridMetrics();
 
+        //
+        // TOTO MI DAL CHAT - ale nepomohlo to
         // Bezpečné získanie súradníc myši vo svete (rieši HDPI a rôzne pomery strán)
         Vector2 mousePos = stage.getViewport().unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-
         mouseX = mousePos.x; // Gdx.input.getX();
         mouseY = mousePos.y; // Gdx.graphics.getHeight() - Gdx.input.getY();
-
         // KĽÚČOVÁ ZMENA: Zladenie Batch matice s kamerou tvojho Stage!
-        // od chatu, ale nepomohlo to...
         batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
+        //
 
         batch.begin();
         drawCircleHints();
         drawSausages();
-        if (Gdx.input.isTouched()) { handleTemporaryConnections(); }
-        else {
-            handleNewSausage();
+        if (!ctrl.getAiManager().isCurrentPlayerAi()) {
+            if (Gdx.input.isTouched()) {
+                handleTemporaryConnections();
+            } else {
+                handleNewSausage();
+            }
         }
-//        drawExistingCircles();
         drawCircles();
         batch.end();
 
         stage.act(delta);
         stage.draw();
+    }
+
+    private void showMovesAnimation() {
+        ticker++;
+        if (ticker % 16 == 0) {
+            if (idx >= moves.size()) {
+                ctrl.getGameBoard().removeSausage(moves.get(idx-1));
+                idx = 0;
+            }
+            if (!ctrl.getGameBoard().getSausages().isEmpty() && idx - 1 >= 0) {
+                ctrl.getGameBoard().removeSausage(moves.get(idx - 1));
+            }
+            ctrl.getGameBoard().addSausage(moves.get(idx));
+            idx++;
+        }
     }
 
     private void handleNewSausage() {

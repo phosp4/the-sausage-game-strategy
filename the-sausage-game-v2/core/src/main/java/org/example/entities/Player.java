@@ -10,14 +10,6 @@ public class Player {
     private String name;
     private Character oneLetterNickname;
     private Color color;
-    private StrategyAgent strategyAgent = null;
-
-    public Player(String name, Character oneLetterNickname, Color color, StrategyAgent strategyAgent) {
-        this.name = name;
-        this.oneLetterNickname = oneLetterNickname;
-        this.color = color;
-        this.strategyAgent = strategyAgent;
-    }
 
     public Player(String name, Character oneLetterNickname, Color color) {
         this.name = name;
@@ -29,8 +21,8 @@ public class Player {
         this(name, name.charAt(0), getRandomColor());
     }
 
-    public Player(String name, Color color, StrategyAgent strategyAgent) {
-        this(name, name.charAt(0), color, strategyAgent);
+    public Player(String name, Color color) {
+        this(name, name.charAt(0), color);
     }
 
     public Player(String name, Character oneLetterNickname) {

@@ -1,8 +1,7 @@
-package org.example.strategy;
+package org.example.strategy_minimax;
 
 import lombok.Getter;
 import org.example.entities.GameBoard;
-import org.example.entities.Player;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
 import java.util.Set;

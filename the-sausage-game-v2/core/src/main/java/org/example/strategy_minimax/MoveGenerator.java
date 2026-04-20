@@ -3,14 +3,12 @@
  * chat odporucal robit to dokonca cez primitives, ze ani nevytvarat body
  */
 
-package org.example.strategy;
+package org.example.strategy_minimax;
 
-import com.badlogic.gdx.Game;
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.utils.BitEncoder;
 import org.example.utils.ValidatorUtil;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package org.example.utils;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.strategy.MoveGenerator;
+import org.example.strategy_minimax.MoveGenerator;
 
 import java.util.Set;
 

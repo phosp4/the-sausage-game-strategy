@@ -1,8 +1,7 @@
-package org.example.strategy;
+package org.example.strategy_minimax;
 
 import lombok.Builder;
 import lombok.NonNull;
-import org.example.entities.GameBoard;
 
 @Builder
 public class MinimaxRunConfig {

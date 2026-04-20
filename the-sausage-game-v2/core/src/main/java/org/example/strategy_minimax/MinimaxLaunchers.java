@@ -1,14 +1,9 @@
-package org.example.strategy;
+package org.example.strategy_minimax;
 
 import org.example.entities.GameBoard;
-import org.example.entities.Sausage;
-import org.example.utils.CliInputHandler;
-import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 
 public class MinimaxLaunchers {

@@ -1,9 +1,9 @@
-package org.example.strategy.archive;
+package org.example.strategy_minimax.archive;
 
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
-import org.example.strategy.MoveGenerator;
+import org.example.strategy_minimax.MoveGenerator;
 
 public class StrategyMinimaxAlt {
 
