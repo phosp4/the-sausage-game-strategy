@@ -57,7 +57,7 @@ public class GameScene implements Screen {
     private float baseCircleRadius;
     private float enlargedCircleRadius;
 
-    // pre vypocet rovnomernej mriezky
+    // pre vypocet rovnomernej mriezky a pod
     private float cellSize;
     private float gridOffsetX;
     private float gridOffsetY;
@@ -86,10 +86,6 @@ public class GameScene implements Screen {
             VisUI.load(); // Load VisUI skin
         }
 
-        float scale = Gdx.graphics.getDensity();
-        baseCircleRadius = 12f * scale;
-        enlargedCircleRadius = 24f * scale;
-
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
@@ -98,6 +94,7 @@ public class GameScene implements Screen {
         pixmap.setColor(1, 1, 1, 1);
         pixmap.fill();
         Texture pixelTexture = new Texture(pixmap);
+
         pixelTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         pixmap.dispose();
 
@@ -108,6 +105,7 @@ public class GameScene implements Screen {
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
 
         // toto robilo problemy v prehliadaci
+        float scale = Gdx.graphics.getDensity();
         loadVisUIElements(scale);
     }
 
@@ -158,6 +156,7 @@ public class GameScene implements Screen {
     public void resize(int width, int height) {
         if (stage != null) {
             stage.getViewport().update(width, height, true);
+            updateGridMetrics();
         }
     }
 
@@ -209,7 +208,7 @@ public class GameScene implements Screen {
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);
         stage.getViewport().apply(); // Zabezpečí, že viewport aplikuje svoje rozmery na aktuálny frame (nutné pri resize)
-        updateGridMetrics();
+//        updateGridMetrics();
 
         //
         // TOTO MI DAL CHAT - ale nepomohlo to
@@ -399,10 +398,10 @@ public class GameScene implements Screen {
         }
         if (anchor != null) {
             drawer.setColor(ctrl.getTurnManager().getCurrentPlayer().getColor());
-            drawer.setDefaultLineWidth(4f);
+            drawer.setDefaultLineWidth(cellSize * 0.07f);
             for (Point p : ctrl.getGameBoard().getFreeNeighbours(anchor)) {
                 if (!p.equals(firstPoint) && !p.equals(secondPoint) && !ctrl.getGameBoard().isOccupied(p.getX(), p.getY())) {
-                    drawer.circle(colToX(p.getX()), rowToY(p.getY()), baseCircleRadius + 6f);
+                    drawer.circle(colToX(p.getX()), rowToY(p.getY()), baseCircleRadius * 1.75f);
                 }
             }
         }
@@ -412,9 +411,9 @@ public class GameScene implements Screen {
         // pred tym tu boli tie zakomentovane, ale bol to problem na inych displejoch
         float screenWidth = stage.getViewport().getWorldWidth(); // Gdx.graphics.getWidth();
         float screenHeight = stage.getViewport().getWorldHeight(); // Gdx.graphics.getHeight();
-        float scale = Gdx.graphics.getDensity();
 
         // Vaša pôvodná logika pre padding zdola
+        float scale = Gdx.graphics.getDensity();
         float bottomPadding = 80 * scale;
         float availableHeight = screenHeight - bottomPadding;
 
@@ -425,6 +424,11 @@ public class GameScene implements Screen {
         // KĽÚČOVÝ KROK: Vyberieme menšiu medzeru.
         // Tým zaručíme, že sa mriežka zmestí a body budú rovnako ďaleko v X aj Y smeroch.
         cellSize = Math.min(spacingX, spacingY);
+
+        // Veľkosť bodky bude napríklad 15% z veľkosti bunky (môžeš upraviť podľa vkusu)
+        baseCircleRadius = cellSize * 0.15f;
+        // Zväčšená bodka / hrúbka klobásky bude dvojnásobok
+        enlargedCircleRadius = baseCircleRadius * 2f;
 
         // Aká veľká bude celá mriežka v pixeloch?
         float totalGridWidth = cellSize * (ctrl.getGameBoard().getColumns() + 1f);
