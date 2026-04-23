@@ -54,10 +54,10 @@ public class TeaVMBuilder {
         tool.setMainClass(TeaVMLauncher.class.getName());
         // For many (or most) applications, using a high optimization won't add much to build time.
         // If your builds take too long, and runtime performance doesn't matter, you can change ADVANCED to SIMPLE .
-        tool.setOptimizationLevel(TeaVMOptimizationLevel.ADVANCED);
+        tool.setOptimizationLevel(TeaVMOptimizationLevel.FULL);
         // The line below should use tool.setObfuscated(false) if you want clear debugging info.
         // You can change it to tool.setObfuscated(true) when you are preparing to release, to try to hide your original code.
-        tool.setObfuscated(!DEBUG);
+        tool.setObfuscated(true);
 
         // If targetType is set to JAVASCRIPT, you can use the following lines to debug JVM languages from the browser,
         // setting breakpoints in Java code and stopping in the appropriate place in generated JavaScript code.

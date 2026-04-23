@@ -103,7 +103,7 @@ public class GameScene implements Screen {
         drawer = new ShapeDrawer(batch, new TextureRegion(pixelTexture));
 
         // sounds
-        selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
+//        selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
 
         // toto robilo problemy v prehliadaci
 //        float scale = Gdx.graphics.getDensity();
@@ -197,14 +197,14 @@ public class GameScene implements Screen {
             showMovesAnimation();
         }
 
-        // automatizacia
-        if (!ctrl.isGameOver() && ctrl.getAiManager().isCurrentPlayerAi()) {
-            aiThinkTimer += delta;
-            if (aiThinkTimer >= AI_DELAY_SECONDS) {
-                ctrl.getAiManager().executeAiMove();
-                aiThinkTimer = 0f;
-            }
-        }
+//        // automatizacia
+//        if (!ctrl.isGameOver() && ctrl.getAiManager().isCurrentPlayerAi()) {
+//            aiThinkTimer += delta;
+//            if (aiThinkTimer >= AI_DELAY_SECONDS) {
+//                ctrl.getAiManager().executeAiMove();
+//                aiThinkTimer = 0f;
+//            }
+//        }
 
         // this used to cause flickering, idk why
         ScreenUtils.clear(1, 1, 1, 1);
@@ -224,13 +224,13 @@ public class GameScene implements Screen {
         batch.begin();
         drawCircleHints();
         drawSausages();
-        if (!ctrl.getAiManager().isCurrentPlayerAi()) {
-            if (Gdx.input.isTouched()) {
-                handleTemporaryConnections();
-            } else {
-                handleNewSausage();
-            }
-        }
+//        if (!ctrl.getAiManager().isCurrentPlayerAi()) {
+//            if (Gdx.input.isTouched()) {
+//                handleTemporaryConnections();
+//            } else {
+//                handleNewSausage();
+//            }
+//        }
         drawCircles();
         batch.end();
 
@@ -280,14 +280,14 @@ public class GameScene implements Screen {
         if (hoveredPoint != null && !isHoveredPointOccupied) {
             if (firstPoint == null) {
                 firstPoint = hoveredPoint;
-                SoundManager.play(selectSound);
+//                SoundManager.play(selectSound);
             } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
                 secondPoint = hoveredPoint;
-                SoundManager.play(selectSound);
+//                SoundManager.play(selectSound);
             } else if (secondPoint != null && !hoveredPoint.equals(firstPoint) && !hoveredPoint.equals(secondPoint) && ValidatorUtil.areNeigbours(secondPoint, hoveredPoint)) {
                 if (!hoveredPoint.equals(thirdPoint)) {
                     thirdPoint = hoveredPoint;
-                    SoundManager.play(selectSound);
+//                    SoundManager.play(selectSound);
                 }
             }
         }
@@ -449,6 +449,6 @@ public class GameScene implements Screen {
     @Override
     public void dispose() {
         batch.dispose();
-        selectSound.dispose();
+//        selectSound.dispose();
     }
 }

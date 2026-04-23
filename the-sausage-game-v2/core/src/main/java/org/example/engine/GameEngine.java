@@ -7,7 +7,7 @@ package org.example.engine;
 
 import com.badlogic.gdx.graphics.Color;
 import lombok.Getter;
-import org.example.automation.*;
+//import org.example.automation.*;
 import org.example.entities.*;
 import org.example.exceptions.*;
 import org.example.utils.CliRendererUtil;
@@ -20,7 +20,7 @@ import org.example.utils.CliRendererUtil;
 public class GameEngine {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
-    private final AiManager aiManager;
+//    private final AiManager aiManager;
     private boolean isGameOver = false;
 
     private String lastError = null; // todo toto asi dat inak
@@ -36,7 +36,7 @@ public class GameEngine {
 
         this.gameBoard = new GameBoard(width, height);
         this.turnManager = new TurnManager(p1, p2);
-        this.aiManager = new AiManager(this);
+//        this.aiManager = new AiManager(this);
 
 //        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
 //        aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
