@@ -38,7 +38,7 @@ public class GameEngine {
         this.turnManager = new TurnManager(p1, p2);
         this.aiManager = new AiManager(this);
 
-        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
+//        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
 //        aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
     }
 

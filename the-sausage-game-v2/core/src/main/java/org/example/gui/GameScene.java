@@ -14,8 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.kotcrab.vis.ui.VisUI;
+//import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import org.example.engine.GameEngine;
@@ -82,11 +83,11 @@ public class GameScene implements Screen {
 
     @Override
     public void show() {
-        if (!VisUI.isLoaded()) {
-            VisUI.load(); // Load VisUI skin
-        }
+//        if (!VisUI.isLoaded()) {
+//            VisUI.load(); // Load VisUI skin
+//        }
 
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(new ExtendViewport(800, 600));
         Gdx.input.setInputProcessor(stage);
 
         // Create a 1x1 pixel texture to use as a pixel for drawing
@@ -105,52 +106,52 @@ public class GameScene implements Screen {
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
 
         // toto robilo problemy v prehliadaci
-        float scale = Gdx.graphics.getDensity();
-        loadVisUIElements(scale);
+//        float scale = Gdx.graphics.getDensity();
+//        loadVisUIElements();
     }
 
-    private void loadVisUIElements(float scale) {
-        // rest of ui
-        VisTable table = new VisTable();
-        table.setFillParent(true);
-        VisTextButton restartButton = new VisTextButton("Restart");
-        VisTextButton quitButton = new VisTextButton("Quit");
-        VisTextButton soundsButton = new VisTextButton("No sounds", "toggle");
-        if (!SoundManager.isSoundEnabled()) {
-            soundsButton.toggle();
-        }
-
-        restartButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScene(game, new GameEngine()));
-                GameScene.this.dispose();
-            }
-        });
-        quitButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-//                game.setScreen(new MenuScreen(game));
-//                GameScreen.this.dispose(); // todo finish later
-            }
-        });
-        soundsButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                // toggle sounds
-                SoundManager.setSoundEnabled(!SoundManager.isSoundEnabled());
-            }
-        });
-
-        table.add(restartButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-        table.add(quitButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-        table.add(soundsButton).width(200 * scale).height(50 * scale).padBottom(20 * scale);
-
-        table.align(Align.bottom); // Align the table to the bottom of the screen
-//        table.padBottom(0); // Add padding from the bottom edge
-        stage.addActor(table);
-
-    }
+//    private void loadVisUIElements() {
+//        // rest of ui
+//        VisTable table = new VisTable();
+//        table.setFillParent(true);
+//        VisTextButton restartButton = new VisTextButton("Restart");
+//        VisTextButton quitButton = new VisTextButton("Quit");
+//        VisTextButton soundsButton = new VisTextButton("No sounds", "toggle");
+//        if (!SoundManager.isSoundEnabled()) {
+//            soundsButton.toggle();
+//        }
+//
+//        restartButton.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//                game.setScreen(new GameScene(game, new GameEngine()));
+//                GameScene.this.dispose();
+//            }
+//        });
+//        quitButton.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+////                game.setScreen(new MenuScreen(game));
+////                GameScreen.this.dispose(); // todo finish later
+//            }
+//        });
+//        soundsButton.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//                // toggle sounds
+//                SoundManager.setSoundEnabled(!SoundManager.isSoundEnabled());
+//            }
+//        });
+//
+//        table.add(restartButton).width(200).height(50).padBottom(20);
+//        table.add(quitButton).width(200).height(50).padBottom(20);
+//        table.add(soundsButton).width(200).height(50).padBottom(20);
+//
+//        table.align(Align.bottom); // Align the table to the bottom of the screen
+////        table.padBottom(0); // Add padding from the bottom edge
+//        stage.addActor(table);
+//
+//    }
 
     @Override
     public void resize(int width, int height) {
@@ -413,8 +414,7 @@ public class GameScene implements Screen {
         float screenHeight = stage.getViewport().getWorldHeight(); // Gdx.graphics.getHeight();
 
         // Vaša pôvodná logika pre padding zdola
-        float scale = Gdx.graphics.getDensity();
-        float bottomPadding = 80 * scale;
+        float bottomPadding = 80f;
         float availableHeight = screenHeight - bottomPadding;
 
         // Vypočítame, aká by bola medzera, keby sme išli podľa šírky alebo podľa výšky
@@ -435,6 +435,7 @@ public class GameScene implements Screen {
         float totalGridHeight = cellSize * (ctrl.getGameBoard().getRows() + 1f);
 
         // Vypočítame offsety na vycentrovanie mriežky
+
         gridOffsetX = (screenWidth - totalGridWidth) / 2f;
 
         // Offset Y berie do úvahy aj bottomPadding a vycentrovanie vo zvyšnom priestore

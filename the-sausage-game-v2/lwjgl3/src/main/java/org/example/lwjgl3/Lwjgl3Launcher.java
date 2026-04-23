@@ -43,7 +43,7 @@ public class Lwjgl3Launcher {
         configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20, 0, 0);
 
         // len skusam, ale by default je logical
-//        configuration.setHdpiMode(HdpiMode.Logical);
+//        configuration.setHdpiMode(HdpiMode.Pixels);
 
         return configuration;
     }
