@@ -2,6 +2,8 @@
  * s pomocou AI:
  * https://aistudio.google.com/prompts/1YmDyL727WIRSJelYa588LYgH0uskKLql
  * https://gemini.google.com/app/f40d39ce2f8c2eec
+ * chat radil pouzitie SplittableRandom kvoli rozlozeniu bitov
+ * ale teavm vebova verzia to nebrala
  */
 
 package org.example.utils;
@@ -12,7 +14,8 @@ import org.example.entities.Sausage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SplittableRandom;
+import java.util.Random;
+//import java.util.SplittableRandom;
 
 public class ZobristHasher {
 
@@ -22,7 +25,7 @@ public class ZobristHasher {
     // zbehne pri prvom pouziti triedy
     static {
         // je to pseudonahodne kvoli seedu, podobne nextLong, teda deterministicke
-        SplittableRandom random = new SplittableRandom(812938192381237L);
+        Random random = new Random(812938192381237L);
 
         for (int y = 0; y < MAX_DIMENSION; y++) {
             for (int x = 0; x < MAX_DIMENSION; x++) {
