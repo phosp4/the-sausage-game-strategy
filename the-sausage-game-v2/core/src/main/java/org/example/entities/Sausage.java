@@ -64,6 +64,10 @@ public class Sausage implements Serializable {
         return "{" + threePoints + ", " + player + '}';
     }
 
+    /**
+     * technicky mozno by tu mali byt aj additional points
+     * ale prakticky to nevadi
+     */
     @Override
     public int hashCode() {
         return new HashSet<>(threePoints).hashCode();

@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.example.automation.*;
 import org.example.entities.*;
 import org.example.exceptions.*;
+import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 
 @Getter
@@ -17,7 +18,7 @@ import org.example.utils.CliRendererUtil;
  * Owns the game state. No printing, no LibGDX.
  * pred tym sa to volalo game controller, zvazoval som aj GameSession
 */
-public class GameEngine {
+public class GameSession {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
     private final AiManager aiManager;
@@ -25,11 +26,11 @@ public class GameEngine {
 
     private String lastError = null; // todo toto asi dat inak
 
-    public GameEngine() {
+    public GameSession() {
 
         // hlavne miesto, kde sa to nastavuje (zatial)
-        int width = 9;
-        int height = 6;
+        int width = 1;
+        int height = 5;
         // https://rgbcolorpicker.com/0-1
         Player p1 = new Player("P1", new Color(0.173F, 0.733F, 0.941F, 1f));
         Player p2 = new Player("P2", new Color(1F, 0.369F, 0.369F, 1f));
@@ -38,7 +39,7 @@ public class GameEngine {
         this.turnManager = new TurnManager(p1, p2);
         this.aiManager = new AiManager(this);
 
-//        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
+        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
 //        aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
     }
 
@@ -54,7 +55,7 @@ public class GameEngine {
 
 //            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
             System.out.println(CliRendererUtil.gridToStringAsArray(gameBoard.getGrid()));
-            System.out.println(gameBoard.hashCode());
+            System.out.println(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()));
             if (gameBoard.isGameOver()) {
                 isGameOver = true;
                 String winnerName = turnManager.getNotCurrentPlayer().getName();

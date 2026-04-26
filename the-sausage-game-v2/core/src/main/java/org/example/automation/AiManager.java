@@ -1,6 +1,6 @@
 package org.example.automation;
 
-import org.example.engine.GameEngine;
+import org.example.engine.GameSession;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
@@ -11,10 +11,10 @@ import java.util.Map;
 
 public class AiManager {
 
-    private final GameEngine ctrl;
+    private final GameSession ctrl;
     private final Map<Player, StrategyAgent> aiPlayers = new HashMap<>();
 
-    public AiManager(GameEngine ctrl) {
+    public AiManager(GameSession ctrl) {
         this.ctrl = ctrl;
     }
 

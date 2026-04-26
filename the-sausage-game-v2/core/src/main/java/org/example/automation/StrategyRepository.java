@@ -5,6 +5,8 @@
 
 package org.example.automation;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import org.example.entities.Strategy;
 import org.example.utils.FileHandlingUtil;
 
@@ -33,10 +35,39 @@ public class StrategyRepository {
             } catch (IOException e) {
                 throw new FileNotFoundException(fileName);
             }
+
+            // skusanie nacitania strategie pre prehliadac
+//            System.out.println("loading strategy...");
+//            String fileName = "strategies/strategy_" + x + "x" + y;
+//            fileName += isFirstPlayer ? "_p1.csv" : "_p2.csv";
+//            HashMap<Long, Long> rawStrategy = loadStrategyCSVInternal(fileName);
+//            System.out.println("strategy loaded!");
+//
+//            cache.put(key, new Strategy(rawStrategy, isFirstPlayer));
+//            System.out.println("Z disku načítaná stratégia: " + fileName);
+
         } else {
             System.out.println("Stratégia načítaná z cache: " + key);
         }
 
         return cache.get(key);
     }
+
+    // len na skusku - strategia pre prehliadac
+    public static HashMap<Long, Long> loadStrategyCSVInternal(String assetPath) {
+        HashMap<Long, Long> map = new HashMap<>();
+        FileHandle file = Gdx.files.internal(assetPath);
+
+        // reads the whole asset text (portable across desktop/html/android)
+        String content = file.readString("UTF-8");
+        for (String line : content.split("\n")) {
+            if (line.isBlank()) continue;
+            String[] parts = line.split(",");
+            if (parts.length == 2) {
+                map.put(Long.parseLong(parts[0].trim()), Long.parseLong(parts[1].trim()));
+            }
+        }
+        return map;
+    }
+
 }

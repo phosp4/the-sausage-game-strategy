@@ -201,6 +201,11 @@ public class GameBoard implements Serializable {
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, s);
     }
 
+    /**
+     * v tomto je mozno chyba
+     * lebo ked som v minimaxe ukladal GameBoard to mapy (nie zakodovany long)
+     * zavolalo to memo aj ked to zavolat nemalo
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

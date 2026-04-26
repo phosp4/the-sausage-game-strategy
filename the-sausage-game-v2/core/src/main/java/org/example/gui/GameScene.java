@@ -9,21 +9,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 //import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisTable;
-import com.kotcrab.vis.ui.widget.VisTextButton;
-import org.example.engine.GameEngine;
+import org.example.engine.GameSession;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.strategy_minimax.MoveGenerator;
+import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.ValidatorUtil;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -33,7 +28,7 @@ import java.util.List;
 public class GameScene implements Screen {
 
     // data and game state
-    private final GameEngine ctrl;
+    private final GameSession ctrl;
 
     // libgdx stuff
     private final GdxGame game;
@@ -69,14 +64,17 @@ public class GameScene implements Screen {
     private int ticker = 0;
     private int idx = 0;
 
-    public GameScene(GdxGame gdxGame, GameEngine ctrl) {
+    public GameScene(GdxGame gdxGame, GameSession ctrl) {
 
         this.game = gdxGame;
         this.ctrl = ctrl;
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-        System.out.println(ctrl.getGameBoard().hashCode());
+        System.out.println(BitEncoder.sausageGridToLongBitboard(ctrl.getGameBoard().getGrid()));
 
         if (animateMoves) {
+            ctrl.tryApplyMove(new Point(6, 0), new Point(7, 1), new Point(5, 1));
+            ctrl.tryApplyMove(new Point(1, 1), new Point(2, 2), new Point(1, 3));
+            ctrl.tryApplyMove(new Point(4, 0), new Point(4, 2), new Point(4, 4));
             moves = MoveGenerator.getPossibleMovesList(ctrl.getGameBoard().getGrid(), new Player("asdf"));
         }
     }

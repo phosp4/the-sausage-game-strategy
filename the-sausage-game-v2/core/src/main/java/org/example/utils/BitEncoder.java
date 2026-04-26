@@ -1,3 +1,9 @@
+/**
+ * teoreticky by sa tu zisiel opak sausageGridToLongBitboard
+ * ale tam nevieme zrekonstruovat presne klobasky
+ * trebalo by to teda len nejako obist
+ */
+
 package org.example.utils;
 
 import org.example.entities.GameBoard;

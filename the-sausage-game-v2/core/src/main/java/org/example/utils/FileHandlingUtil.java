@@ -12,10 +12,11 @@ import java.util.Map;
 public class FileHandlingUtil {
 
     public static final String PATH_PREFIX = "minimax_";
+    public static final String MINIMAX_RESULTS_FOLDER = "minimax_results_final";
     public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
     public static final String STRATEGY_PATH = "minimax_strategies";
 
-    public static String writeIntArrayToCSV(int[][] data, String fileName) {
+    public static String writeArrayToCSV(long[][] data, String fileName) {
 
         String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE); // e.g. 2026-01-12
         Path dailyDir = Paths.get("minimax_results", today);
@@ -47,7 +48,7 @@ public class FileHandlingUtil {
                 StringBuilder line = new StringBuilder();
                 line.append(i + 1).append(","); // Row header
 
-                int[] row = data[i];
+                long[] row = data[i];
 
                 for (int j = 0; j < row.length; j++) {
 //                    if (row[j] == 1) {
@@ -177,21 +178,25 @@ public class FileHandlingUtil {
         }
     }
 
-    public static void saveStrategyBinary(Map<Integer,Long> strategy, String filePath) throws  IOException {
+    public static void saveStrategyBinary(Map<Long,Long> strategy, String filePath) {
         try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
 
             // na zaciatku zapiseme pocet poloziek na citanie
             dos.writeInt(strategy.size());
 
-            for (Map.Entry<Integer, Long> entry : strategy.entrySet()) {
-                dos.writeInt(entry.getKey());
+            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
+                dos.writeLong(entry.getKey());
                 dos.writeLong(entry.getValue());
             }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public static Map<Integer, Long> loadStrategyBinary(String filePath) throws IOException {
-        HashMap<Integer, Long> strategy = new HashMap<>();
+    public static Map<Long, Long> loadStrategyBinary(String filePath) throws IOException {
+        HashMap<Long, Long> strategy = new HashMap<>();
 
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)))) {
 
@@ -199,7 +204,7 @@ public class FileHandlingUtil {
             int size = dis.readInt();
 
             for (int i = 0; i < size; i++) {
-                int key = dis.readInt();
+                long key = dis.readLong();
                 long val = dis.readLong();
                 strategy.put(key, val);
             }

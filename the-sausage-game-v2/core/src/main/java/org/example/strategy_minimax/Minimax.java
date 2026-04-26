@@ -15,7 +15,7 @@ public class Minimax {
     private final Player p1 = new Player("A");
     private final Player p2 = new Player("B");
 
-    private final Map<GameBoard,Integer> memoVals = new HashMap<>();
+    private final Map<Long,Integer> memoVals = new HashMap<>();
     // tu technicky mozem pouzit Strategy triedu
     @Getter private final Map<Long,Long> strategyP1 = new HashMap<>();
     @Getter private final Map<Long,Long> strategyP2 = new HashMap<>();
@@ -24,6 +24,7 @@ public class Minimax {
 
     // testing
     @Getter private int ttCallsCount = 0;
+    private long hladanaGrid = 1101933438032L;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
         allPossibleMoves = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
@@ -33,14 +34,16 @@ public class Minimax {
 
     private int minimaxMemo(GameBoard gameBoard, boolean isMaximizingPlayer) {
 
+        long bitgrid = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());
+
         // doplnok na behu v threade
         if (Thread.currentThread().isInterrupted()) {
             return -2; // specialna hodnota na oznacenie prerusenia
         }
 
-        if (memoVals.containsKey(gameBoard)) {
+        if (memoVals.containsKey(bitgrid)) {
             ttCallsCount++;
-            return memoVals.get(gameBoard);
+            return memoVals.get(bitgrid);
         }
 
         int returnVal;
@@ -83,7 +86,7 @@ public class Minimax {
 
                     if (bestValue == -1) {
                         strategyP2.put(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()), BitEncoder.encodeSausageWithOffsets(move));
-                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+//                        break; // mozeme *si trufnut* predpokladat, ze super si vyberie tuto cestu; jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }
             }
@@ -94,7 +97,7 @@ public class Minimax {
             returnVal = bestValue;
         }
 
-        memoVals.put(gameBoard, returnVal);
+        memoVals.put(bitgrid, returnVal);
         return returnVal;
     }
 }

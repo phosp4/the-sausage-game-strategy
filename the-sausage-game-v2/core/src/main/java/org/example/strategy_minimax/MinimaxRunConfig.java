@@ -9,7 +9,7 @@ public class MinimaxRunConfig {
     @NonNull private Integer width;
     @NonNull private Integer height;
     @NonNull private Boolean useTT;
-    @NonNull private MinimaxType minimaxType;
+//    @NonNull private MinimaxType minimaxType;
 
     private boolean storeStrategy;
     private boolean abPruning;
@@ -32,6 +32,6 @@ enum MinimaxType {
     OBJECT_ORIENTED, BITBOARD
 }
 
-enum Task {
-    SINGLE, TABLE
-}
+//enum Task {
+//    SINGLE, TABLE
+//}

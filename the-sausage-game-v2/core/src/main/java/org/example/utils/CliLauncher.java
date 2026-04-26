@@ -1,6 +1,6 @@
 package org.example.utils;
 
-import org.example.engine.GameEngine;
+import org.example.engine.GameSession;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
 
@@ -32,7 +32,7 @@ public class CliLauncher {
 //    }
 
     public static void twoPlayers() {
-        GameEngine ctrl = new GameEngine();
+        GameSession ctrl = new GameSession();
         CliInputHandler cih = new CliInputHandler();
 
         System.out.println("Welcome to the Sausage Game!");
