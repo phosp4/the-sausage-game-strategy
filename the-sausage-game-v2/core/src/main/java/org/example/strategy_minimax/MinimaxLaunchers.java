@@ -52,6 +52,7 @@ public class MinimaxLaunchers {
                 mb = new MinimaxBitboard();
                 gameBoard = new GameBoard(x, y); // one based indexing
 
+                System.out.println("searching for strategy...");
                 long start = System.nanoTime();
                 long winner = (long) mb.minimaxMemoStart(gameBoard);
                 long end = System.nanoTime();
