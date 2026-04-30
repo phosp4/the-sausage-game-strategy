@@ -28,6 +28,8 @@ public class MinimaxBitboard {
     @Getter private long nodesInvestigatedMax;
     @Getter private long nodesInvestigatedMin;
     @Getter private long ttOverwrites;
+    @Getter private long strategyP1LinesCount;
+    @Getter private long strategyP2LinesCount;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
         // just for an empty grid - all options
@@ -52,6 +54,9 @@ public class MinimaxBitboard {
         nodesInvestigatedMax = 0;
         nodesInvestigatedMin = 0;
         ttOverwrites = 0;
+
+        strategyP1LinesCount = 0;
+        strategyP2LinesCount = 0;
 
         int result = minimaxMemo(bitGameBoard, true);
         strategyP1Writer.close();
@@ -99,6 +104,7 @@ public class MinimaxBitboard {
 
                     if (bestValue == 1) {
                         strategyP1Writer.put(gameBoard, move);
+                        strategyP1LinesCount++;
                         break;
                     }
                 }
@@ -127,10 +133,11 @@ public class MinimaxBitboard {
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
 
-                    if (bestValue == -1) {
-                        strategyP2Writer.put(gameBoard, move);
+//                    if (bestValue == -1) {
+//                        strategyP2Writer.put(gameBoard, move);
+//                        strategyP2LinesCount++;
 //                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
-                    }
+//                    }
                 }
             }
             // game over check

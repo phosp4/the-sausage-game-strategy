@@ -3,6 +3,7 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.utils.FileHandlingUtil;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -133,6 +134,8 @@ public class MinimaxLaunchers {
         System.out.println("min calls: " + mr.getNodesInvestigatedMin());
         System.out.println("calls together: " + calls);
         System.out.println("tt overwrites: " + mr.getTtOverwrites());
+        System.out.println("strategy P1 lines: " + mr.getStrategyP1LinesCount());
+        System.out.println("strategy P2 lines: " + mr.getStrategyP2LinesCount());
 
 //        Map<Long, Long> strategyP1 = mr.getStrategyP1();
 //        Map<Long, Long> strategyP2 = mr.getStrategyP2();
