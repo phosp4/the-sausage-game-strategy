@@ -34,10 +34,10 @@ public class GameBoard implements Serializable {
         zobristHash = ZobristHasher.calculateInitialHash(this);
     }
 
-    public int getColumns() {
+    public int getColumnsX() {
         return grid[0].length;
     }
-    public int getRows() {
+    public int getRowsY() {
         return grid.length;
     }
 

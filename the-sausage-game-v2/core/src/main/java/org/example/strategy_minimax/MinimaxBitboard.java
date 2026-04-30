@@ -17,8 +17,11 @@ public class MinimaxBitboard {
 
     // strategy - treba domysliet, ci tam ukladat move, lebo tu je move cela plocha...
     // najskor urobit funkciu BoardWithOneSausageToSausage
-    @Getter private Long2LongOpenHashMap strategyP1;
-    @Getter private Long2LongOpenHashMap strategyP2;
+//    @Getter private Long2LongOpenHashMap strategyP1;
+//    @Getter private Long2LongOpenHashMap strategyP2;
+
+    private DiskStrategyWriter strategyP1Writer;
+    private DiskStrategyWriter strategyP2Writer;
 
     // benchmarks
     @Getter private long ttCallsCount;
@@ -43,14 +46,17 @@ public class MinimaxBitboard {
         tt = new TranspositionTable(25);
         ttCallsCount = 0;
 
-        strategyP1 = new Long2LongOpenHashMap();
-        strategyP2 = new Long2LongOpenHashMap();
+        strategyP1Writer = new DiskStrategyWriter("stretegy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1_dsw.bin");
+        strategyP2Writer = new DiskStrategyWriter("stretegy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2_dsw.bin");
 
         nodesInvestigatedMax = 0;
         nodesInvestigatedMin = 0;
         ttOverwrites = 0;
 
-        return minimaxMemo(bitGameBoard, true);
+        int result = minimaxMemo(bitGameBoard, true);
+        strategyP1Writer.close();
+        strategyP2Writer.close();
+        return result;
     }
 
     private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer) {
@@ -92,7 +98,7 @@ public class MinimaxBitboard {
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1) {
-                        strategyP1.put(gameBoard, move);
+                        strategyP1Writer.put(gameBoard, move);
                         break;
                     }
                 }
@@ -122,7 +128,7 @@ public class MinimaxBitboard {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1) {
-                        strategyP2.put(gameBoard, move);
+                        strategyP2Writer.put(gameBoard, move);
 //                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     }
                 }

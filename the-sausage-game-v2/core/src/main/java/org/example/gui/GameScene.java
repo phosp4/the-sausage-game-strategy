@@ -181,7 +181,7 @@ public class GameScene implements Screen {
 
     private float rowToY(int row) {
         // Začiatok mriežky + celá výška - pozícia riadku (odpočítavame, lebo Y=0 je dole)
-        return gridOffsetY + (ctrl.getGameBoard().getRows() + 1f) * cellSize - cellSize * (row + 1);
+        return gridOffsetY + (ctrl.getGameBoard().getRowsY() + 1f) * cellSize - cellSize * (row + 1);
     }
 
     /*
@@ -317,8 +317,8 @@ public class GameScene implements Screen {
         hoveredPoint = null;
 
         // iterate circles
-        for (int row = 0; row < ctrl.getGameBoard().getRows(); row++) {
-            for (int col = 0; col < ctrl.getGameBoard().getColumns(); col++) {
+        for (int row = 0; row < ctrl.getGameBoard().getRowsY(); row++) {
+            for (int col = 0; col < ctrl.getGameBoard().getColumnsX(); col++) {
                 if ((row + col) % 2 == 0) {
                     float newX = colToX(col);
                     float newY = rowToY(row);
@@ -415,8 +415,8 @@ public class GameScene implements Screen {
         float availableHeight = screenHeight - bottomPadding;
 
         // Vypočítame, aká by bola medzera, keby sme išli podľa šírky alebo podľa výšky
-        float spacingX = screenWidth / (ctrl.getGameBoard().getColumns() + 1f);
-        float spacingY = availableHeight / (ctrl.getGameBoard().getRows() + 1f);
+        float spacingX = screenWidth / (ctrl.getGameBoard().getColumnsX() + 1f);
+        float spacingY = availableHeight / (ctrl.getGameBoard().getRowsY() + 1f);
 
         // KĽÚČOVÝ KROK: Vyberieme menšiu medzeru.
         // Tým zaručíme, že sa mriežka zmestí a body budú rovnako ďaleko v X aj Y smeroch.
@@ -428,8 +428,8 @@ public class GameScene implements Screen {
         enlargedCircleRadius = baseCircleRadius * 2f;
 
         // Aká veľká bude celá mriežka v pixeloch?
-        float totalGridWidth = cellSize * (ctrl.getGameBoard().getColumns() + 1f);
-        float totalGridHeight = cellSize * (ctrl.getGameBoard().getRows() + 1f);
+        float totalGridWidth = cellSize * (ctrl.getGameBoard().getColumnsX() + 1f);
+        float totalGridHeight = cellSize * (ctrl.getGameBoard().getRowsY() + 1f);
 
         // Vypočítame offsety na vycentrovanie mriežky
 

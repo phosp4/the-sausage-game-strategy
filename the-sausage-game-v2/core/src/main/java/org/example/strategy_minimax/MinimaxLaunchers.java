@@ -13,7 +13,7 @@ public class MinimaxLaunchers {
 //        getResultForBoard(9,5);
 //        getStrategyForBoard(7, 4);
 //        fixChybyTemp();
-        getAndSaveStrategyForBoardCSV(9,5);
+        getAndSaveStrategyForBoardCSV(9,6);
 //        getResultAndSaveStrategyForBoardsUpToNxN(50);
 
 //        for (int i = 3; i < 9; i++) {
@@ -73,19 +73,20 @@ public class MinimaxLaunchers {
                 System.out.println("total duration (seconds): " + TimeUnit.NANOSECONDS.toSeconds(duration));
                 System.out.println("----------");
 
-                // save strategies
-                Map<Long, Long> strategyP1 = mb.getStrategyP1();
-                Map<Long, Long> strategyP2 = mb.getStrategyP2();
-
-                String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p1_bitboards.csv";
-                String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p2_bitboards.csv";
-                String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p1_bitboards.bin";
-                String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p2_bitboards.bin";
-
-                FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
-                FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
-                FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
-                FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
+                // strategie sa ukladaju priebezne
+//                // save strategies
+//                Map<Long, Long> strategyP1 = mb.getStrategyP1();
+//                Map<Long, Long> strategyP2 = mb.getStrategyP2();
+//
+//                String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p1_bitboards.csv";
+//                String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p2_bitboards.csv";
+//                String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p1_bitboards.bin";
+//                String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p2_bitboards.bin";
+//
+//                FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
+//                FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
+//                FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
+//                FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
             }
         }
 
@@ -133,21 +134,21 @@ public class MinimaxLaunchers {
         System.out.println("calls together: " + calls);
         System.out.println("tt overwrites: " + mr.getTtOverwrites());
 
-        Map<Long, Long> strategyP1 = mr.getStrategyP1();
-        Map<Long, Long> strategyP2 = mr.getStrategyP2();
-
-        // files naming
-        String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.csv";
-        String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.csv";
-
-        FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
-        FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
-
-        String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.bin";
-        String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.bin";
-
-        FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
-        FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
+//        Map<Long, Long> strategyP1 = mr.getStrategyP1();
+//        Map<Long, Long> strategyP2 = mr.getStrategyP2();
+//
+//        // files naming
+//        String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.csv";
+//        String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.csv";
+//
+//        FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
+//        FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
+//
+//        String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.bin";
+//        String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.bin";
+//
+//        FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
+//        FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
     }
 
     public static void getResultForBoard(int x, int y) {
