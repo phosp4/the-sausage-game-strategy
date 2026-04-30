@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import com.badlogic.gdx.files.FileHandle;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -223,7 +225,11 @@ public class FileHandlingUtil {
         }
     }
 
+    /**
+     * pred tym som pouzival toto, ale cez teavm to nefungovalo
+     */
     public static HashMap<Long, Long> loadStrategyCSV(String filepath) throws IOException {
+
         HashMap<Long, Long> map = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
             String line;
@@ -236,4 +242,36 @@ public class FileHandlingUtil {
         }
         return map;
     }
+
+    /**
+     * od chatu - funguje aj cez teavm
+     */
+    public static Map<Long, Long> loadStrategyCSV(FileHandle file) throws IOException {
+        Map<Long, Long> moves = new HashMap<>();
+
+        // LibGDX FileHandle poskytuje priamo BufferedReader
+        try (BufferedReader reader = file.reader(256)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Preskoč prázdne riadky
+                if (line.trim().isEmpty()) continue;
+
+                // Tu je tvoja logika parsovania CSV...
+                // Príklad (predpokladá formát: kľúč,hodnota):
+                String[] parts = line.split(",");
+                if (parts.length == 2) {
+                    long key = Long.parseLong(parts[0].trim());
+                    long value = Long.parseLong(parts[1].trim());
+                    moves.put(key, value);
+                }
+            }
+        }
+
+        return moves;
+    }
+
+
+//    public static HashMap<Long, Long> loadStrategyCSV(File file) throws IOException {
+//        return loadStrategyCSV(file.getPath());
+//    }
 }

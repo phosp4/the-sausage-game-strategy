@@ -196,10 +196,11 @@ public class GameScene implements Screen {
         }
 
         // automatizacia
-        if (!ctrl.isGameOver() && ctrl.getAiManager().isCurrentPlayerAi()) {
+        if (!ctrl.isGameOver() && ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
             aiThinkTimer += delta;
             if (aiThinkTimer >= AI_DELAY_SECONDS) {
-                ctrl.getAiManager().executeAiMove();
+                Sausage s = ctrl.getAiManager().getAiMoveForPlayer(ctrl.getTurnManager().getCurrentPlayer(), ctrl.getGameBoard());
+                ctrl.tryApplyMove(s);
                 aiThinkTimer = 0f;
             }
         }
@@ -222,7 +223,7 @@ public class GameScene implements Screen {
         batch.begin();
         drawCircleHints();
         drawSausages();
-        if (!ctrl.getAiManager().isCurrentPlayerAi()) {
+        if (!ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
             if (Gdx.input.isTouched()) {
                 handleTemporaryConnections();
             } else {
@@ -258,9 +259,7 @@ public class GameScene implements Screen {
             Point p2 = new Point(secondPoint.getX(), secondPoint.getY());
             Point p3 = new Point(thirdPoint.getX(), thirdPoint.getY());
 
-            if (!ctrl.tryApplyMove(p1, p2, p3)) {
-                System.out.println("Problem with handling new sausage: " + ctrl.getLastError());
-            }
+            ctrl.tryApplyMove(p1, p2, p3);
         }
         // toto je potrebne aby zabudlo, aj ked sa nevytvorila klobaska
         firstPoint = null;

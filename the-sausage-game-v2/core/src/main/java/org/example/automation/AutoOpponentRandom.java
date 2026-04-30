@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class StrategyAgentRandom implements StrategyAgent {
+public class AutoOpponentRandom implements AutoOpponent {
 
     @Override
     public Sausage getNextMove(GameBoard g) {

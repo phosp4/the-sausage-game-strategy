@@ -38,9 +38,6 @@ public class ValidatorUtil {
         return out;
     }
 
-    /**
-     * po vytvoreni metody detectTwoAdditionalPoints by sa to dalo zlepsit, zatial ale nechavam tak
-     */
     private static Point getMiddlePointIfExists(Point p1, Point p2) {
         int dx = p2.getX() - p1.getX();
         int dy = p2.getY() - p1.getY();

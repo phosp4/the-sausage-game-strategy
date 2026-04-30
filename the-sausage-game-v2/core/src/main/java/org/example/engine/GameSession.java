@@ -24,39 +24,41 @@ public class GameSession {
     private final AiManager aiManager;
     private boolean isGameOver = false;
 
-    private String lastError = null; // todo toto asi dat inak
-
-    public GameSession() {
+    public GameSession(int width, int height) {
+        // potom dat do konstruktora aj tu AI volbu
 
         // hlavne miesto, kde sa to nastavuje (zatial)
-        int width = 1;
-        int height = 5;
         // https://rgbcolorpicker.com/0-1
         Player p1 = new Player("P1", new Color(0.173F, 0.733F, 0.941F, 1f));
         Player p2 = new Player("P2", new Color(1F, 0.369F, 0.369F, 1f));
 
         this.gameBoard = new GameBoard(width, height);
         this.turnManager = new TurnManager(p1, p2);
-        this.aiManager = new AiManager(this);
+        this.aiManager = new AiManager();
 
-        aiManager.registerAiPlayer(p1, new StrategyAgentMinimax(width, height, true));
-//        aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
+        // feature - ai player bude mat inu farbu:DD
+        aiManager.registerAiPlayer(p1, new AutoOpponentMinimax(width, height, true));
+        //aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
     }
 
     /** Called by a UI when a player attempts a move. Returns true if applied. */
     public boolean tryApplyMove(Point p1, Point p2, Point p3) {
-        lastError = null;
 
         Sausage move = new Sausage(getTurnManager().getCurrentPlayer(), p1, p2, p3);
+        return tryApplyMove(move);
+    }
 
+    public boolean tryApplyMove(Sausage move) {
         try {
+            move.setPlayer(turnManager.getCurrentPlayer());
             gameBoard.addSausage(move);
             turnManager.nextTurn();
 
 //            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
             System.out.println(CliRendererUtil.gridToStringAsArray(gameBoard.getGrid()));
             System.out.println(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()));
-            if (gameBoard.isGameOver()) {
+
+            if (gameBoard.isBoardFull()) {
                 isGameOver = true;
                 String winnerName = turnManager.getNotCurrentPlayer().getName();
                 System.out.println("Game over! Winner: " + winnerName);
@@ -67,10 +69,10 @@ public class GameSession {
 
             return true;
         } catch (InvalidPointForGridException e) {
-            lastError = "Invalid sausage placement.";
+            System.err.println("Invalid sausage placement.");
             return false;
         } catch (IntersectingSausagesException e) {
-            lastError = "Sausage intersects with another sausage.";
+            System.err.println("Sausage intersects with another sausage.");
             return false;
         }
     }

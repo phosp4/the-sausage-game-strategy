@@ -1,9 +1,7 @@
 package org.example.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
 import lombok.Data;
-import org.example.automation.StrategyAgent;
 
 @Data
 public class Player {

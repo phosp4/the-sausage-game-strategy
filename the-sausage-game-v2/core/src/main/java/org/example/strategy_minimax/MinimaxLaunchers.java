@@ -14,7 +14,7 @@ public class MinimaxLaunchers {
 //        getStrategyForBoard(7, 4);
 //        getAndSaveStrategyForBoardCSV(5,5);
 //        fixChybyTemp();
-        getResultAndSaveStrategyForBoardsUpToNxN(20);
+        getResultAndSaveStrategyForBoardsUpToNxN(64);
 
 //        for (int i = 3; i < 9; i++) {
 //            int size = MoveGenerator.getPossibleMoves(new GameBoard(i,i).getGrid()).size();

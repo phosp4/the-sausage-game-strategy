@@ -8,6 +8,7 @@ import org.example.gui.GdxGame;
  * Launches the TeaVM/HTML application.
  */
 public class TeaVMLauncher {
+
     public static void main(String[] args) {
         TeaApplicationConfiguration config = new TeaApplicationConfiguration("canvas");
         //// If width and height are each greater than 0, then the app will use a fixed size.

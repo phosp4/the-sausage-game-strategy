@@ -170,7 +170,7 @@ public class GameBoard implements Serializable {
 
 
     //    // <=> is full
-    public boolean isGameOver() {
+    public boolean isBoardFull() {
         // zbytocne - staci skoncit, ked sa najde aspon jedna klobaska
         return MoveGenerator.getPossibleMoves(grid).isEmpty();
     }

@@ -1,8 +1,9 @@
-package org.example.utils;
+package org.example.engine;
 
-import org.example.engine.GameSession;
 import org.example.entities.Player;
 import org.example.entities.Sausage;
+import org.example.utils.CliInputHandler;
+import org.example.utils.CliRendererUtil;
 
 public class CliLauncher {
 
@@ -32,29 +33,19 @@ public class CliLauncher {
 //    }
 
     public static void twoPlayers() {
-        GameSession ctrl = new GameSession();
+
+        GameSession ctrl = new GameSession(9,7);
         CliInputHandler cih = new CliInputHandler();
 
         System.out.println("Welcome to the Sausage Game!");
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
 
-        while (!ctrl.getGameBoard().isGameOver()) {
+        while (!ctrl.getGameBoard().isBoardFull()) {
             Player current = ctrl.getTurnManager().getCurrentPlayer();
             System.out.println("Current player: " + current.getName());
 
-//            Sausage move = current.getName().equals("auto")
-//                ? ctrl.pickRandomLegalMove()
-//                : new CliInputHandler().nacitajSausage();
             Sausage move = cih.nacitajSausage();
-
-            // toto vyzera kostrbato, ale aspon sa sausage vytvara na jednom mieste
-            if (!ctrl.tryApplyMove(
-                move.getThreePoints().get(0),
-                move.getThreePoints().get(1),
-                move.getThreePoints().get(2))) {
-                System.out.println(ctrl.getLastError() + " Try again.");
-                continue;
-            }
+            ctrl.tryApplyMove(move);
 
             System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
         }

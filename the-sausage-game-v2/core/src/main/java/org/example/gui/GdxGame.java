@@ -8,7 +8,7 @@ public class GdxGame extends Game {
     @Override public void create() {
 
         // odtialto by sa tiez dali dohadzovat rozmery...
-        GameSession engine = new GameSession();
+        GameSession engine = new GameSession(5,5);
         setScreen(new GameScene(this, engine));
     }
 
