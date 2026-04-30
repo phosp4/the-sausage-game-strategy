@@ -14,7 +14,7 @@ public class MinimaxLaunchers {
 //        getResultForBoard(9,5);
 //        getStrategyForBoard(7, 4);
 //        fixChybyTemp();
-        getAndSaveStrategyForBoardCSV(9,6);
+        getAndSaveStrategyForBoardCSV(9,5, 1, true);
 //        getResultAndSaveStrategyForBoardsUpToNxN(50);
 
 //        for (int i = 3; i < 9; i++) {
@@ -116,13 +116,13 @@ public class MinimaxLaunchers {
     }
 
     // skor na testing
-    public static void getAndSaveStrategyForBoardCSV(int x, int y) {
+    public static void getAndSaveStrategyForBoardCSV(int x, int y, int knownWinner, boolean save) {
 
         MinimaxBitboard mr = new MinimaxBitboard();
         GameBoard g = new GameBoard(x, y);
 
         long start = System.nanoTime();
-        int winner = mr.minimaxMemoStart(g);
+        int winner = mr.minimaxMemoStart(g, knownWinner, save);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

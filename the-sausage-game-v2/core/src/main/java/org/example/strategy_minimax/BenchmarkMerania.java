@@ -20,7 +20,7 @@ public class BenchmarkMerania {
 
                 System.out.println("Board: " + x + "x" + y);
 
-                matrice[j][i] = getMaximumTreeDepthForBoard(x, y);
+                matrice[j][i] = getMaximumTreeDepthForBoard(x, y) / 3; // celociselne
             }
         }
 

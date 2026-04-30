@@ -2,6 +2,7 @@ package org.example.strategy_minimax;
 
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
@@ -31,7 +32,15 @@ public class MinimaxBitboard {
     @Getter private long strategyP1LinesCount;
     @Getter private long strategyP2LinesCount;
 
+    @Setter private int knownWinner;
+    @Getter private boolean saveStrategy;
+    private int nodesPrintCount;
+
     public int minimaxMemoStart(GameBoard gameBoard) {
+        return minimaxMemoStart(gameBoard, 0, false); // defaultne ho nepozname
+    }
+
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy) {
         // just for an empty grid - all options
         Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
 
@@ -57,6 +66,10 @@ public class MinimaxBitboard {
 
         strategyP1LinesCount = 0;
         strategyP2LinesCount = 0;
+        nodesPrintCount = 0;
+
+        knownWinner = winner;
+        this.saveStrategy = saveStrategy;
 
         int result = minimaxMemo(bitGameBoard, true);
         strategyP1Writer.close();
@@ -70,6 +83,23 @@ public class MinimaxBitboard {
 //        if (Thread.currentThread().isInterrupted()) {
 //            return -2; // specialna hodnota na oznacenie prerusenia
 //        }
+
+        nodesPrintCount++;
+        if (nodesPrintCount > 10_000_000) {
+            System.out.println("winner: ??");
+            System.out.println("tt calls: " + getTtCallsCount());
+            System.out.println("max calls: " + getNodesInvestigatedMax());
+            System.out.println("min calls: " + getNodesInvestigatedMin());
+            System.out.println("calls together: " + (nodesInvestigatedMin + nodesInvestigatedMax));
+            System.out.println("tt overwrites: " + getTtOverwrites());
+            System.out.println("strategy P1 lines: " + getStrategyP1LinesCount());
+            System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("strategy P2 lines: " + getStrategyP2LinesCount());
+            System.out.println("strategy P2 size: " + ((getStrategyP2LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("________________________________________________");
+
+            nodesPrintCount = 0;
+        }
 
         // benchmarks
         if (isMaximizingPlayer)
@@ -102,9 +132,11 @@ public class MinimaxBitboard {
                     if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
 
-                    if (bestValue == 1) {
-                        strategyP1Writer.put(gameBoard, move);
+                    if (bestValue == 1 && knownWinner == 1) {
+                        if (saveStrategy) strategyP1Writer.put(gameBoard, move);
                         strategyP1LinesCount++;
+                        break;
+                    } else if (bestValue == 1 && knownWinner == 0) {
                         break;
                     }
                 }
@@ -133,11 +165,13 @@ public class MinimaxBitboard {
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
 
-//                    if (bestValue == -1) {
-//                        strategyP2Writer.put(gameBoard, move);
-//                        strategyP2LinesCount++;
-//                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
-//                    }
+                    if (bestValue == -1 && knownWinner == -1) {
+                        if (saveStrategy) strategyP2Writer.put(gameBoard, move);
+                        strategyP2LinesCount++;
+                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+                    } else if (bestValue == -1 && knownWinner == 0) {
+                        break;
+                    }
                 }
             }
             // game over check
@@ -147,7 +181,7 @@ public class MinimaxBitboard {
             returnVal = bestValue;
         }
 
-        if (tt.contains(gameBoard) && tt.getValue(gameBoard) != TranspositionTable.UNKNOWN_VALUE) {
+        if (tt.contains(gameBoard)) {
             ttOverwrites++;
         }
         tt.put(gameBoard, returnVal);
