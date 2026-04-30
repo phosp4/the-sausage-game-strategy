@@ -21,6 +21,9 @@ dependencies {
 
   implementation "space.earlygrey:shapedrawer:2.5.0"
 
+  // Source: https://mvnrepository.com/artifact/it.unimi.dsi/fastutil
+  implementation("it.unimi.dsi:fastutil:8.2.1")
+
 //  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 //  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
   testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'

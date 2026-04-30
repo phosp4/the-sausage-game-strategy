@@ -12,9 +12,9 @@ public class MinimaxLaunchers {
 //        getResultsTable(20, 3000);
 //        getResultForBoard(9,5);
 //        getStrategyForBoard(7, 4);
-//        getAndSaveStrategyForBoardCSV(5,5);
 //        fixChybyTemp();
-        getResultAndSaveStrategyForBoardsUpToNxN(64);
+        getAndSaveStrategyForBoardCSV(9,5);
+//        getResultAndSaveStrategyForBoardsUpToNxN(50);
 
 //        for (int i = 3; i < 9; i++) {
 //            int size = MoveGenerator.getPossibleMoves(new GameBoard(i,i).getGrid()).size();
@@ -43,7 +43,7 @@ public class MinimaxLaunchers {
                 System.out.println("Board: " + x + "x" + y);
 
                 // do 64 policok
-                if (i*j > n) {
+                if (x*y > n) {
                     System.out.println("Skipping...");
                     continue;
                 }
@@ -116,10 +116,22 @@ public class MinimaxLaunchers {
     // skor na testing
     public static void getAndSaveStrategyForBoardCSV(int x, int y) {
 
-        Minimax mr = new Minimax();
+        MinimaxBitboard mr = new MinimaxBitboard();
         GameBoard g = new GameBoard(x, y);
+
+        long start = System.nanoTime();
         int winner = mr.minimaxMemoStart(g);
-        System.out.println(winner);
+        long end = System.nanoTime();
+        long duration = end - start;
+        long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());
+
+        System.out.println("winner: " + winner);
+        System.out.println("duration (nanoseconds): " + duration);
+        System.out.println("tt calls: " + mr.getTtCallsCount());
+        System.out.println("max calls: " + mr.getNodesInvestigatedMax());
+        System.out.println("min calls: " + mr.getNodesInvestigatedMin());
+        System.out.println("calls together: " + calls);
+        System.out.println("tt overwrites: " + mr.getTtOverwrites());
 
         Map<Long, Long> strategyP1 = mr.getStrategyP1();
         Map<Long, Long> strategyP2 = mr.getStrategyP2();

@@ -12,7 +12,7 @@ public class TranspositionTable {
     private final int fibonnaciShift;
 
     private static final long FIBONACCI_MULTIPLIER = 0x9E3779B97F4A7C15L;
-    private static final byte UNKNOWN_VALUE = Byte.MAX_VALUE;
+    public static final byte UNKNOWN_VALUE = Byte.MAX_VALUE;
 
     public TranspositionTable(int sizePowerOfTwo) {
         if (sizePowerOfTwo < 1 || sizePowerOfTwo > 30) {

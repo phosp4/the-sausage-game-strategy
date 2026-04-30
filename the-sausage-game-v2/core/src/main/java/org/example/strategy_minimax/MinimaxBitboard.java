@@ -1,5 +1,6 @@
 package org.example.strategy_minimax;
 
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import lombok.Getter;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
@@ -16,13 +17,14 @@ public class MinimaxBitboard {
 
     // strategy - treba domysliet, ci tam ukladat move, lebo tu je move cela plocha...
     // najskor urobit funkciu BoardWithOneSausageToSausage
-    @Getter private Map<Long,Long> strategyP1;
-    @Getter private Map<Long,Long> strategyP2;
+    @Getter private Long2LongOpenHashMap strategyP1;
+    @Getter private Long2LongOpenHashMap strategyP2;
 
     // benchmarks
     @Getter private long ttCallsCount;
     @Getter private long nodesInvestigatedMax;
     @Getter private long nodesInvestigatedMin;
+    @Getter private long ttOverwrites;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
         // just for an empty grid - all options
@@ -41,11 +43,12 @@ public class MinimaxBitboard {
         tt = new TranspositionTable(25);
         ttCallsCount = 0;
 
-        strategyP1 = new HashMap<>();
-        strategyP2 = new HashMap<>();
+        strategyP1 = new Long2LongOpenHashMap();
+        strategyP2 = new Long2LongOpenHashMap();
 
         nodesInvestigatedMax = 0;
         nodesInvestigatedMin = 0;
+        ttOverwrites = 0;
 
         return minimaxMemo(bitGameBoard, true);
     }
@@ -131,6 +134,9 @@ public class MinimaxBitboard {
             returnVal = bestValue;
         }
 
+        if (tt.contains(gameBoard) && tt.getValue(gameBoard) != TranspositionTable.UNKNOWN_VALUE) {
+            ttOverwrites++;
+        }
         tt.put(gameBoard, returnVal);
         return returnVal;
     }
