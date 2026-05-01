@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class DiskStrategyWriter {
+public class DiskStrategyWriter implements StrategySaver {
 
     private long[] bufferKeys = new long[10_000_000];
     private long[] bufferValues = new long[10_000_000];
@@ -29,19 +29,19 @@ public class DiskStrategyWriter {
 
         // Ak je buffer plný, zapíš na disk (flush)
         if (bufferIndex == bufferKeys.length) {
-            try {
-                flush();
-            } catch (IOException e) {
-                System.err.println("Chyba pri zápise na disk: " + e.getMessage());
-                throw new RuntimeException(e); // najlepsie zmenit
-            }
+            flush();
         }
     }
 
-    public void flush() throws IOException {
+    public void flush() {
         for (int i = 0; i < bufferIndex; i++) {
-            dos.writeLong(bufferKeys[i]);
-            dos.writeLong(bufferValues[i]);
+            try {
+                dos.writeLong(bufferKeys[i]);
+                dos.writeLong(bufferValues[i]);
+            } catch (IOException e) {
+                System.err.println("Problem with saving the strategy!");
+                throw new RuntimeException(e);
+            }
         }
         bufferIndex = 0;
     }

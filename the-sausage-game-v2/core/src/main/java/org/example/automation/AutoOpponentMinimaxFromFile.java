@@ -6,11 +6,11 @@ import org.example.entities.Strategy;
 
 import java.io.FileNotFoundException;
 
-public class AutoOpponentMinimax implements AutoOpponent {
+public class AutoOpponentMinimaxFromFile implements AutoOpponent {
 
     private Strategy moves = null;
 
-    public AutoOpponentMinimax(int x, int y, boolean isFirst) {
+    public AutoOpponentMinimaxFromFile(int x, int y, boolean isFirst) {
         try {
             this.moves = StrategyRepository.getStrategy(x, y, isFirst);
         } catch (FileNotFoundException e) {

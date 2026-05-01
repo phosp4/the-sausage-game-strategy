@@ -23,6 +23,7 @@ public class MinimaxBitboard {
 
     private DiskStrategyWriter strategyP1Writer;
     private DiskStrategyWriter strategyP2Writer;
+    private int maxDepthSaveToSave;
 
     // benchmarks
     @Getter private long ttCallsCount;
@@ -37,11 +38,11 @@ public class MinimaxBitboard {
     private int nodesPrintCount;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
-        return minimaxMemoStart(gameBoard, 0, false); // defaultne ho nepozname
+        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE); // defaultne ho nepozname
     }
 
-    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy) {
-        // just for an empty grid - all options
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave) {
+        // just for an empty (or initial) grid - all options
         Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
 
         allPossibleMoves = new long[allPossibleMovesObjects.size()];
@@ -57,8 +58,16 @@ public class MinimaxBitboard {
         tt = new TranspositionTable(25);
         ttCallsCount = 0;
 
-        strategyP1Writer = new DiskStrategyWriter("stretegy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1_dsw.bin");
-        strategyP2Writer = new DiskStrategyWriter("stretegy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2_dsw.bin");
+        this.maxDepthSaveToSave = maxDepthSaveToSave;
+        String depthText = maxDepthSaveToSave == Integer.MAX_VALUE ? "FULL" : String.valueOf(maxDepthSaveToSave);
+
+        if (saveStrategy) {
+            if (winner == 1) {
+                strategyP1Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1_dsw_depth" + depthText + ".bin");
+            } else if (winner == -1) {
+                strategyP2Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2_dsw_depth" + depthText + ".bin");
+            }
+        }
 
         nodesInvestigatedMax = 0;
         nodesInvestigatedMin = 0;
@@ -72,8 +81,9 @@ public class MinimaxBitboard {
         this.saveStrategy = saveStrategy;
 
         int result = minimaxMemo(bitGameBoard, true, 0);
-        strategyP1Writer.close();
-        strategyP2Writer.close();
+
+        if (strategyP1Writer != null) strategyP1Writer.close();
+        if (strategyP2Writer != null) strategyP2Writer.close();
         return result;
     }
 
@@ -133,14 +143,18 @@ public class MinimaxBitboard {
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1 && knownWinner == 1) {
-                        if (saveStrategy) {
-                            // moveInBoard to move
+                        if (depth <= maxDepthSaveToSave) {
+                            if (saveStrategy) {
+                                // moveInBoard to move
 //                            long move =
-                            strategyP1Writer.put(gameBoard, moveInBoard);
+                                strategyP1Writer.put(gameBoard, moveInBoard);
+                            }
+                            strategyP1LinesCount++;
                         }
-                        strategyP1LinesCount++;
                         break;
                     } else if (bestValue == 1 && knownWinner == 0) {
+                        break;
+                    } else if (bestValue == 1 && depth > maxDepthSaveToSave) {
                         break;
                     }
                 }
@@ -170,13 +184,17 @@ public class MinimaxBitboard {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1 && knownWinner == -1) {
-                        if (saveStrategy) {
-                            // moveInBoard to move
-                            strategyP2Writer.put(gameBoard, moveInBoard);
+                        if (depth <= maxDepthSaveToSave) {
+                            if (saveStrategy) {
+                                // moveInBoard to move
+                                strategyP2Writer.put(gameBoard, moveInBoard);
+                            }
+                            strategyP2LinesCount++;
                         }
-                        strategyP2LinesCount++;
                         break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     } else if (bestValue == -1 && knownWinner == 0) {
+                        break;
+                    } else if (bestValue == -1 && depth > maxDepthSaveToSave) {
                         break;
                     }
                 }
