@@ -27,6 +27,10 @@ public class GameSession {
     public GameSession(int width, int height) {
         // potom dat do konstruktora aj tu AI volbu
 
+        // temp natvrdo
+        width = 13;
+        height = 5;
+
         // hlavne miesto, kde sa to nastavuje (zatial)
         // https://rgbcolorpicker.com/0-1
         Player p1 = new Player("P1", new Color(0.173F, 0.733F, 0.941F, 1f));
@@ -37,7 +41,7 @@ public class GameSession {
         this.aiManager = new AiManager();
 
         // feature - ai player bude mat inu farbu:DD
-        aiManager.registerAiPlayer(p1, new AutoOpponentMinimax(width, height, true));
+//        aiManager.registerAiPlayer(p1, new AutoOpponentMinimax(width, height, true));
         //aiManager.registerAiPlayer(p2, new StrategyAgentMinimax(width, height, false));
     }
 
@@ -56,7 +60,7 @@ public class GameSession {
 
 //            System.out.println(CliRendererUtil.gridToString(gameBoard.getGrid()));
             System.out.println(CliRendererUtil.gridToStringAsArray(gameBoard.getGrid()));
-            System.out.println(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()));
+//            System.out.println(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()));
 
             if (gameBoard.isBoardFull()) {
                 isGameOver = true;

@@ -71,13 +71,13 @@ public class MinimaxBitboard {
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
-        int result = minimaxMemo(bitGameBoard, true);
+        int result = minimaxMemo(bitGameBoard, true, 0);
         strategyP1Writer.close();
         strategyP2Writer.close();
         return result;
     }
 
-    private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer) {
+    private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer, int depth) {
 
 //        // doplnok na behu v threade
 //        if (Thread.currentThread().isInterrupted()) {
@@ -119,21 +119,25 @@ public class MinimaxBitboard {
             int bestValue = -1; // to je ako -infinity
             boolean atLeastOne = false;
             for (int i = 0; i<allPossibleMoves.length; i++) {
-                long move = allPossibleMoves[i];
+                long moveInBoard = allPossibleMoves[i];
 
-                if (BitEncoder.validateSausageForGrid(gameBoard, move)) {
+                if (BitEncoder.validateSausageForGrid(gameBoard, moveInBoard)) {
 //                    if (nodesInvestigated > 1_000_000_000) return -2;
 
-                    long childGameBoard = BitEncoder.addSausage(gameBoard, move);
+                    long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(childGameBoard, false);
+                    int value = minimaxMemo(childGameBoard, false, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1 && knownWinner == 1) {
-                        if (saveStrategy) strategyP1Writer.put(gameBoard, move);
+                        if (saveStrategy) {
+                            // moveInBoard to move
+//                            long move =
+                            strategyP1Writer.put(gameBoard, moveInBoard);
+                        }
                         strategyP1LinesCount++;
                         break;
                     } else if (bestValue == 1 && knownWinner == 0) {
@@ -153,20 +157,23 @@ public class MinimaxBitboard {
             boolean atLeastOne = false;
 
             for (int i = 0; i<allPossibleMoves.length; i++) {
-                long move = allPossibleMoves[i];
+                long moveInBoard = allPossibleMoves[i];
 
-                if (BitEncoder.validateSausageForGrid(gameBoard, move)) {
+                if (BitEncoder.validateSausageForGrid(gameBoard, moveInBoard)) {
 
-                    long childGameBoard = BitEncoder.addSausage(gameBoard, move);
+                    long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(childGameBoard, true);
+                    int value = minimaxMemo(childGameBoard, true, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1 && knownWinner == -1) {
-                        if (saveStrategy) strategyP2Writer.put(gameBoard, move);
+                        if (saveStrategy) {
+                            // moveInBoard to move
+                            strategyP2Writer.put(gameBoard, moveInBoard);
+                        }
                         strategyP2LinesCount++;
                         break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
                     } else if (bestValue == -1 && knownWinner == 0) {

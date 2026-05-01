@@ -69,7 +69,7 @@ public class GameScene implements Screen {
         this.game = gdxGame;
         this.ctrl = ctrl;
         System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
-        System.out.println(BitEncoder.sausageGridToLongBitboard(ctrl.getGameBoard().getGrid()));
+//        System.out.println(BitEncoder.sausageGridToLongBitboard(ctrl.getGameBoard().getGrid()));
 
         if (animateMoves) {
             ctrl.tryApplyMove(new Point(6, 0), new Point(7, 1), new Point(5, 1));

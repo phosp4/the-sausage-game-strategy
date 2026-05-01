@@ -41,6 +41,7 @@ public class MoveGenerator {
         int[][] vectors = {
             {0,-2}, {1,-1}, {2,0}, {1,1}, {0,2}, {-1,1}, {-2,0}, {-1,-1}
         };
+
         // horizontal / vertical
 //        int[][] vectorsHV = {{0,-2}, {2,0}, {0,2}, {-2,0}};
 
