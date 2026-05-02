@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import java.io.*;
@@ -8,8 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FileHandlingUtil {
 
@@ -180,98 +183,191 @@ public class FileHandlingUtil {
         }
     }
 
-    public static void saveStrategyBinary(Map<Long,Long> strategy, String filePath) {
-        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
+//    public static void saveStrategyBinary(Map<Long,Long> strategy, String filePath) {
+//        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filePath)))) {
+//
+//            // na zaciatku zapiseme pocet poloziek na citanie
+//            dos.writeInt(strategy.size());
+//
+//            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
+//                dos.writeLong(entry.getKey());
+//                dos.writeLong(entry.getValue());
+//            }
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-            // na zaciatku zapiseme pocet poloziek na citanie
-            dos.writeInt(strategy.size());
+    /**
+     * Centrálna metóda na čítanie binárneho strategy súboru z DataInputStream.
+     * Vracia Set<Long> kľúčov.
+     */
+    private static Set<Long> loadStrategyBinary(DataInputStream dis) {
+        Set<Long> strategy = new HashSet<>();
 
-            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
-                dos.writeLong(entry.getKey());
-                dos.writeLong(entry.getValue());
+        try {
+            // Read longs until EOF
+            try {
+                while (true) {
+                    long key = dis.readLong();
+                    strategy.add(key);
+                }
+            } catch (EOFException eof) {
+                // reached end of file - expected
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Map<Long, Long> loadStrategyBinary(String filePath) throws IOException {
-        HashMap<Long, Long> strategy = new HashMap<>();
-
-        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filePath)))) {
-
-            // prvy int je pocet prvkov
-            int size = dis.readInt();
-
-            for (int i = 0; i < size; i++) {
-                long key = dis.readLong();
-                long val = dis.readLong();
-                strategy.put(key, val);
-            }
-        }
-
         return strategy;
     }
 
-    public static void saveStrategyCSV(Map<Long, Long> strategy, String filepath) {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filepath)))) {
-            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
-                writer.println(entry.getKey() + "," + entry.getValue());
-            }
+    /**
+     * Čítá binárny strategy súbor z LibGDX FileHandle a vracia Set<Long> kľúčov.
+     */
+    public static Set<Long> loadStrategyBinaryFromFileHandle(FileHandle fileHandle) {
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(fileHandle.read()))) {
+            return loadStrategyBinary(dis);
         } catch (IOException e) {
+            System.err.println("error reading the file " + fileHandle.path());
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * pred tym som pouzival toto, ale cez teavm to nefungovalo
+     * Čítá binárny strategy súbor zo filesystem cesty a vracia Set<Long> kľúčov.
      */
-    public static HashMap<Long, Long> loadStrategyCSV(String filepath) throws IOException {
+    public static Set<Long> loadStrategyBinaryFromFile(int x, int y, boolean isFirst) {
+        String filePath = "assets/strategies/strategy_" + x + "x" + y;
+        filePath +=  isFirst ? "_p1" : "_p2";
+        filePath += ".bin";
 
-        HashMap<Long, Long> map = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 2) {
-                    map.put(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
-                }
-            }
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
+                Files.newInputStream(Paths.get(filePath))))) {
+            return loadStrategyBinary(dis);
+        } catch (IOException e) {
+            System.err.println("error reading the file " + filePath);
+            throw new RuntimeException(e);
         }
-        return map;
     }
 
-    /**
-     * od chatu - funguje aj cez teavm
-     */
-    public static Map<Long, Long> loadStrategyCSV(FileHandle file) throws IOException {
-        Map<Long, Long> moves = new HashMap<>();
+//    public static void saveStrategyCSV(Map<Long, Long> strategy, String filepath) {
+//        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(filepath)))) {
+//            for (Map.Entry<Long, Long> entry : strategy.entrySet()) {
+//                writer.println(entry.getKey() + "," + entry.getValue());
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-        // LibGDX FileHandle poskytuje priamo BufferedReader
-        try (BufferedReader reader = file.reader(256)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Preskoč prázdne riadky
-                if (line.trim().isEmpty()) continue;
+//    /**
+//     * pred tym som pouzival toto, ale cez teavm to nefungovalo
+//     */
+//    public static HashMap<Long, Long> loadStrategyCSV(String filepath) throws IOException {
+//
+//        HashMap<Long, Long> map = new HashMap<>();
+//        try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                String[] parts = line.split(",");
+//                if (parts.length == 2) {
+//                    map.put(Long.parseLong(parts[0]), Long.parseLong(parts[1]));
+//                }
+//            }
+//        }
+//        return map;
+//    }
 
-                // Tu je tvoja logika parsovania CSV...
-                // Príklad (predpokladá formát: kľúč,hodnota):
-                String[] parts = line.split(",");
-                if (parts.length == 2) {
-                    long key = Long.parseLong(parts[0].trim());
-                    long value = Long.parseLong(parts[1].trim());
-                    moves.put(key, value);
-                }
-            }
-        }
-
-        return moves;
-    }
-
+//    /**
+//     * od chatu - funguje aj cez teavm
+//     */
+//    public static Map<Long, Long> loadStrategyCSV(FileHandle file) throws IOException {
+//        Map<Long, Long> moves = new HashMap<>();
+//
+//        // LibGDX FileHandle poskytuje priamo BufferedReader
+//        try (BufferedReader reader = file.reader(256)) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                // Preskoč prázdne riadky
+//                if (line.trim().isEmpty()) continue;
+//
+//                // Tu je tvoja logika parsovania CSV...
+//                // Príklad (predpokladá formát: kľúč,hodnota):
+//                String[] parts = line.split(",");
+//                if (parts.length == 2) {
+//                    long key = Long.parseLong(parts[0].trim());
+//                    long value = Long.parseLong(parts[1].trim());
+//                    moves.put(key, value);
+//                }
+//            }
+//        }
+//
+//        return moves;
+//    }
 
 //    public static HashMap<Long, Long> loadStrategyCSV(File file) throws IOException {
 //        return loadStrategyCSV(file.getPath());
 //    }
+
+    /**
+     * Čítá strategies_truth.csv z LibGDX FileHandle a vracia 2D pole intov.
+     * Prvý riadok a prvý stĺpec sú headers a sú preskočené.
+     */
+    public static int[][] loadStrategiesTruthCsvFromGdx() {
+        FileHandle fileHandle = Gdx.files.internal("strategies_truth.csv");
+
+        try (BufferedReader br = new BufferedReader(fileHandle.reader())) {
+            return loadStrategiesTruthCsv(br);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading strategies truth CSV: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Alternatívna verzia pre čítanie bez LibGDX. Očakáva klasickú filesystem cestu.
+     */
+    public static int[][] loadStrategiesTruthCsvFromFile() {
+        String filePath = "assets/strategies_truth.csv";
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(filePath))) {
+            return loadStrategiesTruthCsv(br);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading strategies truth CSV: " + e.getMessage());
+        }
+    }
+
+    private static int[][] loadStrategiesTruthCsv(BufferedReader br) throws IOException {
+        List<String> lines = new ArrayList<>();
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            lines.add(line);
+        }
+
+        if (lines.isEmpty()) {
+            return new int[0][0];
+        }
+
+        String[] headerCells = lines.get(0).split(",");
+        int colCount = Math.max(0, headerCells.length - 1);
+        int rowCount = Math.max(0, lines.size() - 1);
+        int[][] matrix = new int[rowCount][colCount];
+
+        for (int r = 1; r < lines.size(); r++) {
+            String[] cells = lines.get(r).split(",");
+            int matrixRow = r - 1;
+
+            // Preskočí prvý stĺpec (row header), čítaj od indexu 1
+            for (int c = 0; c < colCount && c + 1 < cells.length; c++) {
+                try {
+                    matrix[matrixRow][c] = Integer.parseInt(cells[c + 1].trim());
+                } catch (NumberFormatException e) {
+                    matrix[matrixRow][c] = 0; // ignoruj non-numeric cells
+                }
+            }
+        }
+
+        return matrix;
+    }
 }

@@ -10,6 +10,7 @@ public class CliRendererUtil {
     public static final String EMPTY_FIELD = "-";
     private static final String DELIMITER = " ";
     private static final int DELIMITER_LENGTH = 3;
+    private static final String FILLED_FIELD = "X";
 
     public static String gridToString(Sausage[][] grid) {
 
@@ -42,6 +43,30 @@ public class CliRendererUtil {
                 out.append(grid[i][j] != null? grid[i][j].getPlayer().getOneLetterNickname() : EMPTY_FIELD);
                 if (j < grid[i].length - 1) {
                     out.append(" ");
+                }
+            }
+            out.append("\n");
+        }
+
+        return out.toString();
+    }
+
+    public static String bitboardToString(long bitboard, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Width and height must be positive.");
+        }
+        if ((long) width * height > Long.SIZE) {
+            throw new IllegalArgumentException("Board is too large for one long bitboard.");
+        }
+
+        StringBuilder out = new StringBuilder();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int idx = y * width + x;
+                out.append(((bitboard >>> idx) & 1L) == 1L ? FILLED_FIELD : EMPTY_FIELD);
+                if (x < width - 1) {
+                    out.append(DELIMITER);
                 }
             }
             out.append("\n");

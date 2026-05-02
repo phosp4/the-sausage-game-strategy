@@ -201,6 +201,18 @@ public class GameBoard implements Serializable {
         zobristHash = ZobristHasher.updateHashForSausage(zobristHash, s);
     }
 
+    public GameBoard clone() {
+        GameBoard g = new GameBoard(this.getColumnsX(), this.getRowsY());
+        // Deep copy grid
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[0].length; j++) {
+                g.grid[i][j] = this.grid[i][j];
+            }
+        }
+        g.zobristHash = this.getZobristHash();
+        return g;
+    }
+
     /**
      * v tomto je mozno chyba
      * lebo ked som v minimaxe ukladal GameBoard to mapy (nie zakodovany long)

@@ -200,7 +200,11 @@ public class GameScene implements Screen {
             aiThinkTimer += delta;
             if (aiThinkTimer >= AI_DELAY_SECONDS) {
                 Sausage s = ctrl.getAiManager().getAiMoveForPlayer(ctrl.getTurnManager().getCurrentPlayer(), ctrl.getGameBoard());
-                ctrl.tryApplyMove(s);
+                if (s == null) {
+                    System.err.println("AI move not found!");
+                } else {
+                    ctrl.tryApplyMove(s);
+                }
                 aiThinkTimer = 0f;
             }
         }

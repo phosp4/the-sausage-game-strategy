@@ -63,9 +63,11 @@ public class MinimaxBitboard {
 
         if (saveStrategy) {
             if (winner == 1) {
-                strategyP1Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1_dsw_depth" + depthText + ".bin");
+//                strategyP1Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1_dsw_depth" + depthText + ".bin");
+                strategyP1Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p1" + ".bin"); // for production
             } else if (winner == -1) {
-                strategyP2Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2_dsw_depth" + depthText + ".bin");
+//                strategyP2Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2_dsw_depth" + depthText + ".bin");
+                strategyP2Writer = new DiskStrategyWriter("strategy_" + gameBoard.getColumnsX() + "x" + gameBoard.getRowsY() + "_p2" + ".bin"); // for production
             }
         }
 
@@ -143,14 +145,6 @@ public class MinimaxBitboard {
                     bestValue = Math.max(value, bestValue);
 
                     if (bestValue == 1 && knownWinner == 1) {
-                        if (depth <= maxDepthSaveToSave) {
-                            if (saveStrategy) {
-                                // moveInBoard to move
-//                            long move =
-                                strategyP1Writer.put(gameBoard, moveInBoard);
-                            }
-                            strategyP1LinesCount++;
-                        }
                         break;
                     } else if (bestValue == 1 && knownWinner == 0) {
                         break;
@@ -159,11 +153,12 @@ public class MinimaxBitboard {
                     }
                 }
             }
+            returnVal = bestValue;
+
             // game over check
             if (!atLeastOne) {
-                return -1; // nema tah, teda vyhrava druhy
+                returnVal = -1; // nema tah, teda vyhrava druhy
             }
-            returnVal = bestValue;
         }
 
         else {
@@ -184,14 +179,7 @@ public class MinimaxBitboard {
                     bestValue = Math.min(value, bestValue);
 
                     if (bestValue == -1 && knownWinner == -1) {
-                        if (depth <= maxDepthSaveToSave) {
-                            if (saveStrategy) {
-                                // moveInBoard to move
-                                strategyP2Writer.put(gameBoard, moveInBoard);
-                            }
-                            strategyP2LinesCount++;
-                        }
-                        break; // jedina dalsia moznost je 1, ale to nam neuskodi - chceme byt pesimisticky (ale pri hladani konkretnej strategie to uz nemozme urobit)
+                        break;
                     } else if (bestValue == -1 && knownWinner == 0) {
                         break;
                     } else if (bestValue == -1 && depth > maxDepthSaveToSave) {
@@ -199,17 +187,32 @@ public class MinimaxBitboard {
                     }
                 }
             }
+            returnVal = bestValue;
+
             // game over check
             if (!atLeastOne) {
-                return 1; // nema tah, teda vyhrava prvy
+                returnVal = 1; // nema tah, teda vyhrava prvy
             }
-            returnVal = bestValue;
         }
 
-        if (tt.contains(gameBoard)) {
-            ttOverwrites++;
-        }
+        // saving to TT
+        if (tt.contains(gameBoard)) ttOverwrites++;
         tt.put(gameBoard, returnVal);
+
+        // saving the strategy here
+        if (depth <= maxDepthSaveToSave) {
+            // teda plocha, do ktorej sa chce dostat P1
+            if (returnVal == 1 && knownWinner == 1 && !isMaximizingPlayer) {
+                strategyP1LinesCount++;
+                if (saveStrategy) strategyP1Writer.put(gameBoard);
+            }
+            // teda plocha, do ktorej sa chce dostat P2
+            if (returnVal == -1 && knownWinner == -1 && isMaximizingPlayer) {
+                strategyP2LinesCount++;
+                if (saveStrategy) strategyP2Writer.put(gameBoard);
+            }
+        }
+
         return returnVal;
     }
 

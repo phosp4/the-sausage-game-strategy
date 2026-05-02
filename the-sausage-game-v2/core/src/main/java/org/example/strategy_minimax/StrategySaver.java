@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface StrategySaver {
 
-    public void put(long gameBoard, long move);
+    public void put(long gameBoard, short localWinner);
 
     public default void flush() {};
 

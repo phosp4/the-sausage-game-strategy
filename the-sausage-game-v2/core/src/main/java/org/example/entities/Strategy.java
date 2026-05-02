@@ -5,37 +5,65 @@
 package org.example.entities;
 
 import lombok.Data;
-import org.example.exceptions.StrategyMoveNotFoundException;
+import org.example.strategy_minimax.MoveGenerator;
 import org.example.utils.BitEncoder;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.Set;
 
 @Data
 public class Strategy {
 
-    private Map<Long,Long> precalculatedMoves;
+    private Set<Long> winningBoards;
     private boolean isForFirstPlayer; // mozno ani netreba??
 
-    public Strategy(Map<Long, Long> precalculatedMoves, boolean isForFirstPlayer) {
-        this.precalculatedMoves = precalculatedMoves;
+    public Strategy(Set<Long> precalculatedMoves, boolean isForFirstPlayer) {
+        this.winningBoards = precalculatedMoves;
         this.isForFirstPlayer = isForFirstPlayer;
     }
 
     public boolean hasMoveFor(GameBoard g) {
         long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
-        return precalculatedMoves.containsKey(gridLong);
+        return winningBoards.contains(gridLong);
     }
 
     public Sausage getBestMoveFor(GameBoard g) {
-        long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
-        Long encodedMove = precalculatedMoves.get(gridLong);
+//        long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
+        GameBoard g2 = g.clone();
 
-        if (encodedMove != null) {
-            return BitEncoder.decodeSausageWithOffsets(encodedMove);
-        } else {
-            throw new StrategyMoveNotFoundException(g);
+        Set<Sausage> possibleMoves = MoveGenerator.getPossibleMoves(g2.getGrid());
+
+        for (Sausage move : possibleMoves) {
+            g2.addSausage(move);
+            if (hasMoveFor(g2)) {
+                System.out.println("found a move: " + move.toString());
+                return move;
+            }
+            g2.removeSausage(move);
+        }
+
+        System.err.println("cannot find a valid move");
+        return null;
+
+//        Long encodedMove = precalculatedMoves.get(gridLong);
+//
+//        if (encodedMove != null) {
+//            return BitEncoder.decodeSausageWithOffsets(encodedMove);
+//        } else {
+//            throw new StrategyMoveNotFoundException(g);
+//        }
+    }
+
+    public void writeStrategyToTxt() {
+        String fileName = "strategy_" + (isForFirstPlayer ? "p1" : "p2") + ".txt";
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
+            for (Long boardPosition : winningBoards) {
+                writer.println(boardPosition);
+            }
+            System.out.println("Strategy written to file: " + fileName);
+        } catch (IOException e) {
+            System.err.println("Error writing strategy to file: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

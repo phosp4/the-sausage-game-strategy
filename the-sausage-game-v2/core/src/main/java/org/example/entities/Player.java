@@ -2,12 +2,13 @@ package org.example.entities;
 
 import com.badlogic.gdx.graphics.Color;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 public class Player {
     private String name;
-    private Character oneLetterNickname;
-    private Color color;
+    @EqualsAndHashCode.Exclude private Character oneLetterNickname;
+    @EqualsAndHashCode.Exclude private Color color;
 
     public Player(String name, Character oneLetterNickname, Color color) {
         this.name = name;

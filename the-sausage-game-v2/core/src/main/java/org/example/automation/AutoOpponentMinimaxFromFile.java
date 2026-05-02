@@ -1,5 +1,6 @@
 package org.example.automation;
 
+import lombok.Getter;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
@@ -8,7 +9,7 @@ import java.io.FileNotFoundException;
 
 public class AutoOpponentMinimaxFromFile implements AutoOpponent {
 
-    private Strategy moves = null;
+    @Getter private Strategy moves = null;
 
     public AutoOpponentMinimaxFromFile(int x, int y, boolean isFirst) {
         try {

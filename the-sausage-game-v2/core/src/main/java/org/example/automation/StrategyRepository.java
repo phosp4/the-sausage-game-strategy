@@ -7,11 +7,13 @@ package org.example.automation;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import org.example.entities.Strategy;
+import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class StrategyRepository {
 
@@ -25,20 +27,31 @@ public class StrategyRepository {
         if (!cache.containsKey(key)) {
             // Cesta k súboru (za predpokladu, že súbory máš v "assets/strategies/")
             String fileName = "strategies/strategy_" + x + "x" + y;
-            fileName += isFirstPlayer ? "_p1.csv" : "_p2.csv";
+            fileName += isFirstPlayer ? "_p1" : "_p2";
 
-            // POUŽITIE LIBGDX API NA SÚBORY
-            FileHandle fileHandle = Gdx.files.internal(fileName);
+            FileHandle fileHandle;
 
+//            // CSV - stary sposob
+//            String fileNameCsv = fileName + ".csv";
+//            fileHandle = Gdx.files.internal(fileNameCsv);
+//            if (!fileHandle.exists()) {
+//                System.err.println("Súbor na webe/disku neexistuje: " + fileNameCsv);
+//            }
+
+            // potom BIN
+            String fileNameBin = fileName + ".bin";
+            fileHandle = Gdx.files.internal(fileNameBin);
             if (!fileHandle.exists()) {
-                throw new FileNotFoundException("Súbor na webe/disku neexistuje: " + fileName);
+                System.err.println("Súbor na webe/disku neexistuje: " + fileNameBin);
             }
 
             try {
                 // Tu musíme upraviť aj FileHandlingUtil, aby prijímal FileHandle (viď bod 2)
-                Map<Long, Long> rawMoves = FileHandlingUtil.loadStrategyCSV(fileHandle);
-                cache.put(key, new Strategy(rawMoves, isFirstPlayer));
+                Set<Long> rawMoves = FileHandlingUtil.loadStrategyBinaryFromFileHandle(fileHandle);
+                Strategy strategy = new Strategy(rawMoves, isFirstPlayer);
+                cache.put(key, strategy);
                 System.out.println("Načítaná stratégia: " + fileName);
+
             } catch (Exception e) {
                 System.err.println("Chyba pri čítaní/parsovaní súboru: " + fileName);
                 e.printStackTrace();

@@ -3,28 +3,31 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.utils.FileHandlingUtil;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.*;
 
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-//        getResultsTable(20, 3000);
-//        getResultForBoard(9,5);
-//        getStrategyForBoard(7, 4);
-//        fixChybyTemp();
-//        getAndSaveStrategyForBoardCSV(9,6, 1, true, 4);
-        getAndSaveStrategyForBoardCSV(9,6, 1, false, Integer.MAX_VALUE);
-//        getResultAndSaveStrategyForBoardsUpToNxN(50);
+        getAndSaveStrategyForBoardBIN(7,6, -1, true, Integer.MAX_VALUE);
+//        getAndSaveStrategyForBoardBINUpToNxN(7);
+    }
 
-//        for (int i = 3; i < 9; i++) {
-//            int size = MoveGenerator.getPossibleMoves(new GameBoard(i,i).getGrid()).size();
-//            System.out.println("rozmer " + i + " velkost " + size);
-//        }
+    public static void getAndSaveStrategyForBoardBINUpToNxN(int n) {
+        int[][] truth = FileHandlingUtil.loadStrategiesTruthCsvFromFile();
 
-//        MinimaxRunConfig config = new MinimaxRunConfig().builder
-//            .width()
+        for (int x = 1; x <= n; x++) {
+            for (int y = 1; y <= n; y++) {
+                System.out.println("BOARD: " + x + "x" + y);
+                if (truth[y-1][x-1] == 1) {
+                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE);
+                } else if (truth[y-1][x-1] == -1) {
+                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE);
+                } else {
+                    System.out.println("Skipping board " + x + "x" + y);
+                }
+            }
+        }
     }
 
     public static void getResultAndSaveStrategyForBoardsUpToNxN(int n) {
@@ -117,7 +120,7 @@ public class MinimaxLaunchers {
     }
 
     // skor na testing
-    public static void getAndSaveStrategyForBoardCSV(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth) {
+    public static void getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth) {
 
         MinimaxBitboard mr = new MinimaxBitboard();
         GameBoard g = new GameBoard(x, y);

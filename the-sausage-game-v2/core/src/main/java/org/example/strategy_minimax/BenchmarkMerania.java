@@ -1,13 +1,30 @@
 package org.example.strategy_minimax;
 
+import org.example.automation.AutoOpponentMinimaxFromFile;
 import org.example.entities.GameBoard;
+import org.example.entities.Strategy;
+import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
+
+import java.util.Scanner;
+import java.util.Set;
 
 public class BenchmarkMerania {
 
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
-        getMaxTreeDepthTable(50);
+//        getMaxTreeDepthTable(50);
+        printStrategyFile(15, 1, false);
+    }
+
+    public static void printStrategyFile(int x, int y, boolean isFirst) {
+        Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(x, y, isFirst);
+        Strategy strategy = new Strategy(rawStrategy, isFirst);
+
+//        strategy.writeStrategyToTxt();
+        for (Long board : strategy.getWinningBoards()) {
+            System.out.println(CliRendererUtil.bitboardToString(board, x, y));
+        }
     }
 
     public static void getMaxTreeDepthTable(int n) {

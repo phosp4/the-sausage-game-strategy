@@ -34,7 +34,7 @@ public class CliLauncher {
 
     public static void twoPlayers() {
 
-        GameSession ctrl = new GameSession(9,7);
+        GameSession ctrl = new GameSession(9,7, false);
         CliInputHandler cih = new CliInputHandler();
 
         System.out.println("Welcome to the Sausage Game!");

@@ -1,5 +1,6 @@
 package org.example.automation;
 
+import lombok.Getter;
 import org.example.engine.GameSession;
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class AiManager {
 
-    private final Map<Player, AutoOpponent> aiPlayers = new HashMap<>();
+    @Getter private final Map<Player, AutoOpponent> aiPlayers = new HashMap<>();
 
 //    public AiManager(PlayerType p1, PlayerType p2) {
 //        registerAiPlayer();
