@@ -54,8 +54,8 @@ public class Strategy {
 //        }
     }
 
-    public void writeStrategyToTxt() {
-        String fileName = "strategy_" + (isForFirstPlayer ? "p1" : "p2") + ".txt";
+    public void writeStrategyToTxt(int x, int y) {
+        String fileName = "strategy_" + x + "x" + y + (isForFirstPlayer ? "_p1" : "_p2") + ".txt";
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
             for (Long boardPosition : winningBoards) {
                 writer.println(boardPosition);

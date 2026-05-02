@@ -46,6 +46,7 @@ public class StrategyFilesRepository {
 
             try {
                 // Tu musíme upraviť aj FileHandlingUtil, aby prijímal FileHandle (viď bod 2)
+                System.out.println("Načítavam stretégiu zo súboru...");
                 Set<Long> rawMoves = FileHandlingUtil.loadStrategyBinaryFromFileHandle(fileHandle);
                 Strategy strategy = new Strategy(rawMoves, isFirstPlayer);
                 cache.put(key, strategy);

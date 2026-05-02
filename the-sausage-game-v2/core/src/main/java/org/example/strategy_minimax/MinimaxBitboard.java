@@ -105,12 +105,12 @@ public class MinimaxBitboard {
         if (strategyP2Writer != null) strategyP2Writer.close();
 
         if (minimaxMode.equals(MinimaxMode.LIVE)) {
-            if (result == 1) {
+            if (knownWinner == 1) {
                 finalSetOfMoves = ((SetStrategyWriter) strategyP1Writer).getFullStrategy();
                 System.out.println("Strategy for player 1 saved as set!");
-            } else if (result == -1) {
+            } else if (knownWinner == -1) {
                 finalSetOfMoves = ((SetStrategyWriter) strategyP2Writer).getFullStrategy();
-                System.out.println("Strategy for player 1 saved as set!");
+                System.out.println("Strategy for player 2 saved as set!");
             }
             if (finalSetOfMoves == null) {
                 System.err.println("Set of moves equals null, something is wrong!");

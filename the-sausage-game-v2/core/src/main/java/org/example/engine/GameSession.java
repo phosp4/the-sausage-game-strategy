@@ -34,8 +34,8 @@ public class GameSession {
         // potom dat do konstruktora aj tu AI volbu
 
         // temp natvrdo
-        width = 10;
-        height = 4;
+        width = 32;
+        height = 2;
         aiPlayer = true;
 
         // hlavne miesto, kde sa to nastavuje (zatial)
@@ -59,7 +59,7 @@ public class GameSession {
                 aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFileOrLive(width, height, false));
                 p2.setColor(AI_COLOR);
             } else {
-                System.err.println("Cannot find strategy");
+                System.err.println("Cannot find strategy info in the truth file");
             }
         }
     }

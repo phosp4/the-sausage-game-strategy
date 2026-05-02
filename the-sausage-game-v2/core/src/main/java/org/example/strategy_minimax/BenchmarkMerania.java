@@ -14,7 +14,9 @@ public class BenchmarkMerania {
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
-        printStrategyFile(15, 1, false);
+//        printStrategyFile(15, 1, false);
+        saveStrategyFileAsTxt(32, 2, false);
+
     }
 
     public static void printStrategyFile(int x, int y, boolean isFirst) {
@@ -25,6 +27,12 @@ public class BenchmarkMerania {
         for (Long board : strategy.getWinningBoards()) {
             System.out.println(CliRendererUtil.bitboardToString(board, x, y));
         }
+    }
+
+    public static void saveStrategyFileAsTxt(int x, int y, boolean isFirst) {
+        Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(x, y, isFirst);
+        Strategy strategy = new Strategy(rawStrategy, isFirst);
+        strategy.writeStrategyToTxt(x, y);
     }
 
     public static void getMaxTreeDepthTable(int n) {
