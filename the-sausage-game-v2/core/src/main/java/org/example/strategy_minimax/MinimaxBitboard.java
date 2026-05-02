@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.entities.GameBoard;
 import org.example.entities.Player;
+import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
+import org.example.utils.CliRendererUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MinimaxBitboard {
 
@@ -58,20 +58,33 @@ public class MinimaxBitboard {
      * @return
      */
     public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
+
+        // possible moves
         // just for an empty (or initial) grid - all options
-        Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
+        List<Sausage> allPossibleMovesObjects = new ArrayList<>(MoveGenerator.getPossibleMoves(gameBoard.getGrid()));
+
+//        double boardCenterX = (gameBoard.getColumnsX() - 1) / 2.0;
+//        double boardCenterY = (gameBoard.getRowsY() - 1) / 2.0;
+//
+//        // podla testov to nezrychluje nic
+//        allPossibleMovesObjects.sort((s1, s2) -> {
+//            double dist1 = calculateDistanceToCenter(s1, boardCenterX, boardCenterY);
+//            double dist2 = calculateDistanceToCenter(s2, boardCenterX, boardCenterY);
+//            return Double.compare(dist2, dist1);
+//        });
 
         allPossibleMoves = new long[allPossibleMovesObjects.size()];
         int i = 0;
         for (Sausage s : allPossibleMovesObjects) {
             allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
+            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
             i++;
         }
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
 
         // treba to tu, aby sa to kazdym volanim resetovalo
         // na perune by to asi potiahlo aj 32
-        tt = new TranspositionTable(25);
+        tt = new TranspositionTable(28);
         ttCallsCount = 0;
 
         this.maxDepthSaveToSave = maxDepthSaveToSave;
@@ -256,11 +269,23 @@ public class MinimaxBitboard {
         return returnVal;
     }
 
-//    public static void main(String[] args) {
-//        MinimaxBitboard sm = new MinimaxBitboard();
-//        GameBoard g = new GameBoard(9, 6);
-//        int whoIsWinner = sm.minimaxMemoStart(g);
-//        System.out.println("Winner: " + whoIsWinner);
-//        System.out.println("number of TT calls: " + sm.getTtCallsCount());
-//    }
+    private double calculateDistanceToCenter(Sausage sausage, double boardCenterX, double boardCenterY) {
+        double sumX = 0;
+        double sumY = 0;
+        int count = 0;
+
+        for (Point p : sausage.getThreePoints()) {
+            sumX += p.getX();
+            sumY += p.getY();
+            count++;
+        }
+
+        double sausageCenterX = sumX / count;
+        double sausageCenterY = sumY / count;
+
+        double dx = sausageCenterX - boardCenterX;
+        double dy = sausageCenterY - boardCenterY;
+
+        return (dx * dx) + (dy * dy);
+    }
 }
