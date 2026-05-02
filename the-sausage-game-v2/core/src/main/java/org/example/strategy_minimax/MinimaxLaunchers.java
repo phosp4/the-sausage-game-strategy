@@ -1,16 +1,42 @@
 package org.example.strategy_minimax;
 
 import org.example.entities.GameBoard;
+import org.example.entities.Point;
+import org.example.entities.Sausage;
 import org.example.utils.FileHandlingUtil;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class MinimaxLaunchers {
 
     public static void main(String[] args) {
-        getAndSaveStrategyForBoardBIN(7,6, -1, true, Integer.MAX_VALUE);
+//        Set<Long> moves = getAndSaveStrategyForBoardBIN(
+//            7,
+//            6,
+//            -1,
+//            true,
+//            Integer.MAX_VALUE,
+//            MinimaxMode.DATABASE
+//        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
+
+        GameBoard gameBoard = new GameBoard(9, 7);
+
+        gameBoard.addSausage(new Sausage(new Point(4, 6), new Point(6, 6), new Point(8, 6)));
+        gameBoard.addSausage(new Sausage(new Point(4, 2), new Point(6, 2), new Point(8, 2)));
+        gameBoard.addSausage(new Sausage(new Point(2, 6), new Point(3, 5), new Point(4, 4)));
+        gameBoard.addSausage(new Sausage(new Point(0, 0), new Point(2, 0), new Point(4, 0)));
+        gameBoard.addSausage(new Sausage(new Point(0, 2), new Point(0, 4), new Point(0, 6)));
+
+        Set<Long> moves = getAndSaveStrategyForBoardBIN(
+            gameBoard,
+            1,
+            true,
+            Integer.MAX_VALUE,
+            MinimaxMode.LIVE
+        );
+        System.out.println(moves);
     }
 
     public static void getAndSaveStrategyForBoardBINUpToNxN(int n) {
@@ -20,9 +46,9 @@ public class MinimaxLaunchers {
             for (int y = 1; y <= n; y++) {
                 System.out.println("BOARD: " + x + "x" + y);
                 if (truth[y-1][x-1] == 1) {
-                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE);
+                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE);
                 } else if (truth[y-1][x-1] == -1) {
-                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE);
+                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE);
                 } else {
                     System.out.println("Skipping board " + x + "x" + y);
                 }
@@ -77,21 +103,6 @@ public class MinimaxLaunchers {
                 System.out.println("number of nodes investigated (P2): " + mb.getNodesInvestigatedMin());
                 System.out.println("total duration (seconds): " + TimeUnit.NANOSECONDS.toSeconds(duration));
                 System.out.println("----------");
-
-                // strategie sa ukladaju priebezne
-//                // save strategies
-//                Map<Long, Long> strategyP1 = mb.getStrategyP1();
-//                Map<Long, Long> strategyP2 = mb.getStrategyP2();
-//
-//                String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p1_bitboards.csv";
-//                String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/csv/strategy_" + x + "x" + y + "_p2_bitboards.csv";
-//                String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p1_bitboards.bin";
-//                String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/bin/strategy_" + x + "x" + y + "_p2_bitboards.bin";
-//
-//                FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
-//                FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
-//                FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
-//                FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
             }
         }
 
@@ -103,30 +114,37 @@ public class MinimaxLaunchers {
         FileHandlingUtil.writeArrayToCSV(runDurationNano, "full" + n + "_duration_nano_table.csv");
     }
 
-    public static Map<Long, Long> getStrategyForBoard(int x, int y) {
-        Minimax mr = new Minimax();
+    /**
+     * lubovolna plocha na vstupe
+     *
+     * @param x
+     * @param y
+     * @param knownWinnerNoPrune
+     * @param save
+     * @param maxDepth
+     * @param minimaxMode
+     * @return
+     */
+    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode) {
         GameBoard g = new GameBoard(x, y);
-        int winner = mr.minimaxMemoStart(g);
-        System.out.println(winner);
-        if (winner == 1) {
-//            System.out.println(mr.getStrategyP1());
-            return mr.getStrategyP1();
-        } else if (winner == -1) {
-//            System.out.println(mr.getStrategyP2());
-            return mr.getStrategyP2();
-        }
-        System.err.println("Problem loading a strategy...");
-        return null;
+        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode);
     }
 
-    // skor na testing
-    public static void getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth) {
-
+    /**
+     * prazdna plocha na vstupe
+     *
+     * @param g
+     * @param knownWinnerNoPrune
+     * @param save
+     * @param maxDepth
+     * @param minimaxMode
+     * @return
+     */
+    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode) {
         MinimaxBitboard mr = new MinimaxBitboard();
-        GameBoard g = new GameBoard(x, y);
 
         long start = System.nanoTime();
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());
@@ -141,21 +159,10 @@ public class MinimaxLaunchers {
         System.out.println("strategy P1 lines: " + mr.getStrategyP1LinesCount());
         System.out.println("strategy P2 lines: " + mr.getStrategyP2LinesCount());
 
-//        Map<Long, Long> strategyP1 = mr.getStrategyP1();
-//        Map<Long, Long> strategyP2 = mr.getStrategyP2();
-//
-//        // files naming
-//        String fileNameP1 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.csv";
-//        String fileNameP2 = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.csv";
-//
-//        FileHandlingUtil.saveStrategyCSV(strategyP1, fileNameP1);
-//        FileHandlingUtil.saveStrategyCSV(strategyP2, fileNameP2);
-//
-//        String fileNameP1Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p1.bin";
-//        String fileNameP2Bin = FileHandlingUtil.STRATEGY_PATH + "/strategy_" + x + "x" + y + "_p2.bin";
-//
-//        FileHandlingUtil.saveStrategyBinary(strategyP1, fileNameP1Bin);
-//        FileHandlingUtil.saveStrategyBinary(strategyP2, fileNameP2Bin);
+        if (minimaxMode.equals(MinimaxMode.LIVE)) {
+            return mr.getFinalSetOfMoves();
+        }
+        return null;
     }
 
     public static void getResultForBoard(int x, int y) {

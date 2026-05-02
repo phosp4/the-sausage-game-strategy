@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class DiskStrategyWriter {
+public class DiskStrategyWriter implements StrategyWriter {
 
     private long[] bufferKeys = new long[10_000_000];
 //    private boolean[] bufferValues = new boolean[10_000_000];

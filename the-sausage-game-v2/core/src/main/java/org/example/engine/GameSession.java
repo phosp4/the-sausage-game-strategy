@@ -34,8 +34,8 @@ public class GameSession {
         // potom dat do konstruktora aj tu AI volbu
 
         // temp natvrdo
-        width = 7;
-        height = 7;
+        width = 10;
+        height = 4;
         aiPlayer = true;
 
         // hlavne miesto, kde sa to nastavuje (zatial)
@@ -53,10 +53,10 @@ public class GameSession {
             int[][] strategiesTruth = FileHandlingUtil.loadStrategiesTruthCsvFromGdx();
 
             if (strategiesTruth[height - 1][width - 1] == 1) {
-                aiManager.registerAiPlayer(p1, new AutoOpponentMinimaxFromFile(width, height, true));
+                aiManager.registerAiPlayer(p1, new AutoOpponentMinimaxFileOrLive(width, height, true));
                 p1.setColor(AI_COLOR);
             } else if (strategiesTruth[height - 1][width - 1] == -1) {
-                aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFromFile(width, height, false));
+                aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFileOrLive(width, height, false));
                 p2.setColor(AI_COLOR);
             } else {
                 System.err.println("Cannot find strategy");

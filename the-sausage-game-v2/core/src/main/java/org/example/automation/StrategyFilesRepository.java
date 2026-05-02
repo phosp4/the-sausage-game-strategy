@@ -7,7 +7,6 @@ package org.example.automation;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import org.example.entities.Strategy;
-import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
 import java.io.FileNotFoundException;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class StrategyRepository {
+public class StrategyFilesRepository {
 
     private static final Map<String, Strategy> cache = new HashMap<>();
 
@@ -54,7 +53,7 @@ public class StrategyRepository {
 
             } catch (Exception e) {
                 System.err.println("Chyba pri čítaní/parsovaní súboru: " + fileName);
-                e.printStackTrace();
+//                e.printStackTrace();
             }
 
         } else {

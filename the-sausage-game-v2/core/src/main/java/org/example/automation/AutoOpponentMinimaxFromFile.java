@@ -13,7 +13,7 @@ public class AutoOpponentMinimaxFromFile implements AutoOpponent {
 
     public AutoOpponentMinimaxFromFile(int x, int y, boolean isFirst) {
         try {
-            this.moves = StrategyRepository.getStrategy(x, y, isFirst);
+            this.moves = StrategyFilesRepository.getStrategy(x, y, isFirst);
         } catch (FileNotFoundException e) {
 //            System.err.println("The strategy for board " + x + "x" + y + ", for player " + isFirst + " (true for first) was not found");
             System.err.println("The file " + e.getMessage() + " was not found.");
