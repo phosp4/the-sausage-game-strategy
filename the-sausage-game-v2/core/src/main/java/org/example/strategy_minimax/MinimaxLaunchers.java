@@ -3,10 +3,13 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
 import java.util.Set;
 import java.util.concurrent.*;
+
+import static org.example.strategy_minimax.BenchmarkMerania.saveStrategyFileAsTxt;
 
 public class MinimaxLaunchers {
 
@@ -21,27 +24,21 @@ public class MinimaxLaunchers {
 //        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
 
-//        getAndSaveStrategyForBoardBIN(
-//            32,
-//            2,
-//            -1,
-//            true,
-//            Integer.MAX_VALUE,
-//            MinimaxMode.DATABASE
-//        );
-
-        GameBoard g = new GameBoard(32, 2);
-        g.addSausage(new Sausage(new Point(10, 0), new Point(12, 0), new Point(11, 1)));
-        g.addSausage(new Sausage(new Point(3, 1), new Point(4, 0), new Point(5, 1)));
-        g.addSausage(new Sausage(new Point(0, 0), new Point(1, 1), new Point(2, 0)));
-
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
-            g,
+            9,
+            7,
             0,
             false,
             Integer.MAX_VALUE,
-            MinimaxMode.DATABASE
+            MinimaxMode.DATABASE,
+            true
         );
+//        if (strategy != null) {
+//            System.out.println(strategy.size());
+//        }
+
+//         4511298088140912L, 289446734135296L, 1132252180299840L, 4412828555268L, 1585933516912L
+//        System.out.println(CliRendererUtil.bitboardToString(284L, 5, 2));
     }
 
     public static void depthTest() {
@@ -58,7 +55,8 @@ public class MinimaxLaunchers {
             1,
             true,
             Integer.MAX_VALUE,
-            MinimaxMode.LIVE
+            MinimaxMode.LIVE,
+            true
         );
         System.out.println(moves.size());
     }
@@ -70,9 +68,9 @@ public class MinimaxLaunchers {
             for (int y = 1; y <= n; y++) {
                 System.out.println("BOARD: " + x + "x" + y);
                 if (truth[y-1][x-1] == 1) {
-                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE);
+                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
                 } else if (truth[y-1][x-1] == -1) {
-                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE);
+                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
                 } else {
                     System.out.println("Skipping board " + x + "x" + y);
                 }
@@ -149,9 +147,9 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
         GameBoard g = new GameBoard(x, y);
-        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode);
+        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
     }
 
     /**
@@ -164,11 +162,11 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
         MinimaxBitboard mr = new MinimaxBitboard();
 
         long start = System.nanoTime();
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

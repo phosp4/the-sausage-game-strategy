@@ -22,6 +22,10 @@ public class TurnManager {
         return isPlayer1Turn ? player2 : player1;
     }
 
+    public Player getFirstPlayer() {
+        return player1;
+    }
+
     public void nextTurn() {
         isPlayer1Turn = !isPlayer1Turn;
     }

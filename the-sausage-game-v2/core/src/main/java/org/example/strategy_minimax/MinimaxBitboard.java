@@ -45,10 +45,19 @@ public class MinimaxBitboard {
     private int nodesPrintCount;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
-        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE); // defaultne ho nepozname
+        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true); // defaultne ho nepozname
     }
 
-    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode) {
+    /**
+     * @param gameBoard - ak chceme zacat s lubovolnou plochou
+     * @param winner - ak uz vieme vitaza vopred
+     * @param saveStrategy - ci ju chceme realne ukladat, alebo iba ziskavat statistiku ulozeni
+     * @param maxDepthSaveToSave
+     * @param minimaxMode - database je klasicky (vytvara subor), live je pre UI (vracia Set)
+     * @param startWithMaximizer - toto je pre pripady, ked nehladame od zaciatku, teda od prazdnej plochy
+     * @return
+     */
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
         // just for an empty (or initial) grid - all options
         Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(gameBoard.getGrid());
 
@@ -99,7 +108,7 @@ public class MinimaxBitboard {
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
-        int result = minimaxMemo(bitGameBoard, true, 0);
+        int result = minimaxMemo(bitGameBoard, startWithMaximizer, 0);
 
         if (strategyP1Writer != null) strategyP1Writer.close();
         if (strategyP2Writer != null) strategyP2Writer.close();

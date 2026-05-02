@@ -206,6 +206,7 @@ public class FileHandlingUtil {
      */
     private static Set<Long> loadStrategyBinary(DataInputStream dis) {
         Set<Long> strategy = new HashSet<>();
+//        List<Long> listStrategy = new ArrayList<>();
 
         try {
             // Read longs until EOF
@@ -213,6 +214,7 @@ public class FileHandlingUtil {
                 while (true) {
                     long key = dis.readLong();
                     strategy.add(key);
+//                    listStrategy.add(key);
                 }
             } catch (EOFException eof) {
                 // reached end of file - expected
@@ -220,6 +222,9 @@ public class FileHandlingUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+//        System.out.println(strategy.size());
+//        System.out.println(listStrategy.size());
         return strategy;
     }
 

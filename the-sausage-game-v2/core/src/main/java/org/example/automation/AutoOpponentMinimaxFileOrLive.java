@@ -6,6 +6,7 @@
 package org.example.automation;
 
 import lombok.Getter;
+import org.example.engine.GameSession;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
@@ -19,8 +20,10 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
 
     @Getter private Strategy movesFromFile = null;
     @Getter private Strategy movesFromLive = null;
+    private GameSession ctrl;
 
-    public AutoOpponentMinimaxFileOrLive(int x, int y, boolean isFirst) {
+    public AutoOpponentMinimaxFileOrLive(int x, int y, boolean isFirst, GameSession gameSession) {
+        this.ctrl = gameSession;
         try {
             this.movesFromFile = StrategyFilesRepository.getStrategy(x, y, isFirst);
             if (movesFromFile == null) {
@@ -50,10 +53,10 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
         return s;
     }
 
-    private void initiateLiveMode(GameBoard gameBoard, boolean isFirst) {
+    private void initiateLiveMode(GameBoard gameBoard, boolean isFirstWinner) {
         if (movesFromLive == null) {
-            Set<Long> moves = getLiveStrategy(gameBoard, isFirst ? 1 : -1);
-            movesFromLive = new Strategy(moves, isFirst);
+            Set<Long> moves = getLiveStrategy(gameBoard, isFirstWinner ? 1 : -1);
+            movesFromLive = new Strategy(moves, isFirstWinner);
             System.out.println("Live strategy loaded!");
         } else {
             System.out.println("Live strategy was loaded already!");
@@ -63,10 +66,13 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
     private Set<Long> getLiveStrategy(GameBoard g, int knownWinnerNoPrune) {
         MinimaxBitboard mr = new MinimaxBitboard();
 
+        // is max player?
+        boolean isMaxPlayer = ctrl.getTurnManager().getCurrentPlayer().equals(ctrl.getTurnManager().getFirstPlayer());
+
         long start = System.nanoTime();
         System.out.println("INFO: Starting live calculation...");
         System.out.println("where winner is: " + knownWinnerNoPrune);
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

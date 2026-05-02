@@ -2,7 +2,10 @@ package org.example.strategy_minimax;
 
 import org.example.automation.AutoOpponentMinimaxFromFile;
 import org.example.entities.GameBoard;
+import org.example.entities.Point;
+import org.example.entities.Sausage;
 import org.example.entities.Strategy;
+import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
@@ -14,8 +17,8 @@ public class BenchmarkMerania {
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
-//        printStrategyFile(15, 1, false);
-        saveStrategyFileAsTxt(32, 2, false);
+        printStrategyFile(9,  5, true);
+//        saveStrategyFileAsTxt(9, 5, true);
 
     }
 
