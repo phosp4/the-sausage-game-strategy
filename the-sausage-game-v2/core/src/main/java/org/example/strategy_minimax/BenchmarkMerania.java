@@ -9,6 +9,7 @@ import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -17,9 +18,24 @@ public class BenchmarkMerania {
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
-        printStrategyFile(9,  5, true);
+//        printStrategyFile(9,  5, true);
 //        saveStrategyFileAsTxt(9, 5, true);
+        canonicalFormTester(5, 5);
+    }
 
+    public static void canonicalFormTester(int x, int y) {
+        SymmetryUtil su = new SymmetryUtil(x,y);
+
+        GameBoard g = new GameBoard(x,y);
+        Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
+        System.out.println(moves.size());
+
+        Set<Long> canonized = new HashSet<>();
+        for (Sausage move : moves) {
+            long moveLong = BitEncoder.sausageObjectToLongBitboard(move, g.getGrid());
+            canonized.add(su.canonize(moveLong));
+        }
+        System.out.println(canonized.size());
     }
 
     public static void printStrategyFile(int x, int y, boolean isFirst) {
