@@ -45,6 +45,9 @@ public class MinimaxBitboard {
     @Getter private boolean saveStrategy;
     private int nodesPrintCount;
 
+    private long startTime;
+    private int branchCounter;
+
     public int minimaxMemoStart(GameBoard gameBoard) {
         return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true); // defaultne ho nepozname
     }
@@ -122,6 +125,9 @@ public class MinimaxBitboard {
         strategyP2LinesCount = 0;
         nodesPrintCount = 0;
 
+        startTime = System.nanoTime();
+        branchCounter = 0;
+
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
@@ -155,8 +161,15 @@ public class MinimaxBitboard {
 //            return -2; // specialna hodnota na oznacenie prerusenia
 //        }
 
+        if (depth == 1 && !isMaximizingPlayer) {
+            branchCounter++;
+            System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
+            System.out.println("Duration: " + (System.nanoTime() - startTime));
+            startTime = System.nanoTime();
+        }
+
         nodesPrintCount++;
-        if (nodesPrintCount > 10_000_000) {
+        if (nodesPrintCount > 100_000_000) {
             System.out.println("winner: ??");
             System.out.println("tt calls: " + getTtCallsCount());
             System.out.println("max calls: " + getNodesInvestigatedMax());
