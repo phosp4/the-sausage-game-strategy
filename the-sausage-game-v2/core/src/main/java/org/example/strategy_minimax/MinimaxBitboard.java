@@ -21,6 +21,7 @@ public class MinimaxBitboard {
     // najskor urobit funkciu BoardWithOneSausageToSausage
 //    @Getter private Long2LongOpenHashMap strategyP1;
 //    @Getter private Long2LongOpenHashMap strategyP2;
+    private SymmetryUtil symmetryUtil;
 
     // db mode
     private StrategyWriter strategyP1Writer;
@@ -59,6 +60,9 @@ public class MinimaxBitboard {
      */
     public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
 
+        // INICIALIZÁCIA SYMETRIÍ
+        symmetryUtil = new SymmetryUtil(gameBoard.getColumnsX(), gameBoard.getRowsY());
+
         // possible moves
         // just for an empty (or initial) grid - all options
         List<Sausage> allPossibleMovesObjects = new ArrayList<>(MoveGenerator.getPossibleMoves(gameBoard.getGrid()));
@@ -77,7 +81,7 @@ public class MinimaxBitboard {
         int i = 0;
         for (Sausage s : allPossibleMovesObjects) {
             allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
-            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
+//            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
             i++;
         }
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
@@ -121,7 +125,7 @@ public class MinimaxBitboard {
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
-        int result = minimaxMemo(bitGameBoard, startWithMaximizer, 0);
+        int result = minimaxMemo(symmetryUtil.canonize(bitGameBoard), startWithMaximizer, 0);
 
         if (strategyP1Writer != null) strategyP1Writer.close();
         if (strategyP2Writer != null) strategyP2Writer.close();
@@ -143,6 +147,8 @@ public class MinimaxBitboard {
     }
 
     private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer, int depth) {
+
+        long canonicalBoard = symmetryUtil.canonize(gameBoard);
 
 //        // doplnok na behu v threade
 //        if (Thread.currentThread().isInterrupted()) {
@@ -173,9 +179,9 @@ public class MinimaxBitboard {
             nodesInvestigatedMin++;
 
         // transposition table
-        if (tt.contains(gameBoard)) {
+        if (tt.contains(canonicalBoard)) {
             ttCallsCount++;
-            return tt.getValue(gameBoard);
+            return tt.getValue(canonicalBoard);
         }
 
         int returnVal;
@@ -192,7 +198,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(childGameBoard, false, depth + 1);
+                    int value = minimaxMemo(symmetryUtil.canonize(childGameBoard), false, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
@@ -226,7 +232,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(childGameBoard, true, depth + 1);
+                    int value = minimaxMemo(symmetryUtil.canonize(childGameBoard), true, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
@@ -249,20 +255,20 @@ public class MinimaxBitboard {
         }
 
         // saving to TT
-        if (tt.contains(gameBoard)) ttOverwrites++;
-        tt.put(gameBoard, returnVal);
+        if (tt.contains(canonicalBoard)) ttOverwrites++;
+        tt.put(canonicalBoard, returnVal);
 
         // saving the strategy here
         if (depth <= maxDepthSaveToSave) {
             // teda plocha, do ktorej sa chce dostat P1
             if (returnVal == 1 && knownWinner == 1 && !isMaximizingPlayer) {
                 strategyP1LinesCount++;
-                if (saveStrategy) strategyP1Writer.put(gameBoard);
+                if (saveStrategy) strategyP1Writer.put(canonicalBoard);
             }
             // teda plocha, do ktorej sa chce dostat P2
             if (returnVal == -1 && knownWinner == -1 && isMaximizingPlayer) {
                 strategyP2LinesCount++;
-                if (saveStrategy) strategyP2Writer.put(gameBoard);
+                if (saveStrategy) strategyP2Writer.put(canonicalBoard);
             }
         }
 
