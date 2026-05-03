@@ -34,7 +34,7 @@ public class GameSession {
         // potom dat do konstruktora aj tu AI volbu
 
         // temp natvrdo
-        width = 6;
+        width = 9;
         height = 6;
         aiPlayer = true;
 

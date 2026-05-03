@@ -20,7 +20,7 @@ public class BenchmarkMerania {
 //        getMaxTreeDepthTable(50);
 //        printStrategyFile(9,  5, true);
 //        saveStrategyFileAsTxt(9, 5, true);
-        canonicalFormTester(5, 5);
+        canonicalFormTester(9, 7);
     }
 
     public static void canonicalFormTester(int x, int y) {

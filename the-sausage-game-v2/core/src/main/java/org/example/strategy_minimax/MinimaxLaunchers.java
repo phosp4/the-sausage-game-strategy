@@ -26,8 +26,8 @@ public class MinimaxLaunchers {
 
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
             9,
-            5,
-            1,
+            7,
+            0,
             false,
             Integer.MAX_VALUE,
             MinimaxMode.DATABASE,
