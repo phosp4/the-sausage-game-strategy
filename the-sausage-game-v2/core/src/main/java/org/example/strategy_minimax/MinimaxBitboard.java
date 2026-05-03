@@ -77,7 +77,7 @@ public class MinimaxBitboard {
         int i = 0;
         for (Sausage s : allPossibleMovesObjects) {
             allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
-            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
+//            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
             i++;
         }
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
