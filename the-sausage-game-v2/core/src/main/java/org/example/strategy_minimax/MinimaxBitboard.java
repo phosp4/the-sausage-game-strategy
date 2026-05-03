@@ -169,7 +169,7 @@ public class MinimaxBitboard {
         }
 
         nodesPrintCount++;
-        if (nodesPrintCount > 100_000_000) {
+        if (nodesPrintCount > 1_000_000_000) {
             System.out.println("winner: ??");
             System.out.println("tt calls: " + getTtCallsCount());
             System.out.println("max calls: " + getNodesInvestigatedMax());
@@ -177,9 +177,9 @@ public class MinimaxBitboard {
             System.out.println("calls together: " + (nodesInvestigatedMin + nodesInvestigatedMax));
             System.out.println("tt overwrites: " + getTtOverwrites());
             System.out.println("strategy P1 lines: " + getStrategyP1LinesCount());
-            System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 64) / 8) / 1_000_000.0 + " MB");
             System.out.println("strategy P2 lines: " + getStrategyP2LinesCount());
-            System.out.println("strategy P2 size: " + ((getStrategyP2LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("strategy P2 size: " + ((getStrategyP2LinesCount() * 64) / 8) / 1_000_000.0 + " MB");
             System.out.println("________________________________________________");
 
             nodesPrintCount = 0;
