@@ -7,6 +7,7 @@ package org.example.entities;
 import lombok.Data;
 import org.example.strategy_minimax.MoveGenerator;
 import org.example.utils.BitEncoder;
+import org.example.utils.SymmetryUtil;
 
 import java.io.*;
 import java.util.Set;
@@ -14,17 +15,34 @@ import java.util.Set;
 @Data
 public class Strategy {
 
-    private Set<Long> winningBoards;
-    private boolean isForFirstPlayer; // mozno ani netreba??
+    private int boardX;
+    private int boardY;
 
-    public Strategy(Set<Long> precalculatedMoves, boolean isForFirstPlayer) {
-        this.winningBoards = precalculatedMoves;
-        this.isForFirstPlayer = isForFirstPlayer;
+    /*
+     * v tejto implementacii si ukladame loosing - "kriticke" pozicie
+     * do tych chceme dostat supera
+     */
+    private Set<Long> loosingBoards;
+    private boolean isForFirstPlayer; // mozno ani netreba??
+    private boolean isCanonized;
+
+    public Strategy(int x, int y, Set<Long> precalculatedMoves, boolean isForFirstPlayer) {
+        this(x, y, precalculatedMoves, isForFirstPlayer, false);
     }
 
-    public boolean hasMoveFor(GameBoard g) {
+    public boolean isThisPositionLoosing(GameBoard g) {
         long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
-        return winningBoards.contains(gridLong);
+        long canonicalGrid = SymmetryUtil.canonize(gridLong, boardX, boardY);
+
+        return loosingBoards.contains(canonicalGrid);
+    }
+
+    public Strategy(int x, int y, Set<Long> precalculatedMoves, boolean isForFirstPlayer, boolean isCanonized) {
+        boardX = x;
+        boardY = y;
+        this.loosingBoards = precalculatedMoves;
+        this.isForFirstPlayer = isForFirstPlayer;
+        this.isCanonized = isCanonized;
     }
 
     public Sausage getBestMoveFor(GameBoard g) {
@@ -35,7 +53,7 @@ public class Strategy {
 
         for (Sausage move : possibleMoves) {
             g2.addSausage(move);
-            if (hasMoveFor(g2)) {
+            if (isThisPositionLoosing(g2)) {
                 System.out.println("found a move: " + move.toString());
                 return move;
             }
@@ -57,7 +75,7 @@ public class Strategy {
     public void writeStrategyToTxt(int x, int y) {
         String fileName = "strategy_" + x + "x" + y + (isForFirstPlayer ? "_p1" : "_p2") + ".txt";
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
-            for (Long boardPosition : winningBoards) {
+            for (Long boardPosition : loosingBoards) {
                 writer.println(boardPosition);
             }
             System.out.println("Strategy written to file: " + fileName);

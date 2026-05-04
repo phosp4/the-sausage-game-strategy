@@ -61,7 +61,8 @@ public class Sausage implements Serializable {
 
     @Override
     public String toString() {
-        return "{" + threePoints + ", " + player + '}';
+//        return "{" + threePoints + ", " + player + '}';
+        return threePoints.toString();
     }
 
     /**

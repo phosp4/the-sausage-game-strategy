@@ -7,13 +7,12 @@ package org.example.engine;
 
 import com.badlogic.gdx.graphics.Color;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.automation.*;
 import org.example.entities.*;
 import org.example.exceptions.*;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
-
-import static org.example.strategy_minimax.BenchmarkMerania.printStrategyFile;
 
 @Getter
 /**
@@ -24,7 +23,7 @@ public class GameSession {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
     private final AiManager aiManager;
-    private boolean isGameOver = false;
+    @Setter private boolean isGameOver = false;
 
     public static Color FIRST_PLAYER_COLOR = new Color(0.173F, 0.733F, 0.941F, 1f);
     public static Color SECOND_PLAYER_COLOR = new Color(1F, 0.369F, 0.369F, 1f);
@@ -35,7 +34,7 @@ public class GameSession {
 
         // temp natvrdo
         width = 9;
-        height = 6;
+        height = 7;
         aiPlayer = true;
 
         // hlavne miesto, kde sa to nastavuje (zatial)

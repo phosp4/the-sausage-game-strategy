@@ -1,16 +1,14 @@
 package org.example.strategy_minimax;
 
-import org.example.automation.AutoOpponentMinimaxFromFile;
 import org.example.entities.GameBoard;
-import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
+import org.example.utils.SymmetryUtil;
 
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
 
 public class BenchmarkMerania {
@@ -18,13 +16,59 @@ public class BenchmarkMerania {
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
-        printStrategyFile(9,  7, true);
-//        saveStrategyFileAsTxt(9, 5, true);
-//        canonicalFormTester(9, 7);
+//        saveStrategyFileAsTxt(9, 7, false);
+//        Set<Long> strategyBoards = getAndPrintStrategyFile(9,  7, false);
+//        Set<Long> allCanonnicalBoards = canonicalFormTester(9, 7);
+//        allCanonnicalBoards.removeAll(strategyBoards);
+
+        // nech bitovo pozera prieniky alebo tak
+        openingBookContainsReactionToEveryFirstMove();
     }
 
-    public static void canonicalFormTester(int x, int y) {
-        SymmetryUtil su = new SymmetryUtil(x,y);
+    public static void openingBookContainsReactionToEveryFirstMove() {
+        Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(9, 7, false);
+        GameBoard g = new GameBoard(9,7);
+        Set<Sausage> possibleMoves0 = MoveGenerator.getPossibleMoves(g.getGrid());
+
+        int didNotFindCount = 0;
+        Set<Sausage> strategyMoves;
+        for (Sausage move0 : possibleMoves0) {
+            g.addSausage(move0);
+
+            Set<Sausage> possibleMoves1 = MoveGenerator.getPossibleMoves(g.getGrid());
+            strategyMoves = new HashSet<>();
+
+            int foundCount = 0;
+            for (Sausage move1 : possibleMoves1) {
+                g.addSausage(move1);
+
+                long board = BitEncoder.sausageGridToLongBitboard(g.getGrid());
+                long canonized = SymmetryUtil.canonize(board, 9, 7);
+                if (rawStrategy.contains(canonized)) {
+                    foundCount++;
+                    strategyMoves.add(move1);
+                }
+                g.removeSausage(move1);
+            }
+            if (foundCount == 0) {
+                didNotFindCount++;
+            }
+            // pre zaujimavost
+            if (foundCount > 1) {
+                System.out.println(foundCount);
+//                System.out.println(CliRendererUtil.bitboardToString(BitEncoder.sausageObjectToLongBitboard(move0, g.getGrid()), 9, 7));
+                System.out.println(move0);
+                System.out.println(strategyMoves);
+                System.out.println("---------------------");
+            }
+
+            g.removeSausage(move0);
+        }
+        // zero is ideal
+        System.out.println("Did not find reaction for " + didNotFindCount + " boards");
+    }
+
+    public static Set<Long> canonicalFormTester(int x, int y) {
 
         GameBoard g = new GameBoard(x,y);
         Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
@@ -32,25 +76,27 @@ public class BenchmarkMerania {
 
         Set<Long> canonized = new HashSet<>();
         for (Sausage move : moves) {
-            long moveLong = BitEncoder.sausageObjectToLongBitboard(move, g.getGrid());
-            canonized.add(su.canonize(moveLong));
+            long moveLong = BitEncoder.sausageObjectToLongBitboard(move, x, y);
+            canonized.add(SymmetryUtil.canonize(moveLong, x, y));
         }
         System.out.println(canonized.size());
+        return canonized;
     }
 
-    public static void printStrategyFile(int x, int y, boolean isFirst) {
+    public static Set<Long> getAndPrintStrategyFile(int x, int y, boolean isFirst) {
         Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(x, y, isFirst);
-        Strategy strategy = new Strategy(rawStrategy, isFirst);
+        Strategy strategy = new Strategy(x, y, rawStrategy, isFirst);
 
 //        strategy.writeStrategyToTxt();
-        for (Long board : strategy.getWinningBoards()) {
+        for (Long board : strategy.getLoosingBoards()) {
             System.out.println(CliRendererUtil.bitboardToString(board, x, y));
         }
+        return rawStrategy;
     }
 
     public static void saveStrategyFileAsTxt(int x, int y, boolean isFirst) {
         Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(x, y, isFirst);
-        Strategy strategy = new Strategy(rawStrategy, isFirst);
+        Strategy strategy = new Strategy(x, y, rawStrategy, isFirst);
         strategy.writeStrategyToTxt(x, y);
     }
 

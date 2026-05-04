@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 //import com.kotcrab.vis.ui.VisUI;
 import org.example.engine.GameSession;
+import org.example.engine.TurnManager;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
@@ -202,6 +203,7 @@ public class GameScene implements Screen {
                 Sausage s = ctrl.getAiManager().getAiMoveForPlayer(ctrl.getTurnManager().getCurrentPlayer(), ctrl.getGameBoard());
                 if (s == null) {
                     System.err.println("AI move not found!");
+                    ctrl.setGameOver(true);
                 } else {
                     ctrl.tryApplyMove(s);
                 }

@@ -9,11 +9,14 @@ import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
+import org.example.utils.SymmetryUtil;
 
 import java.util.*;
 
 public class MinimaxBitboard {
 
+    private int currentBoardX;
+    private int currentBoardY;
     private long[] allPossibleMoves;
     private TranspositionTable tt;
 
@@ -21,7 +24,6 @@ public class MinimaxBitboard {
     // najskor urobit funkciu BoardWithOneSausageToSausage
 //    @Getter private Long2LongOpenHashMap strategyP1;
 //    @Getter private Long2LongOpenHashMap strategyP2;
-    private SymmetryUtil symmetryUtil;
 
     // db mode
     private StrategyWriter strategyP1Writer;
@@ -63,8 +65,8 @@ public class MinimaxBitboard {
      */
     public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
 
-        // INICIALIZÁCIA SYMETRIÍ
-        symmetryUtil = new SymmetryUtil(gameBoard.getColumnsX(), gameBoard.getRowsY());
+        currentBoardX = gameBoard.getColumnsX();
+        currentBoardY = gameBoard.getRowsY();
 
         // possible moves
         // just for an empty (or initial) grid - all options
@@ -83,7 +85,7 @@ public class MinimaxBitboard {
         allPossibleMoves = new long[allPossibleMovesObjects.size()];
         int i = 0;
         for (Sausage s : allPossibleMovesObjects) {
-            allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
+            allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, currentBoardX, currentBoardY);
 //            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
             i++;
         }
@@ -131,7 +133,8 @@ public class MinimaxBitboard {
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
-        int result = minimaxMemo(symmetryUtil.canonize(bitGameBoard), startWithMaximizer, 0);
+        long canonizedBoard = SymmetryUtil.canonize(bitGameBoard, gameBoard.getColumnsX(), gameBoard.getRowsY());
+        int result = minimaxMemo(canonizedBoard, startWithMaximizer, 0);
 
         if (strategyP1Writer != null) strategyP1Writer.close();
         if (strategyP2Writer != null) strategyP2Writer.close();
@@ -154,7 +157,7 @@ public class MinimaxBitboard {
 
     private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer, int depth) {
 
-        long canonicalBoard = symmetryUtil.canonize(gameBoard);
+        long canonicalBoard = SymmetryUtil.canonize(gameBoard, currentBoardX, currentBoardY);
 
 //        // doplnok na behu v threade
 //        if (Thread.currentThread().isInterrupted()) {
@@ -175,7 +178,7 @@ public class MinimaxBitboard {
             System.out.println("max calls: " + getNodesInvestigatedMax());
             System.out.println("min calls: " + getNodesInvestigatedMin());
             System.out.println("calls together: " + (nodesInvestigatedMin + nodesInvestigatedMax));
-            System.out.println("tt overwrites: " + getTtOverwrites());
+            System.out.println("tt overwrites: " + ttOverwrites);
             System.out.println("strategy P1 lines: " + getStrategyP1LinesCount());
             System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 64) / 8) / 1_000_000.0 + " MB");
             System.out.println("strategy P2 lines: " + getStrategyP2LinesCount());
@@ -211,7 +214,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(symmetryUtil.canonize(childGameBoard), false, depth + 1);
+                    int value = minimaxMemo(SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY), false, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
@@ -245,7 +248,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(symmetryUtil.canonize(childGameBoard), true, depth + 1);
+                    int value = minimaxMemo(SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY), true, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);

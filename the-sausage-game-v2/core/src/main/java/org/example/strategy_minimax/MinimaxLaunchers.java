@@ -3,8 +3,8 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.utils.CliRendererUtil;
-import org.example.utils.FileHandlingUtil;
+import org.example.utils.*;
+import org.example.utils.SymmetryUtil;
 
 import java.util.Set;
 import java.util.concurrent.*;
@@ -24,21 +24,46 @@ public class MinimaxLaunchers {
 //        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
 
+//        GameBoard g = new GameBoard(9,7);
+
+//         g.addSausage(new Sausage(new Point(0, 0), new Point(1, 1), new Point(2, 2)));
+//         g.addSausage(new Sausage(new Point(6, 2), new Point(7, 3), new Point(8, 4)));
+//         g.addSausage(new Sausage(new Point(2, 4), new Point(3, 5), new Point(4, 6)));
+//
+//
+//        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+//            g,
+//            -1,
+//            true,
+//            Integer.MAX_VALUE,
+//            MinimaxMode.LIVE,
+//            false
+//        );
+
+        GameBoard g = new GameBoard(9,7);
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 3,3"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("6,2 7,3 8,4"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("4,4 3,5 2,6"));
+
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
-            9,
-            7,
+            g,
             -1,
             true,
-            3,
-            MinimaxMode.DATABASE,
-            true
+            Integer.MAX_VALUE,
+            MinimaxMode.LIVE,
+            false
         );
-//        if (strategy != null) {
-//            System.out.println(strategy.size());
-//        }
 
-//         4511298088140912L, 289446734135296L, 1132252180299840L, 4412828555268L, 1585933516912L
-//        System.out.println(CliRendererUtil.bitboardToString(284L, 5, 2));
+        Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
+        for (Sausage s : moves) {
+            g.addSausage(s);
+            long canonized = SymmetryUtil.canonize(BitEncoder.sausageGridToLongBitboard(g.getGrid()), 9, 7);
+            if (strategy.contains(canonized)) {
+                System.out.println("found a right move: ");
+                System.out.println(canonized);
+            }
+            g.removeSausage(s);
+        }
     }
 
     public static void depthTest() {
