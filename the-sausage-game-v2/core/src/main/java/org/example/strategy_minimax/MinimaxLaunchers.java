@@ -39,7 +39,10 @@ public class MinimaxLaunchers {
 //            MinimaxMode.LIVE,
 //            false
 //        );
+        nineToSeverTester();
+    }
 
+    public static void nineToSeverTester() {
         GameBoard g = new GameBoard(9,7);
         g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 3,3"));
         g.addSausage(CliInputHandler.spracujRiadokVstupu("6,2 7,3 8,4"));
