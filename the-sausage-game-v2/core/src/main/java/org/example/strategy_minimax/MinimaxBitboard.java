@@ -133,8 +133,7 @@ public class MinimaxBitboard {
         knownWinner = winner;
         this.saveStrategy = saveStrategy;
 
-        long canonizedBoard = SymmetryUtil.canonize(bitGameBoard, gameBoard.getColumnsX(), gameBoard.getRowsY());
-        int result = minimaxMemo(canonizedBoard, startWithMaximizer, 0);
+        int result = minimaxMemo(bitGameBoard, startWithMaximizer, 0);
 
         if (strategyP1Writer != null) strategyP1Writer.close();
         if (strategyP2Writer != null) strategyP2Writer.close();
@@ -214,7 +213,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY), false, depth + 1);
+                    int value = minimaxMemo(childGameBoard, false, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.max(value, bestValue);
@@ -248,7 +247,7 @@ public class MinimaxBitboard {
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
                     atLeastOne = true;
-                    int value = minimaxMemo(SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY), true, depth + 1);
+                    int value = minimaxMemo(childGameBoard, true, depth + 1);
 
                     if (value == -2) return -2;
                     bestValue = Math.min(value, bestValue);
