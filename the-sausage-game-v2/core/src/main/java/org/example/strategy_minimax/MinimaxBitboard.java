@@ -91,10 +91,11 @@ public class MinimaxBitboard {
         }
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
 
-        // treba to tu, aby sa to kazdym volanim resetovalo
-        // na perune by to asi potiahlo aj 32
-        tt = new TranspositionTable(28);
+        // kvoli prehliadacu treba nechat nizsie - 28 to nezvladalo
+        // 23 vyzera byt ok spot
+        tt = new TranspositionTable(23);
         ttCallsCount = 0;
+        // test comment
 
         this.maxDepthSaveToSave = maxDepthSaveToSave;
         String depthText = maxDepthSaveToSave == Integer.MAX_VALUE ? "FULL" : String.valueOf(maxDepthSaveToSave);
