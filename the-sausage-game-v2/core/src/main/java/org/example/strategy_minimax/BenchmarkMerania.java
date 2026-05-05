@@ -17,9 +17,54 @@ public class BenchmarkMerania {
     public static void main(String[] args) {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
-        printStrategyFile(9,  5, true);
+//        printStrategyFile(9,  5, true);
 //        saveStrategyFileAsTxt(9, 5, true);
 
+//        for (int i = 0; i < allPossibleMoves.length; i++) {
+//            long s1 = allPossibleMoves[i];
+//            for (int j = i+1; j<allPossibleMoves.length; j++) {
+//                long s2 = allPossibleMoves[j];
+//                for (int k = j+1; k < allPossibleMoves.length; k++) {
+//                    long s3 = allPossibleMoves[k];
+//                    if (((s1 & s2) & s3) == 0L) {
+//    //                    System.out.println(CliRendererUtil.bitboardToString(s1, x, y));
+//    //                    System.out.println(CliRendererUtil.bitboardToString(s2, x, y));
+//    //                    System.out.println("-------------------------------------------");
+//                        size++;
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    public static void zistiPocetKombinaciiPre9x7() {
+        int x = 9;
+        int y = 7;
+        GameBoard g = new GameBoard(x,y);
+        Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(g.getGrid());
+
+        int size = 0;
+
+        long[] allPossibleMoves = new long[allPossibleMovesObjects.size()];
+        int ii = 0;
+        for (Sausage s : allPossibleMovesObjects) {
+            allPossibleMoves[ii] = BitEncoder.sausageObjectToLongBitboard(s, g.getGrid());
+            ii++;
+        }
+
+        for (int i = 0; i < allPossibleMoves.length; i++) {
+            long s1 = allPossibleMoves[i];
+            for (int j = i+1; j<allPossibleMoves.length; j++) {
+                long s2 = allPossibleMoves[j];
+                if (((s1 & s2)) == 0L) {
+//                    System.out.println(CliRendererUtil.bitboardToString(s1, x, y));
+//                    System.out.println(CliRendererUtil.bitboardToString(s2, x, y));
+//                    System.out.println("-------------------------------------------");
+                    size++;
+                }
+            }
+        }
+        System.out.println(size);
     }
 
     public static void printStrategyFile(int x, int y, boolean isFirst) {
