@@ -39,7 +39,17 @@ public class MinimaxLaunchers {
 //            MinimaxMode.LIVE,
 //            false
 //        );
-        nineToSeverTester();
+//        nineToSeverTester();
+
+        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+            9,
+            7,
+            -1,
+            true,
+            3,
+            MinimaxMode.DATABASE,
+            true
+        );
     }
 
     public static void nineToSeverTester() {
