@@ -26,15 +26,16 @@ public class MinimaxLaunchers {
 //        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
 
-//        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
-//            9,
-//            6,
-//            0,
-//            false,
-//            Integer.MAX_VALUE,
-//            MinimaxMode.DATABASE,
-//            true
-//        );
+        // toto sa zda byt celkom zvladnutelne
+        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+            9,
+            7,
+            -1,
+            true,
+            1,
+            MinimaxMode.DATABASE,
+            true
+        );
 //        if (strategy != null) {
 //            System.out.println(strategy.size());
 //        }
@@ -42,7 +43,7 @@ public class MinimaxLaunchers {
 //         4511298088140912L, 289446734135296L, 1132252180299840L, 4412828555268L, 1585933516912L
 //        System.out.println(CliRendererUtil.bitboardToString(284L, 5, 2));
 
-        nineToSeverTester();
+//        nineToSeverTester();
     }
 
     public static void nineToSeverTester() {
