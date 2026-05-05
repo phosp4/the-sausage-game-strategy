@@ -204,27 +204,18 @@ public class FileHandlingUtil {
      * Centrálna metóda na čítanie binárneho strategy súboru z DataInputStream.
      * Vracia Set<Long> kľúčov.
      */
-    private static Set<Long> loadStrategyBinary(DataInputStream dis) {
+    private static Set<Long> loadStrategyBinary(DataInputStream dis, long lengthInBytes) {
         Set<Long> strategy = new HashSet<>();
-//        List<Long> listStrategy = new ArrayList<>();
+        long count = lengthInBytes / 8; // každý long má 8 bajtov
 
         try {
-            // Read longs until EOF
-            try {
-                while (true) {
-                    long key = dis.readLong();
-                    strategy.add(key);
-//                    listStrategy.add(key);
-                }
-            } catch (EOFException eof) {
-                // reached end of file - expected
+            for (long i = 0; i < count; i++) {
+                strategy.add(dis.readLong());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-//        System.out.println(strategy.size());
-//        System.out.println(listStrategy.size());
         return strategy;
     }
 
@@ -233,7 +224,7 @@ public class FileHandlingUtil {
      */
     public static Set<Long> loadStrategyBinaryFromFileHandle(FileHandle fileHandle) {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(fileHandle.read()))) {
-            return loadStrategyBinary(dis);
+            return loadStrategyBinary(dis, fileHandle.length());
         } catch (IOException e) {
             System.err.println("error reading the file " + fileHandle.path());
             throw new RuntimeException(e);
@@ -248,9 +239,12 @@ public class FileHandlingUtil {
         filePath +=  isFirst ? "_p1" : "_p2";
         filePath += ".bin";
 
-        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(
-                Files.newInputStream(Paths.get(filePath))))) {
-            return loadStrategyBinary(dis);
+        try {
+            Path path = Paths.get(filePath);
+            long length = Files.size(path);
+            try (DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
+                return loadStrategyBinary(dis, length);
+            }
         } catch (IOException e) {
             System.err.println("error reading the file " + filePath);
             throw new RuntimeException(e);
@@ -376,3 +370,4 @@ public class FileHandlingUtil {
         return matrix;
     }
 }
+

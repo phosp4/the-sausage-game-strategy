@@ -3,6 +3,8 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.utils.BitEncoder;
+import org.example.utils.CliInputHandler;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
@@ -24,12 +26,13 @@ public class MinimaxLaunchers {
 //        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
 
+        // toto sa zda byt celkom zvladnutelne
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
             9,
-            6,
-            0,
-            false,
-            Integer.MAX_VALUE,
+            7,
+            -1,
+            true,
+            1,
             MinimaxMode.DATABASE,
             true
         );
@@ -39,6 +42,35 @@ public class MinimaxLaunchers {
 
 //         4511298088140912L, 289446734135296L, 1132252180299840L, 4412828555268L, 1585933516912L
 //        System.out.println(CliRendererUtil.bitboardToString(284L, 5, 2));
+
+//        nineToSeverTester();
+    }
+
+    public static void nineToSeverTester() {
+        GameBoard g = new GameBoard(9,7);
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("1,1 2,2 3,3"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("6,2 7,3 8,4"));
+        g.addSausage(CliInputHandler.spracujRiadokVstupu("4,4 3,5 2,6"));
+
+        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+            g,
+            -1,
+            true,
+            Integer.MAX_VALUE,
+            MinimaxMode.LIVE,
+            false
+        );
+
+        Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
+        for (Sausage s : moves) {
+            g.addSausage(s);
+            long board = BitEncoder.sausageGridToLongBitboard(g.getGrid());
+            if (strategy.contains(board)) {
+                System.out.println("found a right move: ");
+                System.out.println(board);
+            }
+            g.removeSausage(s);
+        }
     }
 
     public static void depthTest() {
