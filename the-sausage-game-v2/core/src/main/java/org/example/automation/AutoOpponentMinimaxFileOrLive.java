@@ -76,7 +76,7 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
         long start = System.nanoTime();
         System.out.println("INFO: Starting live calculation...");
         System.out.println("where winner is: " + knownWinnerNoPrune + " and isMaxPlayer is " + isMaxPlayer);
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

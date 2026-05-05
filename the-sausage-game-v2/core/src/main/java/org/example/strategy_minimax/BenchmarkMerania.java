@@ -22,7 +22,49 @@ public class BenchmarkMerania {
 //        allCanonnicalBoards.removeAll(strategyBoards);
 
         // nech bitovo pozera prieniky alebo tak
-        openingBookContainsReactionToEveryFirstMove();
+//        openingBookContainsReactionToEveryFirstMove();
+        poOpeningBookMaStaleStrategiuDruhy();
+    }
+
+    public static void poOpeningBookMaStaleStrategiuDruhy() {
+        Set<Long> rawStrategy = FileHandlingUtil.loadStrategyBinaryFromFile(9, 7, false);
+        GameBoard g = new GameBoard(9, 7);
+        MinimaxBitboard mb;
+
+        Set<Sausage> possibleMoves0 = MoveGenerator.getPossibleMoves(g.getGrid());
+
+        int runCounter = 1;
+        int totalRunCount = 724; // toto je predpocitane
+
+        for (Sausage move0 : possibleMoves0) {
+            g.addSausage(move0);
+
+            Set<Sausage> possibleMoves1 = MoveGenerator.getPossibleMoves(g.getGrid());
+
+            for (Sausage move1 : possibleMoves1) {
+                g.addSausage(move1);
+
+                long board = BitEncoder.sausageGridToLongBitboard(g.getGrid());
+                long canonized = SymmetryUtil.canonize(board, 9, 7);
+                if (rawStrategy.contains(canonized)) {
+                    System.out.print("run " + runCounter + "/" + totalRunCount);
+
+                    // tu treba spustit minimax pre zvysok plochy, ci vrati -1
+                    mb = new MinimaxBitboard();
+                    System.out.print(", board is: " + move0 + ", " + move1);
+                    int winner = mb.minimaxMemoStart(g, 0, false, Integer.MAX_VALUE, MinimaxMode.LIVE, true, 28);
+                    System.out.print(", result is " + winner);
+                    if (winner == -1) {
+                        System.out.println(", result is correct");
+                    } else if (winner == 1) {
+                        System.err.println(", PROBLEM, result is incorrect");
+                    }
+                    runCounter++;
+                }
+                g.removeSausage(move1);
+            }
+            g.removeSausage(move0);
+        }
     }
 
     public static void openingBookContainsReactionToEveryFirstMove() {
@@ -32,6 +74,7 @@ public class BenchmarkMerania {
 
         int didNotFindCount = 0;
         Set<Sausage> strategyMoves;
+        int totalFoundCount = 0;
         for (Sausage move0 : possibleMoves0) {
             g.addSausage(move0);
 
@@ -46,6 +89,7 @@ public class BenchmarkMerania {
                 long canonized = SymmetryUtil.canonize(board, 9, 7);
                 if (rawStrategy.contains(canonized)) {
                     foundCount++;
+                    totalFoundCount++;
                     strategyMoves.add(move1);
                 }
                 g.removeSausage(move1);
@@ -66,6 +110,7 @@ public class BenchmarkMerania {
         }
         // zero is ideal
         System.out.println("Did not find reaction for " + didNotFindCount + " boards");
+        System.out.println("total found count: " + totalFoundCount);
     }
 
     public static Set<Long> canonicalFormTester(int x, int y) {

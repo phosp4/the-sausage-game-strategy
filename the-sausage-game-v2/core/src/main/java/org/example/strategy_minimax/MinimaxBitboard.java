@@ -51,7 +51,7 @@ public class MinimaxBitboard {
     private int branchCounter;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
-        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true); // defaultne ho nepozname
+        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28); // defaultne ho nepozname
     }
 
     /**
@@ -63,7 +63,7 @@ public class MinimaxBitboard {
      * @param startWithMaximizer - toto je pre pripady, ked nehladame od zaciatku, teda od prazdnej plochy
      * @return
      */
-    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer, int ttSize) {
 
         currentBoardX = gameBoard.getColumnsX();
         currentBoardY = gameBoard.getRowsY();
@@ -93,7 +93,7 @@ public class MinimaxBitboard {
 
         // kvoli prehliadacu treba nechat nizsie - 28 to nezvladalo
         // 23 vyzera byt ok spot
-        tt = new TranspositionTable(23);
+        tt = new TranspositionTable(ttSize);
         ttCallsCount = 0;
         // test comment
 
@@ -147,7 +147,7 @@ public class MinimaxBitboard {
                 finalSetOfMoves = ((SetStrategyWriter) strategyP2Writer).getFullStrategy();
                 System.out.println("Strategy for player 2 saved as set!");
             }
-            if (finalSetOfMoves == null) {
+            if (finalSetOfMoves == null && saveStrategy) {
                 System.err.println("Set of moves equals null, something is wrong!");
             }
         }
@@ -164,12 +164,12 @@ public class MinimaxBitboard {
 //            return -2; // specialna hodnota na oznacenie prerusenia
 //        }
 
-        if (depth == 1 && !isMaximizingPlayer) {
-            branchCounter++;
-            System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
-            System.out.println("Duration: " + (System.nanoTime() - startTime));
-            startTime = System.nanoTime();
-        }
+//        if (depth == 1 && !isMaximizingPlayer) {
+//            branchCounter++;
+//            System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
+//            System.out.println("Duration: " + (System.nanoTime() - startTime));
+//            startTime = System.nanoTime();
+//        }
 
         nodesPrintCount++;
         if (nodesPrintCount > 1_000_000_000) {

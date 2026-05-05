@@ -46,9 +46,10 @@ public class MinimaxLaunchers {
             7,
             -1,
             true,
-            3,
+            1,
             MinimaxMode.DATABASE,
-            true
+            true,
+            28
         );
     }
 
@@ -64,7 +65,8 @@ public class MinimaxLaunchers {
             true,
             Integer.MAX_VALUE,
             MinimaxMode.LIVE,
-            false
+            false,
+            28
         );
 
         Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
@@ -94,7 +96,7 @@ public class MinimaxLaunchers {
             true,
             Integer.MAX_VALUE,
             MinimaxMode.LIVE,
-            true
+            true, 28
         );
         System.out.println(moves.size());
     }
@@ -106,9 +108,9 @@ public class MinimaxLaunchers {
             for (int y = 1; y <= n; y++) {
                 System.out.println("BOARD: " + x + "x" + y);
                 if (truth[y-1][x-1] == 1) {
-                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
+                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28);
                 } else if (truth[y-1][x-1] == -1) {
-                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
+                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28);
                 } else {
                     System.out.println("Skipping board " + x + "x" + y);
                 }
@@ -185,9 +187,9 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax, int ttSize) {
         GameBoard g = new GameBoard(x, y);
-        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
+        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax, ttSize);
     }
 
     /**
@@ -200,11 +202,11 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax, int ttSize) {
         MinimaxBitboard mr = new MinimaxBitboard();
 
         long start = System.nanoTime();
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax, ttSize);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());
