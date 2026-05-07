@@ -40,6 +40,7 @@ public class GameScene implements Screen {
     // temporal ui data
     private float mouseX;
     private float mouseY;
+    private final Vector2 cachedMousePos = new Vector2();
     private Point firstPoint = null;
     private Point secondPoint = null;
     private Point thirdPoint = null;
@@ -47,6 +48,8 @@ public class GameScene implements Screen {
 
     // assets and UX
     private Sound selectSound;
+    private Sound newSausageSound;
+    private Sound gameOverSound;
     private float aiThinkTimer = 0f;
     private final float AI_DELAY_SECONDS = 1f;
 
@@ -103,6 +106,8 @@ public class GameScene implements Screen {
 
         // sounds
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
+        newSausageSound = Gdx.audio.newSound(Gdx.files.internal("click5.ogg"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("game-over-sound.ogg"));
 
         // toto robilo problemy v prehliadaci
 //        float scale = Gdx.graphics.getDensity();
@@ -206,6 +211,9 @@ public class GameScene implements Screen {
                     ctrl.setGameOver(true);
                 } else {
                     ctrl.tryApplyMove(s);
+                    if (ctrl.isGameOver()) {
+                        SoundManager.play(gameOverSound, 0.2f);
+                    }
                 }
                 aiThinkTimer = 0f;
             }
@@ -219,7 +227,8 @@ public class GameScene implements Screen {
         //
         // TOTO MI DAL CHAT - ale nepomohlo to
         // Bezpečné získanie súradníc myši vo svete (rieši HDPI a rôzne pomery strán)
-        Vector2 mousePos = stage.getViewport().unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+        cachedMousePos.set(Gdx.input.getX(), Gdx.input.getY());
+        Vector2 mousePos = stage.getViewport().unproject(cachedMousePos);
         mouseX = mousePos.x; // Gdx.input.getX();
         mouseY = mousePos.y; // Gdx.graphics.getHeight() - Gdx.input.getY();
         // KĽÚČOVÁ ZMENA: Zladenie Batch matice s kamerou tvojho Stage!
@@ -229,7 +238,7 @@ public class GameScene implements Screen {
         batch.begin();
         drawCircleHints();
         drawSausages();
-        if (!ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
+        if (!ctrl.isGameOver() && !ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
             if (Gdx.input.isTouched()) {
                 handleTemporaryConnections();
             } else {
@@ -266,6 +275,10 @@ public class GameScene implements Screen {
             Point p3 = new Point(thirdPoint.getX(), thirdPoint.getY());
 
             ctrl.tryApplyMove(p1, p2, p3);
+            SoundManager.play(newSausageSound, 0.2f);
+            if (ctrl.isGameOver()) {
+                SoundManager.play(gameOverSound, 0.2f);
+            }
         }
         // toto je potrebne aby zabudlo, aj ked sa nevytvorila klobaska
         firstPoint = null;
@@ -283,14 +296,14 @@ public class GameScene implements Screen {
         if (hoveredPoint != null && !isHoveredPointOccupied) {
             if (firstPoint == null) {
                 firstPoint = hoveredPoint;
-                SoundManager.play(selectSound);
+                SoundManager.play(selectSound, 0.1f);
             } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
                 secondPoint = hoveredPoint;
-                SoundManager.play(selectSound);
+                SoundManager.play(selectSound, 0.1f);
             } else if (secondPoint != null && !hoveredPoint.equals(firstPoint) && !hoveredPoint.equals(secondPoint) && ValidatorUtil.areNeigbours(secondPoint, hoveredPoint)) {
                 if (!hoveredPoint.equals(thirdPoint)) {
                     thirdPoint = hoveredPoint;
-                    SoundManager.play(selectSound);
+                    SoundManager.play(selectSound, 0.1f);
                 }
             }
         }
@@ -453,5 +466,7 @@ public class GameScene implements Screen {
     public void dispose() {
         batch.dispose();
         selectSound.dispose();
+        newSausageSound.dispose();
+        gameOverSound.dispose();
     }
 }

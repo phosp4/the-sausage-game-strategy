@@ -21,9 +21,9 @@ public class SoundManager {
     /**
      * Plays the sound with specified volume, returns sound ID if played, -1 otherwise.
      */
-    public static long play(Sound sound) {
+    public static long play(Sound sound, float volume) {
         if (soundEnabled && sound != null) {
-            return sound.play(0.2f);
+            return sound.play(volume);
         }
         return -1; // Invalid ID, nothing played
     }

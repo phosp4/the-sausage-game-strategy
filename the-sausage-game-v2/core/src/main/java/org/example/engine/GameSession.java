@@ -33,9 +33,9 @@ public class GameSession {
         // potom dat do konstruktora aj tu AI volbu
 
         // temp natvrdo
-        width = 9;
+        width = 7;
         height = 7;
-        aiPlayer = true;
+        aiPlayer = false;
 
         // hlavne miesto, kde sa to nastavuje (zatial)
         // https://rgbcolorpicker.com/0-1
