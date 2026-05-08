@@ -7,9 +7,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 //import com.kotcrab.vis.ui.VisUI;
@@ -68,11 +73,13 @@ public class GameScene implements Screen {
     private int ticker = 0;
     private int idx = 0;
 
+    private GameUI ui;
+
     public GameScene(GdxGame gdxGame, GameSession ctrl) {
 
         this.game = gdxGame;
         this.ctrl = ctrl;
-        System.out.println(CliRendererUtil.gridToString(ctrl.getGameBoard().getGrid()));
+        System.out.println(CliRendererUtil.gridToStringAsArray(ctrl.getGameBoard().getGrid()));
 //        System.out.println(BitEncoder.sausageGridToLongBitboard(ctrl.getGameBoard().getGrid()));
 
         if (animateMoves) {
@@ -82,6 +89,7 @@ public class GameScene implements Screen {
             moves = MoveGenerator.getPossibleMovesList(ctrl.getGameBoard().getGrid(), new Player("asdf"));
         }
     }
+
 
     @Override
     public void show() {
@@ -108,6 +116,25 @@ public class GameScene implements Screen {
         selectSound = Gdx.audio.newSound(Gdx.files.internal("click4.ogg"));
         newSausageSound = Gdx.audio.newSound(Gdx.files.internal("click5.ogg"));
         gameOverSound = Gdx.audio.newSound(Gdx.files.internal("game-over-sound.ogg"));
+
+        // game ui stuff
+        ui = new GameUI(game, ctrl,
+            () -> {
+                // Toto je funkcia 'onRestart'
+                game.setScreen(new GameScene(game, new GameSession(ctrl.getGameBoard().getColumnsX(), ctrl.getGameBoard().getRowsY(), ctrl.getAiManager().isSomePlayerAi())));
+                this.dispose();
+            },
+            () -> {
+                // Toto je funkcia 'onHome'
+                game.setScreen(new MenuScreen(game, ctrl.getGameBoard().getColumnsX(), ctrl.getGameBoard().getRowsY(), ctrl.getAiManager().isSomePlayerAi()));
+                this.dispose();
+            },
+            SoundManager::toggleSound
+        );
+
+        // 2. Pridanie UI na Stage
+        stage.addActor(ui);
+
 
         // toto robilo problemy v prehliadaci
 //        float scale = Gdx.graphics.getDensity();
@@ -208,7 +235,7 @@ public class GameScene implements Screen {
                 Sausage s = ctrl.getAiManager().getAiMoveForPlayer(ctrl.getTurnManager().getCurrentPlayer(), ctrl.getGameBoard());
                 if (s == null) {
                     System.err.println("AI move not found!");
-                    ctrl.setGameOver(true);
+                    ctrl.setWinner(ctrl.getTurnManager().getNotCurrentPlayer());
                 } else {
                     ctrl.tryApplyMove(s);
                     if (ctrl.isGameOver()) {
@@ -224,6 +251,8 @@ public class GameScene implements Screen {
         stage.getViewport().apply(); // Zabezpečí, že viewport aplikuje svoje rozmery na aktuálny frame (nutné pri resize)
 //        updateGridMetrics();
 
+        ui.updateState();
+
         //
         // TOTO MI DAL CHAT - ale nepomohlo to
         // Bezpečné získanie súradníc myši vo svete (rieši HDPI a rôzne pomery strán)
@@ -235,11 +264,15 @@ public class GameScene implements Screen {
         batch.setProjectionMatrix(stage.getViewport().getCamera().combined);
         //
 
+        // Vďaka Touchable.childrenOnly v GameUI, hitActor nájde iba reálne tlačidlá
+        Actor hitActor = stage.hit(mouseX, mouseY, true);
+        boolean isMouseOverUI = (hitActor != null);
+
         batch.begin();
         drawCircleHints();
         drawSausages();
         if (!ctrl.isGameOver() && !ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
-            if (Gdx.input.isTouched()) {
+            if (Gdx.input.isTouched() && !isMouseOverUI) {
                 handleTemporaryConnections();
             } else {
                 handleNewSausage();
@@ -384,6 +417,7 @@ public class GameScene implements Screen {
             List<Point> points = s.getThreePoints();
 
             drawer.setColor(s.getPlayer().getColor());
+//            drawer.setColor(Color.LIGHT_GRAY);
 
             drawer.line(
                     colToX(points.get(0).getX()),
@@ -425,36 +459,28 @@ public class GameScene implements Screen {
     }
 
     private void updateGridMetrics() {
-        // pred tym tu boli tie zakomentovane, ale bol to problem na inych displejoch
-        float screenWidth = stage.getViewport().getWorldWidth(); // Gdx.graphics.getWidth();
-        float screenHeight = stage.getViewport().getWorldHeight(); // Gdx.graphics.getHeight();
+        float screenWidth = stage.getViewport().getWorldWidth();
+        float screenHeight = stage.getViewport().getWorldHeight();
 
-        // Vaša pôvodná logika pre padding zdola
-        float bottomPadding = 80f;
-        float availableHeight = screenHeight - bottomPadding;
+        float bottomPadding = 10f;
+        float topPadding = 70f; // NOVÉ: Vyhradíme 100 pixelov na vrchu pre UI
 
-        // Vypočítame, aká by bola medzera, keby sme išli podľa šírky alebo podľa výšky
+        // Dostupná výška pre mriežku sa zmenší o vrch aj spodok
+        float availableHeight = screenHeight - bottomPadding - topPadding;
+
         float spacingX = screenWidth / (ctrl.getGameBoard().getColumnsX() + 1f);
         float spacingY = availableHeight / (ctrl.getGameBoard().getRowsY() + 1f);
 
-        // KĽÚČOVÝ KROK: Vyberieme menšiu medzeru.
-        // Tým zaručíme, že sa mriežka zmestí a body budú rovnako ďaleko v X aj Y smeroch.
         cellSize = Math.min(spacingX, spacingY);
-
-        // Veľkosť bodky bude napríklad 15% z veľkosti bunky (môžeš upraviť podľa vkusu)
         baseCircleRadius = cellSize * 0.15f;
-        // Zväčšená bodka / hrúbka klobásky bude dvojnásobok
         enlargedCircleRadius = baseCircleRadius * 2f;
 
-        // Aká veľká bude celá mriežka v pixeloch?
         float totalGridWidth = cellSize * (ctrl.getGameBoard().getColumnsX() + 1f);
         float totalGridHeight = cellSize * (ctrl.getGameBoard().getRowsY() + 1f);
 
-        // Vypočítame offsety na vycentrovanie mriežky
-
         gridOffsetX = (screenWidth - totalGridWidth) / 2f;
 
-        // Offset Y berie do úvahy aj bottomPadding a vycentrovanie vo zvyšnom priestore
+        // NOVÉ: Posun na Y osi musí začať nad bottomPadding, ale vo voľnom priestore
         gridOffsetY = bottomPadding + (availableHeight - totalGridHeight) / 2f;
     }
 

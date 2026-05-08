@@ -14,6 +14,9 @@ import org.example.exceptions.*;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 /**
  * Owns the game state. No printing, no LibGDX.
@@ -23,7 +26,7 @@ public class GameSession {
     private final GameBoard gameBoard;
     private final TurnManager turnManager;
     private final AiManager aiManager;
-    @Setter private boolean isGameOver = false;
+    @Setter private Player winner = null;
 
     public static Color FIRST_PLAYER_COLOR = new Color(0.173F, 0.733F, 0.941F, 1f);
     public static Color SECOND_PLAYER_COLOR = new Color(1F, 0.369F, 0.369F, 1f);
@@ -32,10 +35,10 @@ public class GameSession {
     public GameSession(int width, int height, boolean aiPlayer) {
         // potom dat do konstruktora aj tu AI volbu
 
-        // temp natvrdo
-        width = 7;
-        height = 7;
-        aiPlayer = false;
+//        // temp natvrdo
+//        width = 32;
+//        height = 1;
+//        aiPlayer = true;
 
         // hlavne miesto, kde sa to nastavuje (zatial)
         // https://rgbcolorpicker.com/0-1
@@ -53,10 +56,10 @@ public class GameSession {
 
             if (strategiesTruth[height - 1][width - 1] == 1) {
                 aiManager.registerAiPlayer(p1, new AutoOpponentMinimaxFileOrLive(width, height, true, this));
-                p1.setColor(AI_COLOR);
+//                p1.setColor(AI_COLOR);
             } else if (strategiesTruth[height - 1][width - 1] == -1) {
                 aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFileOrLive(width, height, false, this));
-                p2.setColor(AI_COLOR);
+//                p2.setColor(AI_COLOR);
             } else {
                 System.err.println("Cannot find strategy info in the truth file");
             }
@@ -81,7 +84,7 @@ public class GameSession {
 //            System.out.println(BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid()));
 
             if (gameBoard.isBoardFull()) {
-                isGameOver = true;
+                winner = turnManager.getNotCurrentPlayer();
                 String winnerName = turnManager.getNotCurrentPlayer().getName();
                 System.out.println("Game over! Winner: " + winnerName);
 //                    GameOverDialog dialog = new GameOverDialog(game, winnerName);
@@ -97,5 +100,16 @@ public class GameSession {
             System.err.println("Sausage intersects with another sausage: " + move);
             return false;
         }
+    }
+
+    public List<Player> getPlayers() {
+        List<Player> players = new ArrayList<>();
+        players.add(turnManager.getPlayer1());
+        players.add(turnManager.getPlayer2());
+        return players;
+    }
+
+    public boolean isGameOver() {
+        return winner != null;
     }
 }

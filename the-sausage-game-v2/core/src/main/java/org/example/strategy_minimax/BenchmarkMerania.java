@@ -17,13 +17,14 @@ public class BenchmarkMerania {
 //        getEmptyBoardMovegeneratorUpToN(50);
 //        getMaxTreeDepthTable(50);
 //        saveStrategyFileAsTxt(9, 7, false);
-//        Set<Long> strategyBoards = getAndPrintStrategyFile(9,  7, false);
+        Set<Long> strategyBoards = getAndPrintStrategyFile(9,  6, true);
+        System.out.println(strategyBoards);
 //        Set<Long> allCanonnicalBoards = canonicalFormTester(9, 7);
 //        allCanonnicalBoards.removeAll(strategyBoards);
 
         // nech bitovo pozera prieniky alebo tak
 //        openingBookContainsReactionToEveryFirstMove();
-        poOpeningBookMaStaleStrategiuDruhy();
+//        poOpeningBookMaStaleStrategiuDruhy();
     }
 
     public static void poOpeningBookMaStaleStrategiuDruhy() {
