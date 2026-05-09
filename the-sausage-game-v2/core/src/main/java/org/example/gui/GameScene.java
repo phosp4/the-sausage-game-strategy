@@ -236,6 +236,7 @@ public class GameScene implements Screen {
                 if (s == null) {
                     System.err.println("AI move not found!");
                     ctrl.setWinner(ctrl.getTurnManager().getNotCurrentPlayer());
+                    SoundManager.play(gameOverSound, 0.2f);
                 } else {
                     ctrl.tryApplyMove(s);
                     if (ctrl.isGameOver()) {
@@ -329,6 +330,12 @@ public class GameScene implements Screen {
         if (hoveredPoint != null && !isHoveredPointOccupied) {
             if (firstPoint == null) {
                 firstPoint = hoveredPoint;
+                SoundManager.play(selectSound, 0.1f);
+            } else if (thirdPoint != null && hoveredPoint.equals(secondPoint)) { // logika cuvania
+                thirdPoint = null;
+                SoundManager.play(selectSound, 0.1f);
+            } else if (secondPoint != null && thirdPoint == null && hoveredPoint.equals(firstPoint)) { // logika cuvania
+                secondPoint = null;
                 SoundManager.play(selectSound, 0.1f);
             } else if (secondPoint == null && !hoveredPoint.equals(firstPoint) && ValidatorUtil.areNeigbours(firstPoint, hoveredPoint) && ValidatorUtil.haveNoIntersectionInGrid(firstPoint, hoveredPoint, ctrl.getGameBoard().getGrid())) {
                 secondPoint = hoveredPoint;

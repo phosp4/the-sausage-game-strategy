@@ -13,6 +13,7 @@ import org.example.entities.Strategy;
 import org.example.strategy_minimax.CanonizeMode;
 import org.example.strategy_minimax.MinimaxBitboard;
 import org.example.strategy_minimax.MinimaxMode;
+import org.example.utils.ValidatorUtil;
 
 import java.io.FileNotFoundException;
 import java.util.Set;
@@ -61,8 +62,8 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
     private void initiateLiveMode(GameBoard gameBoard, boolean isFirstWinner) {
         if (movesFromLive == null) {
             Set<Long> moves = getLiveStrategy(gameBoard, isFirstWinner ? 1 : -1);
-            movesFromLive = new Strategy(gameBoard.getColumnsX(), gameBoard.getRowsY(), moves, isFirstWinner, true); // todo mozno nejako tento fakt nacitat zo suboru
-            System.out.println("Live strategy loaded!");
+            movesFromLive = new Strategy(gameBoard.getColumnsX(), gameBoard.getRowsY(), moves, isFirstWinner, ValidatorUtil.shouldCanonize(gameBoard)); // todo mozno nejako tento fakt nacitat zo suboru
+            System.out.println("Live strategy loaded! Number of entries: " + moves.size());
         } else {
             System.out.println("Live strategy was loaded already!");
         }
@@ -77,7 +78,7 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
         long start = System.nanoTime();
         System.out.println("INFO: Starting live calculation...");
         System.out.println("where winner is: " + knownWinnerNoPrune + " and isMaxPlayer is " + isMaxPlayer);
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23, CanonizeMode.TT_CANONIZE);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23, ValidatorUtil.shouldCanonize(g) ? CanonizeMode.TT_CANONIZE : CanonizeMode.NO_CANONIZE);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

@@ -9,7 +9,7 @@ import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
-import org.example.utils.SymmetryUtil;
+import org.example.utils.ValidatorUtil;
 
 import java.util.*;
 
@@ -70,14 +70,14 @@ public class MinimaxBitboard {
         currentBoardY = gameBoard.getRowsY();
 
         this.canonizeMode = canonizeMode;
-        if (currentBoardX % 2 == 0 || currentBoardY % 2 == 0) {
+        if (!ValidatorUtil.shouldCanonize(gameBoard)) {
             System.out.println("Current implementation of canonization does not support even board dimensions.");
             this.canonizeMode = CanonizeMode.NO_CANONIZE;
         }
         // toto uz mam odskusane, nefungovalo by to - neprechadza vsetky tahy
         if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE) && !gameBoard.isBoardEmpty()) {
             System.out.println("The board is not empty, EXTRA_CANONIZE mode will not work. Switching to TT_CANONIZE");
-            canonizeMode = CanonizeMode.TT_CANONIZE;
+            this.canonizeMode = CanonizeMode.TT_CANONIZE;
         }
 
         // possible moves

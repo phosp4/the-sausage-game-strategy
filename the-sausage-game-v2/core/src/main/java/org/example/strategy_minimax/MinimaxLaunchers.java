@@ -4,7 +4,6 @@ import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.utils.*;
-import org.example.utils.SymmetryUtil;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliInputHandler;
 import org.example.utils.CliRendererUtil;

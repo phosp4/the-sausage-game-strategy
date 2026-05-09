@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.exceptions.InvalidPointForGridException;
@@ -13,6 +14,10 @@ import java.util.List;
 public class ValidatorUtil {
 
 //    private static final Logger log = LoggerFactory.getLogger(ValidatorUtil.class);
+
+    public static boolean shouldCanonize(GameBoard gameBoard) {
+        return gameBoard.getColumnsX() % 2 != 0 && gameBoard.getRowsY() % 2 != 0;
+    }
 
     public static boolean areNeigbours(Point p1, Point p2) {
         return (Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX()) +

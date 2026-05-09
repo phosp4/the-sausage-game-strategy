@@ -1,4 +1,11 @@
-package org.example.utils;
+/**
+ * dolezite - aktualne funguje len pre
+ * feature - dalo by sa urobit
+ */
+
+package org.example.strategy_minimax;
+
+import org.example.utils.ValidatorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +26,15 @@ public class SymmetryUtil {
         return CACHE.computeIfAbsent(key, k -> generateMapsForSize(width, height));
     }
 
+    /**
+     * toto funguje len pre NxN
+     */
     private static int[][] generateMapsForSize(int width, int height) {
+        if (width % 2 == 0 || height % 2 == 0) {
+            System.err.println("Cannot generate maps for even dimensions!");
+            return null;
+        }
+
         List<int[]> maps = new ArrayList<>();
         maps.add(generateMap(width, height, false, false, false)); // Identita
         maps.add(generateMap(width, height, true, false, false));  // Flip X
@@ -32,6 +47,51 @@ public class SymmetryUtil {
             maps.add(generateMap(width, height, false, true, true));  // Rot 270
             maps.add(generateMap(width, height, true, true, true));   // Anti-diag
         }
+        return maps.toArray(new int[0][]);
+    }
+
+    /**
+     * malo by to fungovat, ale netestoval som to, nechavam teda tak
+     */
+    private static int[][] generateMapsForSizeAll(int width, int height) {
+        List<int[]> maps = new ArrayList<>();
+
+        boolean wOdd = (width % 2 != 0);  // N (Nepárna šírka)
+        boolean hOdd = (height % 2 != 0); // N (Nepárna výška)
+
+        // 1. Identita - funguje vždy
+        maps.add(generateMap(width, height, false, false, false));
+
+        // 2. Flip X - funguje iba ak je šírka nepárna (NxN, NxP)
+        // podla ai je to zrkadlenie podla osi Y
+        if (wOdd) {
+            maps.add(generateMap(width, height, true, false, false));
+        }
+
+        // 3. Flip Y - funguje iba ak je výška nepárna (NxN, PxN)
+        // podla ai je to zrkadlenie podla osi X
+        if (hOdd) {
+            maps.add(generateMap(width, height, false, true, false));
+        }
+
+        // 4. Rotácia 180 (Flip X + Flip Y) - funguje VŽDY!
+        // Pre NxN (zloženie dvoch platných flipov) aj pre PxP (dva neplatné flipy sa vyrušia)
+        maps.add(generateMap(width, height, true, true, false));
+
+        // 5. Štvorcové plochy (ak w == h)
+        if (width == height) {
+            // Transpozícia mení x a y. Bude fungovať VŽDY,
+            // lebo (x + y) má rovnakú paritu ako (y + x)
+            maps.add(generateMap(width, height, false, false, true)); // Transpozícia
+            maps.add(generateMap(width, height, true, true, true));   // Anti-diagonála (Trans + 180 rot)
+
+            // 90 a 270 stupňové rotácie fungujú LEN pre NxN (Nepárny štvorec)
+            if (wOdd) {
+                maps.add(generateMap(width, height, true, false, true));  // Rotácia 90
+                maps.add(generateMap(width, height, false, true, true));  // Rotácia 270
+            }
+        }
+
         return maps.toArray(new int[0][]);
     }
 

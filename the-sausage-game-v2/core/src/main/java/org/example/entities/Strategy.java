@@ -6,8 +6,8 @@ package org.example.entities;
 
 import lombok.Data;
 import org.example.strategy_minimax.MoveGenerator;
+import org.example.strategy_minimax.SymmetryUtil;
 import org.example.utils.BitEncoder;
-import org.example.utils.SymmetryUtil;
 
 import java.io.*;
 import java.util.Set;
@@ -61,9 +61,11 @@ public class Strategy {
         long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
 
         // toto je dolezite - kvoli tomuto mozeme kanonizovat pri ukladani strategie
-        long canonicalGrid = SymmetryUtil.canonize(gridLong, boardX, boardY);
+        if (isCanonized) {
+            gridLong = SymmetryUtil.canonize(gridLong, boardX, boardY);
+        }
 
-        return loosingBoards.contains(canonicalGrid);
+        return loosingBoards.contains(gridLong);
     }
 
     public void writeStrategyToTxt(int x, int y) {

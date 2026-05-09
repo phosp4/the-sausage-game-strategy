@@ -6,7 +6,6 @@ import org.example.entities.Strategy;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
-import org.example.utils.SymmetryUtil;
 
 import java.util.HashSet;
 import java.util.Set;
