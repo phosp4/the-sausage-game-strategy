@@ -10,6 +10,7 @@ import org.example.engine.GameSession;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
+import org.example.strategy_minimax.CanonizeMode;
 import org.example.strategy_minimax.MinimaxBitboard;
 import org.example.strategy_minimax.MinimaxMode;
 
@@ -76,7 +77,7 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
         long start = System.nanoTime();
         System.out.println("INFO: Starting live calculation...");
         System.out.println("where winner is: " + knownWinnerNoPrune + " and isMaxPlayer is " + isMaxPlayer);
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23, CanonizeMode.TT_CANONIZE);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

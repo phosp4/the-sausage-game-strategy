@@ -53,7 +53,7 @@ public class BenchmarkMerania {
                     // tu treba spustit minimax pre zvysok plochy, ci vrati -1
                     mb = new MinimaxBitboard();
                     System.out.print(", board is: " + move0 + ", " + move1);
-                    int winner = mb.minimaxMemoStart(g, 0, false, Integer.MAX_VALUE, MinimaxMode.LIVE, true, 28);
+                    int winner = mb.minimaxMemoStart(g, 0, false, Integer.MAX_VALUE, MinimaxMode.LIVE, true, 28, CanonizeMode.NO_CANONIZE);
                     System.out.print(", result is " + winner);
                     if (winner == -1) {
                         System.out.println(", result is correct");

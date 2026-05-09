@@ -168,6 +168,16 @@ public class GameBoard implements Serializable {
         return true;
     }
 
+    public boolean isBoardEmpty() {
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     //    // <=> is full
     public boolean isBoardFull() {

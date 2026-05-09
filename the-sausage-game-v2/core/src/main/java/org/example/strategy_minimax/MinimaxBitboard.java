@@ -19,6 +19,7 @@ public class MinimaxBitboard {
     private int currentBoardY;
     private long[] allPossibleMoves;
     private TranspositionTable tt;
+    private CanonizeMode canonizeMode;
 
     // strategy - treba domysliet, ci tam ukladat move, lebo tu je move cela plocha...
     // najskor urobit funkciu BoardWithOneSausageToSausage
@@ -51,7 +52,7 @@ public class MinimaxBitboard {
     private int branchCounter;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
-        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28); // defaultne ho nepozname
+        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE); // defaultne ho nepozname
     }
 
     /**
@@ -63,10 +64,21 @@ public class MinimaxBitboard {
      * @param startWithMaximizer - toto je pre pripady, ked nehladame od zaciatku, teda od prazdnej plochy
      * @return
      */
-    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer, int ttSize) {
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer, int ttSize, CanonizeMode canonizeMode) {
 
         currentBoardX = gameBoard.getColumnsX();
         currentBoardY = gameBoard.getRowsY();
+
+        this.canonizeMode = canonizeMode;
+        if (currentBoardX % 2 == 0 || currentBoardY % 2 == 0) {
+            System.out.println("Current implementation of canonization does not support even board dimensions.");
+            this.canonizeMode = CanonizeMode.NO_CANONIZE;
+        }
+        // toto uz mam odskusane, nefungovalo by to - neprechadza vsetky tahy
+        if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE) && !gameBoard.isBoardEmpty()) {
+            System.out.println("The board is not empty, EXTRA_CANONIZE mode will not work. Switching to TT_CANONIZE");
+            canonizeMode = CanonizeMode.TT_CANONIZE;
+        }
 
         // possible moves
         // just for an empty (or initial) grid - all options
@@ -157,19 +169,23 @@ public class MinimaxBitboard {
 
     private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer, int depth) {
 
-        long canonicalBoard = SymmetryUtil.canonize(gameBoard, currentBoardX, currentBoardY);
+        long canonicalBoard = gameBoard;
+        if (!canonizeMode.equals(CanonizeMode.NO_CANONIZE)) {
+            canonicalBoard = SymmetryUtil.canonize(gameBoard, currentBoardX, currentBoardY);
+        }
 
 //        // doplnok na behu v threade
 //        if (Thread.currentThread().isInterrupted()) {
 //            return -2; // specialna hodnota na oznacenie prerusenia
 //        }
 
-//        if (depth == 1 && !isMaximizingPlayer) {
-//            branchCounter++;
-//            System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
-//            System.out.println("Duration: " + (System.nanoTime() - startTime));
-//            startTime = System.nanoTime();
-//        }
+        // toto ma zmysel, len ak v prvej vrstve prehladavame vsetko
+        if (depth == 1 && !isMaximizingPlayer && knownWinner == -1) {
+            branchCounter++;
+            System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
+            System.out.println("Duration: " + (System.nanoTime() - startTime));
+            startTime = System.nanoTime();
+        }
 
         nodesPrintCount++;
         if (nodesPrintCount > 1_000_000_000) {
@@ -213,6 +229,11 @@ public class MinimaxBitboard {
 
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
+                    if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE)) {
+                        // kanonizujeme aj samotnu plochu
+                        childGameBoard = SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY);
+                    }
+
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, false, depth + 1);
 
@@ -247,6 +268,11 @@ public class MinimaxBitboard {
 
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
+                    if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE)) {
+                        // kanonizujeme aj samotnu plochu
+                        childGameBoard = SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY);
+                    }
+
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, true, depth + 1);
 
@@ -275,6 +301,7 @@ public class MinimaxBitboard {
         tt.put(canonicalBoard, returnVal);
 
         // saving the strategy here
+        // ukladame kanonizovanu, podla toho hra bot
         if (depth <= maxDepthSaveToSave) {
             // teda plocha, do ktorej sa chce dostat P1
             if (returnVal == 1 && knownWinner == 1 && !isMaximizingPlayer) {

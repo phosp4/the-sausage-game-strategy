@@ -30,13 +30,6 @@ public class Strategy {
         this(x, y, precalculatedMoves, isForFirstPlayer, false);
     }
 
-    public boolean isThisPositionLoosing(GameBoard g) {
-        long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
-        long canonicalGrid = SymmetryUtil.canonize(gridLong, boardX, boardY);
-
-        return loosingBoards.contains(canonicalGrid);
-    }
-
     public Strategy(int x, int y, Set<Long> precalculatedMoves, boolean isForFirstPlayer, boolean isCanonized) {
         boardX = x;
         boardY = y;
@@ -62,14 +55,15 @@ public class Strategy {
 
         System.err.println("cannot find a valid move");
         return null;
+    }
 
-//        Long encodedMove = precalculatedMoves.get(gridLong);
-//
-//        if (encodedMove != null) {
-//            return BitEncoder.decodeSausageWithOffsets(encodedMove);
-//        } else {
-//            throw new StrategyMoveNotFoundException(g);
-//        }
+    public boolean isThisPositionLoosing(GameBoard g) {
+        long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
+
+        // toto je dolezite - kvoli tomuto mozeme kanonizovat pri ukladani strategie
+        long canonicalGrid = SymmetryUtil.canonize(gridLong, boardX, boardY);
+
+        return loosingBoards.contains(canonicalGrid);
     }
 
     public void writeStrategyToTxt(int x, int y) {
