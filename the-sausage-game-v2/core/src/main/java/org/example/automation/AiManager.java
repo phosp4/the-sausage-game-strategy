@@ -27,6 +27,10 @@ public class AiManager {
         return aiPlayers.containsKey(player);
     }
 
+    public boolean isSomePlayerAi() {
+        return !aiPlayers.isEmpty();
+    }
+
     /**
      * executes move for a current player to move
      * zmena - ctrl odstraniť, nech to len vracia klobásku

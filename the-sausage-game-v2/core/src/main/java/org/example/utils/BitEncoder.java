@@ -42,10 +42,10 @@ public class BitEncoder {
         return bitboard;
     }
 
-    public static long sausageObjectToLongBitboard(Sausage s, Sausage[][] grid) {
+    public static long sausageObjectToLongBitboard(Sausage s, int x, int y) {
         long moveBitboard = 0L;
-        int height = grid.length;
-        int width = grid[0].length;
+        int height = y;
+        int width = x;
 
         for (Point p : s.getThreePoints()) {
             int idx = p.getY() * width + p.getX();

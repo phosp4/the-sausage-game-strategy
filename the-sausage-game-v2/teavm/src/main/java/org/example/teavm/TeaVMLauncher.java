@@ -31,12 +31,12 @@ public class TeaVMLauncher {
 
     // Táto anotácia spôsobí, že sa v JavaScripte vytvorí funkcia window.startLibgdxGame()
     @JSExport()
-    public static void startLibgdxGame(int width, int height, String mode) {
+    public static void startLibgdxGame(int width, int height, boolean isAi) {
         // Uistíme sa, že hra je už inicializovaná
         if (GdxGame.instance != null) {
             // Použijeme postRunnable pre bezpečnú synchronizáciu s vykresľovacím vláknom LibGDX
             Gdx.app.postRunnable(() -> {
-                GdxGame.instance.startNewGame(width, height, mode);
+                GdxGame.instance.startNewGame(width, height, isAi);
             });
         } else {
             System.err.println("GdxGame ešte nie je inicializovaná! Skúste neskôr...");

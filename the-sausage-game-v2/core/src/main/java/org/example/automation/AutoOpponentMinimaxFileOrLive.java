@@ -10,6 +10,7 @@ import org.example.engine.GameSession;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
+import org.example.strategy_minimax.CanonizeMode;
 import org.example.strategy_minimax.MinimaxBitboard;
 import org.example.strategy_minimax.MinimaxMode;
 
@@ -49,14 +50,18 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
         }
 
         Sausage s = movesFromLive.getBestMoveFor(g);
-        System.out.println("INFO: Move " + s + "loaded from live calculation.");
+        if (s != null) {
+            System.out.println("INFO: Move " + s + " loaded from live calculation.");
+        } else {
+            System.err.println("The move is null, problem..");
+        }
         return s;
     }
 
     private void initiateLiveMode(GameBoard gameBoard, boolean isFirstWinner) {
         if (movesFromLive == null) {
             Set<Long> moves = getLiveStrategy(gameBoard, isFirstWinner ? 1 : -1);
-            movesFromLive = new Strategy(moves, isFirstWinner);
+            movesFromLive = new Strategy(gameBoard.getColumnsX(), gameBoard.getRowsY(), moves, isFirstWinner, true); // todo mozno nejako tento fakt nacitat zo suboru
             System.out.println("Live strategy loaded!");
         } else {
             System.out.println("Live strategy was loaded already!");
@@ -71,8 +76,8 @@ public class AutoOpponentMinimaxFileOrLive implements AutoOpponent {
 
         long start = System.nanoTime();
         System.out.println("INFO: Starting live calculation...");
-        System.out.println("where winner is: " + knownWinnerNoPrune);
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer);
+        System.out.println("where winner is: " + knownWinnerNoPrune + " and isMaxPlayer is " + isMaxPlayer);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, true, Integer.MAX_VALUE, MinimaxMode.LIVE, isMaxPlayer, 23, CanonizeMode.TT_CANONIZE);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());

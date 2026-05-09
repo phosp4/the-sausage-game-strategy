@@ -47,6 +47,9 @@ public class CliInputHandler {
         }
     }
 
+    /**
+     * pozadovany format je x1,y1 x2,y2 x3,y3
+     */
     public static Sausage spracujRiadokVstupu(String input) {
         List<Point> points = new ArrayList<>();
         String[] parts = input.split(" ");

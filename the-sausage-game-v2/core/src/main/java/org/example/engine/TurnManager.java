@@ -4,8 +4,8 @@ import lombok.Getter;
 import org.example.entities.Player;
 
 public class TurnManager {
-    private Player player1;
-    private Player player2;
+    @Getter private Player player1;
+    @Getter private Player player2;
     @Getter private boolean isPlayer1Turn;
 
     public TurnManager(Player player1, Player player2) {

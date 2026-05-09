@@ -9,13 +9,17 @@ import org.example.entities.Point;
 import org.example.entities.Sausage;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
+import org.example.utils.SymmetryUtil;
 
 import java.util.*;
 
 public class MinimaxBitboard {
 
+    private int currentBoardX;
+    private int currentBoardY;
     private long[] allPossibleMoves;
     private TranspositionTable tt;
+    private CanonizeMode canonizeMode;
 
     // strategy - treba domysliet, ci tam ukladat move, lebo tu je move cela plocha...
     // najskor urobit funkciu BoardWithOneSausageToSausage
@@ -48,7 +52,7 @@ public class MinimaxBitboard {
     private int branchCounter;
 
     public int minimaxMemoStart(GameBoard gameBoard) {
-        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true); // defaultne ho nepozname
+        return minimaxMemoStart(gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE); // defaultne ho nepozname
     }
 
     /**
@@ -60,7 +64,21 @@ public class MinimaxBitboard {
      * @param startWithMaximizer - toto je pre pripady, ked nehladame od zaciatku, teda od prazdnej plochy
      * @return
      */
-    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer) {
+    public int minimaxMemoStart(GameBoard gameBoard, int winner, boolean saveStrategy, int maxDepthSaveToSave, MinimaxMode minimaxMode, boolean startWithMaximizer, int ttSize, CanonizeMode canonizeMode) {
+
+        currentBoardX = gameBoard.getColumnsX();
+        currentBoardY = gameBoard.getRowsY();
+
+        this.canonizeMode = canonizeMode;
+        if (currentBoardX % 2 == 0 || currentBoardY % 2 == 0) {
+            System.out.println("Current implementation of canonization does not support even board dimensions.");
+            this.canonizeMode = CanonizeMode.NO_CANONIZE;
+        }
+        // toto uz mam odskusane, nefungovalo by to - neprechadza vsetky tahy
+        if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE) && !gameBoard.isBoardEmpty()) {
+            System.out.println("The board is not empty, EXTRA_CANONIZE mode will not work. Switching to TT_CANONIZE");
+            canonizeMode = CanonizeMode.TT_CANONIZE;
+        }
 
         // possible moves
         // just for an empty (or initial) grid - all options
@@ -79,15 +97,15 @@ public class MinimaxBitboard {
         allPossibleMoves = new long[allPossibleMovesObjects.size()];
         int i = 0;
         for (Sausage s : allPossibleMovesObjects) {
-            allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, gameBoard.getGrid());
+            allPossibleMoves[i] = BitEncoder.sausageObjectToLongBitboard(s, currentBoardX, currentBoardY);
 //            System.out.println(CliRendererUtil.bitboardToString(allPossibleMoves[i], gameBoard.getColumnsX(), gameBoard.getRowsY()));
             i++;
         }
         long bitGameBoard = BitEncoder.sausageGridToLongBitboard(gameBoard.getGrid());// konvertovat grid na long
 
-        // treba to tu, aby sa to kazdym volanim resetovalo
-        // na perune by to asi potiahlo aj 32
-        tt = new TranspositionTable(28);
+        // kvoli prehliadacu treba nechat nizsie - 28 to nezvladalo
+        // 23 vyzera byt ok spot
+        tt = new TranspositionTable(ttSize);
         ttCallsCount = 0;
 
         this.maxDepthSaveToSave = maxDepthSaveToSave;
@@ -140,7 +158,7 @@ public class MinimaxBitboard {
                 finalSetOfMoves = ((SetStrategyWriter) strategyP2Writer).getFullStrategy();
                 System.out.println("Strategy for player 2 saved as set!");
             }
-            if (finalSetOfMoves == null) {
+            if (finalSetOfMoves == null && saveStrategy) {
                 System.err.println("Set of moves equals null, something is wrong!");
             }
         }
@@ -150,12 +168,18 @@ public class MinimaxBitboard {
 
     private int minimaxMemo(long gameBoard, boolean isMaximizingPlayer, int depth) {
 
+        long canonicalBoard = gameBoard;
+        if (!canonizeMode.equals(CanonizeMode.NO_CANONIZE)) {
+            canonicalBoard = SymmetryUtil.canonize(gameBoard, currentBoardX, currentBoardY);
+        }
+
 //        // doplnok na behu v threade
 //        if (Thread.currentThread().isInterrupted()) {
 //            return -2; // specialna hodnota na oznacenie prerusenia
 //        }
 
-        if (depth == 1 && !isMaximizingPlayer) {
+        // toto ma zmysel, len ak v prvej vrstve prehladavame vsetko
+        if (depth == 1 && !isMaximizingPlayer && knownWinner == -1) {
             branchCounter++;
             System.out.println("BRANCHES on level 1: " + branchCounter + "/" + allPossibleMoves.length);
             System.out.println("Duration: " + (System.nanoTime() - startTime));
@@ -163,17 +187,17 @@ public class MinimaxBitboard {
         }
 
         nodesPrintCount++;
-        if (nodesPrintCount > 100_000_000) {
+        if (nodesPrintCount > 1_000_000_000) {
             System.out.println("winner: ??");
             System.out.println("tt calls: " + getTtCallsCount());
             System.out.println("max calls: " + getNodesInvestigatedMax());
             System.out.println("min calls: " + getNodesInvestigatedMin());
             System.out.println("calls together: " + (nodesInvestigatedMin + nodesInvestigatedMax));
-            System.out.println("tt overwrites: " + getTtOverwrites());
+            System.out.println("tt overwrites: " + ttOverwrites);
             System.out.println("strategy P1 lines: " + getStrategyP1LinesCount());
-            System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("strategy P1 size: " + ((getStrategyP1LinesCount() * 64) / 8) / 1_000_000.0 + " MB");
             System.out.println("strategy P2 lines: " + getStrategyP2LinesCount());
-            System.out.println("strategy P2 size: " + ((getStrategyP2LinesCount() * 128) / 8) / 1_000_000.0 + " MB");
+            System.out.println("strategy P2 size: " + ((getStrategyP2LinesCount() * 64) / 8) / 1_000_000.0 + " MB");
             System.out.println("________________________________________________");
 
             nodesPrintCount = 0;
@@ -186,9 +210,9 @@ public class MinimaxBitboard {
             nodesInvestigatedMin++;
 
         // transposition table
-        if (tt.contains(gameBoard)) {
+        if (tt.contains(canonicalBoard)) {
             ttCallsCount++;
-            return tt.getValue(gameBoard);
+            return tt.getValue(canonicalBoard);
         }
 
         int returnVal;
@@ -203,6 +227,11 @@ public class MinimaxBitboard {
 //                    if (nodesInvestigated > 1_000_000_000) return -2;
 
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
+
+                    if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE)) {
+                        // kanonizujeme aj samotnu plochu
+                        childGameBoard = SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY);
+                    }
 
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, false, depth + 1);
@@ -238,6 +267,11 @@ public class MinimaxBitboard {
 
                     long childGameBoard = BitEncoder.addSausage(gameBoard, moveInBoard);
 
+                    if (canonizeMode.equals(CanonizeMode.EXTRA_CANONIZE)) {
+                        // kanonizujeme aj samotnu plochu
+                        childGameBoard = SymmetryUtil.canonize(childGameBoard, currentBoardX, currentBoardY);
+                    }
+
                     atLeastOne = true;
                     int value = minimaxMemo(childGameBoard, true, depth + 1);
 
@@ -262,20 +296,21 @@ public class MinimaxBitboard {
         }
 
         // saving to TT
-        if (tt.contains(gameBoard)) ttOverwrites++;
-        tt.put(gameBoard, returnVal);
+        if (tt.contains(canonicalBoard)) ttOverwrites++;
+        tt.put(canonicalBoard, returnVal);
 
         // saving the strategy here
+        // ukladame kanonizovanu, podla toho hra bot
         if (depth <= maxDepthSaveToSave) {
             // teda plocha, do ktorej sa chce dostat P1
             if (returnVal == 1 && knownWinner == 1 && !isMaximizingPlayer) {
                 strategyP1LinesCount++;
-                if (saveStrategy) strategyP1Writer.put(gameBoard);
+                if (saveStrategy) strategyP1Writer.put(canonicalBoard);
             }
             // teda plocha, do ktorej sa chce dostat P2
             if (returnVal == -1 && knownWinner == -1 && isMaximizingPlayer) {
                 strategyP2LinesCount++;
-                if (saveStrategy) strategyP2Writer.put(gameBoard);
+                if (saveStrategy) strategyP2Writer.put(canonicalBoard);
             }
         }
 

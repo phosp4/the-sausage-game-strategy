@@ -3,6 +3,8 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.utils.*;
+import org.example.utils.SymmetryUtil;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliInputHandler;
 import org.example.utils.CliRendererUtil;
@@ -26,24 +28,33 @@ public class MinimaxLaunchers {
 //        );
 //        getAndSaveStrategyForBoardBINUpToNxN(7);
 
-        // toto sa zda byt celkom zvladnutelne
+//        GameBoard g = new GameBoard(9,7);
+
+//         g.addSausage(new Sausage(new Point(0, 0), new Point(1, 1), new Point(2, 2)));
+//         g.addSausage(new Sausage(new Point(6, 2), new Point(7, 3), new Point(8, 4)));
+//         g.addSausage(new Sausage(new Point(2, 4), new Point(3, 5), new Point(4, 6)));
+//
+//
+//        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+//            g,
+//            -1,
+//            true,
+//            Integer.MAX_VALUE,
+//            MinimaxMode.LIVE,
+//            false
+//        );
+//        nineToSeverTester();
+
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
             9,
-            7,
-            -1,
-            true,
+            6,
             1,
+            true,
+            Integer.MAX_VALUE,
             MinimaxMode.DATABASE,
-            true
+            true,
+            28, CanonizeMode.TT_CANONIZE
         );
-//        if (strategy != null) {
-//            System.out.println(strategy.size());
-//        }
-
-//         4511298088140912L, 289446734135296L, 1132252180299840L, 4412828555268L, 1585933516912L
-//        System.out.println(CliRendererUtil.bitboardToString(284L, 5, 2));
-
-//        nineToSeverTester();
     }
 
     public static void nineToSeverTester() {
@@ -58,16 +69,17 @@ public class MinimaxLaunchers {
             true,
             Integer.MAX_VALUE,
             MinimaxMode.LIVE,
-            false
+            false,
+            28, CanonizeMode.TT_CANONIZE
         );
 
         Set<Sausage> moves = MoveGenerator.getPossibleMoves(g.getGrid());
         for (Sausage s : moves) {
             g.addSausage(s);
-            long board = BitEncoder.sausageGridToLongBitboard(g.getGrid());
-            if (strategy.contains(board)) {
+            long canonized = SymmetryUtil.canonize(BitEncoder.sausageGridToLongBitboard(g.getGrid()), 9, 7);
+            if (strategy.contains(canonized)) {
                 System.out.println("found a right move: ");
-                System.out.println(board);
+                System.out.println(canonized);
             }
             g.removeSausage(s);
         }
@@ -88,7 +100,7 @@ public class MinimaxLaunchers {
             true,
             Integer.MAX_VALUE,
             MinimaxMode.LIVE,
-            true
+            true, 28, CanonizeMode.TT_CANONIZE
         );
         System.out.println(moves.size());
     }
@@ -100,9 +112,9 @@ public class MinimaxLaunchers {
             for (int y = 1; y <= n; y++) {
                 System.out.println("BOARD: " + x + "x" + y);
                 if (truth[y-1][x-1] == 1) {
-                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
+                    getAndSaveStrategyForBoardBIN(x,y, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.NO_CANONIZE);
                 } else if (truth[y-1][x-1] == -1) {
-                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true);
+                    getAndSaveStrategyForBoardBIN(x,y, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.NO_CANONIZE);
                 } else {
                     System.out.println("Skipping board " + x + "x" + y);
                 }
@@ -179,9 +191,9 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(int x, int y, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax, int ttSize, CanonizeMode cm) {
         GameBoard g = new GameBoard(x, y);
-        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
+        return getAndSaveStrategyForBoardBIN(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax, ttSize, cm);
     }
 
     /**
@@ -194,11 +206,11 @@ public class MinimaxLaunchers {
      * @param minimaxMode
      * @return
      */
-    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax) {
+    public static Set<Long> getAndSaveStrategyForBoardBIN(GameBoard g, int knownWinnerNoPrune, boolean save, int maxDepth, MinimaxMode minimaxMode, boolean startWithMax, int ttSize, CanonizeMode cm) {
         MinimaxBitboard mr = new MinimaxBitboard();
 
         long start = System.nanoTime();
-        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax);
+        int winner = mr.minimaxMemoStart(g, knownWinnerNoPrune, save, maxDepth, minimaxMode, startWithMax, ttSize, cm);
         long end = System.nanoTime();
         long duration = end - start;
         long calls = (mr.getNodesInvestigatedMin() + mr.getNodesInvestigatedMax());
