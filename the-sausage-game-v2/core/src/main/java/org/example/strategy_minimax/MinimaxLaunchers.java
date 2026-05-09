@@ -46,9 +46,9 @@ public class MinimaxLaunchers {
 //        nineToSeverTester();
 
         Set<Long> strategy = getAndSaveStrategyForBoardBIN(
-            9,
             6,
-            1,
+            5,
+            0,
             true,
             Integer.MAX_VALUE,
             MinimaxMode.DATABASE,

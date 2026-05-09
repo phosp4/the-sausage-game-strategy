@@ -125,7 +125,7 @@ public class BenchmarkMerania {
         long[] allPossibleMoves = new long[allPossibleMovesObjects.size()];
         int ii = 0;
         for (Sausage s : allPossibleMovesObjects) {
-            allPossibleMoves[ii] = BitEncoder.sausageObjectToLongBitboard(s, g.getGrid());
+            allPossibleMoves[ii] = BitEncoder.sausageObjectToLongBitboard(s, x, y);
             ii++;
         }
 
