@@ -114,6 +114,36 @@ public class BenchmarkMerania {
         System.out.println("total found count: " + totalFoundCount);
     }
 
+    public static void zistiPocetKombinaciiPre9x7() {
+        int x = 9;
+        int y = 7;
+        GameBoard g = new GameBoard(x,y);
+        Set<Sausage> allPossibleMovesObjects = MoveGenerator.getPossibleMoves(g.getGrid());
+
+        int size = 0;
+
+        long[] allPossibleMoves = new long[allPossibleMovesObjects.size()];
+        int ii = 0;
+        for (Sausage s : allPossibleMovesObjects) {
+            allPossibleMoves[ii] = BitEncoder.sausageObjectToLongBitboard(s, g.getGrid());
+            ii++;
+        }
+
+        for (int i = 0; i < allPossibleMoves.length; i++) {
+            long s1 = allPossibleMoves[i];
+            for (int j = i+1; j<allPossibleMoves.length; j++) {
+                long s2 = allPossibleMoves[j];
+                if (((s1 & s2)) == 0L) {
+//                    System.out.println(CliRendererUtil.bitboardToString(s1, x, y));
+//                    System.out.println(CliRendererUtil.bitboardToString(s2, x, y));
+//                    System.out.println("-------------------------------------------");
+                    size++;
+                }
+            }
+        }
+        System.out.println(size);
+    }
+
     public static Set<Long> canonicalFormTester(int x, int y) {
 
         GameBoard g = new GameBoard(x,y);

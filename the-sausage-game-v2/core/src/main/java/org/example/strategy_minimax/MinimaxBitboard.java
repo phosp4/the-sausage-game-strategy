@@ -107,7 +107,6 @@ public class MinimaxBitboard {
         // 23 vyzera byt ok spot
         tt = new TranspositionTable(ttSize);
         ttCallsCount = 0;
-        // test comment
 
         this.maxDepthSaveToSave = maxDepthSaveToSave;
         String depthText = maxDepthSaveToSave == Integer.MAX_VALUE ? "FULL" : String.valueOf(maxDepthSaveToSave);
