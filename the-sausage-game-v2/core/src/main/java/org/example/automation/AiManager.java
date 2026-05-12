@@ -6,6 +6,7 @@ import org.example.entities.GameBoard;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.exceptions.StrategyMoveNotFoundException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class AiManager {
      * executes move for a current player to move
      * zmena - ctrl odstraniť, nech to len vracia klobásku
      */
-    public Sausage getAiMoveForPlayer(Player player, GameBoard g) {
+    public Sausage getAiMoveForPlayer(Player player, GameBoard g) throws StrategyMoveNotFoundException {
         AutoOpponent agent = aiPlayers.get(player);
 
         if (agent != null) {

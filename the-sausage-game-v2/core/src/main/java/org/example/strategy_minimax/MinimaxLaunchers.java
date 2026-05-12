@@ -3,16 +3,12 @@ package org.example.strategy_minimax;
 import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
-import org.example.utils.*;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliInputHandler;
-import org.example.utils.CliRendererUtil;
 import org.example.utils.FileHandlingUtil;
 
 import java.util.Set;
 import java.util.concurrent.*;
-
-import static org.example.strategy_minimax.BenchmarkMerania.saveStrategyFileAsTxt;
 
 public class MinimaxLaunchers {
 
@@ -44,15 +40,27 @@ public class MinimaxLaunchers {
 //        );
 //        nineToSeverTester();
 
-        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
-            6,
-            5,
-            0,
-            true,
-            Integer.MAX_VALUE,
-            MinimaxMode.DATABASE,
-            true,
-            28, CanonizeMode.TT_CANONIZE
+//        Set<Long> strategy = getAndSaveStrategyForBoardBIN(
+//            6,
+//            5,
+//            0,
+//            true,
+//            Integer.MAX_VALUE,
+//            MinimaxMode.DATABASE,
+//            true,
+//            28, CanonizeMode.TT_CANONIZE
+//        );
+
+//        getJustResultsForBoardsUpToNxN(56);
+//        getStrategiesForBoardsUpToNxN(55);
+//        getStrategiesUpToDepthForBoardsUpToNxN(55, 3);
+
+        MinimaxBitboard mb = new MinimaxBitboard();
+//        mb.minimaxMemoStart(
+//            new GameBoard(6,6), 1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+//        );
+        mb.minimaxMemoStart(
+            new GameBoard(6,7), -1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
         );
     }
 
@@ -121,15 +129,22 @@ public class MinimaxLaunchers {
         }
     }
 
-    public static void getResultAndSaveStrategyForBoardsUpToNxN(int n) {
+    /**
+     * the official one for final strategies
+     */
+    public static void getStrategiesUpToDepthForBoardsUpToNxN(int n, int depth) {
         MinimaxBitboard mb;
         GameBoard gameBoard;
 
         long[][] winnersTable = new long[n][n];
         long[][] minCallsTable = new long[n][n];
         long[][] maxCallsTable = new long[n][n];
+        long[][] totalCallsTable = new long[n][n];
         long[][] ttCallsTable = new long[n][n];
         long[][] runDurationNano = new long[n][n];
+        long[][] strategyLinesCount = new long[n][n];
+
+        int[][] truth = FileHandlingUtil.loadStrategiesTruthCsvFromFile();
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -138,7 +153,7 @@ public class MinimaxLaunchers {
 
                 System.out.println("Board: " + x + "x" + y);
 
-                // do 64 policok
+                // do 64 policok napr
                 if (x*y > n) {
                     System.out.println("Skipping...");
                     continue;
@@ -150,7 +165,22 @@ public class MinimaxLaunchers {
 
                 System.out.println("searching for strategy...");
                 long start = System.nanoTime();
-                long winner = (long) mb.minimaxMemoStart(gameBoard);
+
+                int winner = 0;
+                int expectedWinner = truth[j][i];
+
+                if (expectedWinner == 1) {
+                    winner = mb.minimaxMemoStart(
+                        gameBoard, 1, true, depth, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+                    );
+                } else if (expectedWinner == -1) {
+                    winner = mb.minimaxMemoStart(
+                        gameBoard, -1, true, depth, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+                    );
+                } else {
+                    System.out.println("Skipping board " + x + "x" + y);
+                }
+
                 long end = System.nanoTime();
                 long duration = end - start;
 
@@ -158,6 +188,175 @@ public class MinimaxLaunchers {
                 winnersTable[i][j] = winner;
                 maxCallsTable[i][j] = mb.getNodesInvestigatedMax();
                 minCallsTable[i][j] = mb.getNodesInvestigatedMin();
+                totalCallsTable[i][j] = mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin();
+                ttCallsTable[i][j] = mb.getTtCallsCount();
+                runDurationNano[i][j] = duration;
+
+                if (expectedWinner == 1) {
+                    strategyLinesCount[i][j] = mb.getStrategyP1LinesCount();
+                } else if (expectedWinner == -1) {
+                    strategyLinesCount[i][j] = mb.getStrategyP2LinesCount();
+                }
+
+                // results write
+                System.out.println("Winner: " + winner);
+                System.out.println("number of TT calls: " + mb.getTtCallsCount());
+                System.out.println("number of nodes investigated (P1): " + mb.getNodesInvestigatedMax());
+                System.out.println("number of nodes investigated (P2): " + mb.getNodesInvestigatedMin());
+                System.out.println("total nodes investigated: " + (mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin()));
+                System.out.println("total duration (seconds): " + TimeUnit.NANOSECONDS.toSeconds(duration));
+                System.out.println("Strategy (P1 or P2) lines count: " + strategyLinesCount[i][j]);
+                System.out.println("----------");
+            }
+        }
+
+        // save results
+        FileHandlingUtil.writeArrayToCSV(winnersTable, "strategy_search_depth" + depth + "_upto" + n + "_winners_table.csv");
+        FileHandlingUtil.writeArrayToCSV(maxCallsTable, "strategy_search_depth" + depth + "_upto" + n + "_max_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(minCallsTable, "strategy_search_depth" + depth + "_upto" + n + "_min_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(totalCallsTable, "strategy_search_depth" + depth + "_upto" + n + "_total_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(ttCallsTable, "strategy_search_depth" + depth + "_upto" + n + "_tt_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(runDurationNano, "strategy_search_depth" + depth + "_upto" + n + "_duration_nano_table.csv");
+        FileHandlingUtil.writeArrayToCSV(strategyLinesCount, "strategy_search_depth" + depth + "_upto" + n + "_strategy_lines_count.csv");
+    }
+
+
+    /**
+     * the most official one
+     */
+    public static void getStrategiesForBoardsUpToNxN(int n) {
+        MinimaxBitboard mb;
+        GameBoard gameBoard;
+
+        long[][] winnersTable = new long[n][n];
+        long[][] minCallsTable = new long[n][n];
+        long[][] maxCallsTable = new long[n][n];
+        long[][] totalCallsTable = new long[n][n];
+        long[][] ttCallsTable = new long[n][n];
+        long[][] runDurationNano = new long[n][n];
+        long[][] strategyLinesCount = new long[n][n];
+
+        int[][] truth = FileHandlingUtil.loadStrategiesTruthCsvFromFile();
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int x = i+1;
+                int y = j+1;
+
+                System.out.println("Board: " + x + "x" + y);
+
+                // do 64 policok napr
+                if (x*y > n) {
+                    System.out.println("Skipping...");
+                    continue;
+                }
+
+                // the run
+                mb = new MinimaxBitboard();
+                gameBoard = new GameBoard(x, y); // one based indexing
+
+                System.out.println("searching for strategy...");
+                long start = System.nanoTime();
+
+                int winner = 0;
+                int expectedWinner = truth[j][i];
+
+                if (expectedWinner == 1) {
+                    winner = mb.minimaxMemoStart(
+                        gameBoard, 1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+                    );
+                } else if (expectedWinner == -1) {
+                    winner = mb.minimaxMemoStart(
+                        gameBoard, -1, true, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+                    );
+                } else {
+                    System.out.println("Skipping board " + x + "x" + y);
+                }
+
+                long end = System.nanoTime();
+                long duration = end - start;
+
+                // results
+                winnersTable[i][j] = winner;
+                maxCallsTable[i][j] = mb.getNodesInvestigatedMax();
+                minCallsTable[i][j] = mb.getNodesInvestigatedMin();
+                totalCallsTable[i][j] = mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin();
+                ttCallsTable[i][j] = mb.getTtCallsCount();
+                runDurationNano[i][j] = duration;
+
+                if (expectedWinner == 1) {
+                    strategyLinesCount[i][j] = mb.getStrategyP1LinesCount();
+                } else if (expectedWinner == -1) {
+                    strategyLinesCount[i][j] = mb.getStrategyP2LinesCount();
+                }
+
+                // results write
+                System.out.println("Winner: " + winner);
+                System.out.println("number of TT calls: " + mb.getTtCallsCount());
+                System.out.println("number of nodes investigated (P1): " + mb.getNodesInvestigatedMax());
+                System.out.println("number of nodes investigated (P2): " + mb.getNodesInvestigatedMin());
+                System.out.println("total nodes investigated: " + (mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin()));
+                System.out.println("total duration (seconds): " + TimeUnit.NANOSECONDS.toSeconds(duration));
+                System.out.println("Strategy (P1 or P2) lines count: " + strategyLinesCount[i][j]);
+                System.out.println("----------");
+            }
+        }
+
+        // save results
+        FileHandlingUtil.writeArrayToCSV(winnersTable, "strategy_search_full" + n + "_winners_table.csv");
+        FileHandlingUtil.writeArrayToCSV(maxCallsTable, "strategy_search_full" + n + "_max_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(minCallsTable, "strategy_search_full" + n + "_min_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(totalCallsTable, "strategy_search_full" + n + "_total_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(ttCallsTable, "strategy_search_full" + n + "_tt_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(runDurationNano, "strategy_search_full" + n + "_duration_nano_table.csv");
+        FileHandlingUtil.writeArrayToCSV(strategyLinesCount, "strategy_search_full" + n + "_strategy_lines_count.csv");
+    }
+
+    /**
+     * the most official one
+     * @param n
+     */
+    public static void getJustResultsForBoardsUpToNxN(int n) {
+        MinimaxBitboard mb;
+        GameBoard gameBoard;
+
+        long[][] winnersTable = new long[n][n];
+        long[][] minCallsTable = new long[n][n];
+        long[][] maxCallsTable = new long[n][n];
+        long[][] totalCallsTable = new long[n][n];
+        long[][] ttCallsTable = new long[n][n];
+        long[][] runDurationNano = new long[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int x = i+1;
+                int y = j+1;
+
+                System.out.println("Board: " + x + "x" + y);
+
+                // do 64 policok napr
+                if (x*y > n) {
+                    System.out.println("Skipping...");
+                    continue;
+                }
+
+                // the run
+                mb = new MinimaxBitboard();
+                gameBoard = new GameBoard(x, y); // one based indexing
+
+                System.out.println("searching for strategy...");
+                long start = System.nanoTime();
+//                long winner = (long) mb.minimaxMemoStart(gameBoard);
+                int winner = mb.minimaxMemoStart(
+                    gameBoard, 0, false, Integer.MAX_VALUE, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE);
+                long end = System.nanoTime();
+                long duration = end - start;
+
+                // results
+                winnersTable[i][j] = winner;
+                maxCallsTable[i][j] = mb.getNodesInvestigatedMax();
+                minCallsTable[i][j] = mb.getNodesInvestigatedMin();
+                totalCallsTable[i][j] = mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin();
                 ttCallsTable[i][j] = mb.getTtCallsCount();
                 runDurationNano[i][j] = duration;
 
@@ -166,6 +365,7 @@ public class MinimaxLaunchers {
                 System.out.println("number of TT calls: " + mb.getTtCallsCount());
                 System.out.println("number of nodes investigated (P1): " + mb.getNodesInvestigatedMax());
                 System.out.println("number of nodes investigated (P2): " + mb.getNodesInvestigatedMin());
+                System.out.println("total nodes investigated: " + mb.getNodesInvestigatedMax() + mb.getNodesInvestigatedMin());
                 System.out.println("total duration (seconds): " + TimeUnit.NANOSECONDS.toSeconds(duration));
                 System.out.println("----------");
             }
@@ -175,6 +375,7 @@ public class MinimaxLaunchers {
         FileHandlingUtil.writeArrayToCSV(winnersTable, "full" + n + "_winners_table.csv");
         FileHandlingUtil.writeArrayToCSV(maxCallsTable, "full" + n + "_max_calls_table.csv");
         FileHandlingUtil.writeArrayToCSV(minCallsTable, "full" + n + "_min_calls_table.csv");
+        FileHandlingUtil.writeArrayToCSV(totalCallsTable, "full" + n + "_total_calls_table.csv");
         FileHandlingUtil.writeArrayToCSV(ttCallsTable, "full" + n + "_tt_calls_table.csv");
         FileHandlingUtil.writeArrayToCSV(runDurationNano, "full" + n + "_duration_nano_table.csv");
     }

@@ -29,12 +29,13 @@ public class MenuScreen implements Screen {
 
     // Hodnoty pre hru
     private final int MIN_SIZE = 1;
-    private final int MAX_SIZE = 32;
+    private final int MAX_SIZE = 55;
     // TU SI NASTAV MAXIMÁLNU VEĽKOSŤ PRE AI (počet políčok X * Y)
     // Napríklad 8x8 = 64. Ak máš iné limity (napr. max obvod), uprav metódu validateSettings()
-    private final int MAX_AI_AREA = 63;
+    private final int MAX_AI_AREA = 55;
     private boolean darkMode = true;
     private Color assetsColor;
+    private Color secondaryAssetsColor = Color.DARK_GRAY; // pouzite na male rychle sipky
 
     private int gridX;
     private int gridY;
@@ -156,21 +157,40 @@ public class MenuScreen implements Screen {
         Table table = new Table();
 
         Label title = new Label(labelText, style);
-        table.add(title).colspan(3).padBottom(10).row();
+        table.add(title).colspan(5).padBottom(10).row();
 
         TextureAtlas atlas = game.assets.get("icons.atlas", TextureAtlas.class);
         ImageButton leftBtn = new ImageButton(new TextureRegionDrawable(atlas.findRegion("arrow_left")));
         ImageButton rightBtn = new ImageButton(new TextureRegionDrawable(atlas.findRegion("arrow_right")));
 
+        ImageButton fastLeftBtn = new ImageButton(new TextureRegionDrawable(atlas.findRegion("arrow_left")));
+        ImageButton fastRightBtn = new ImageButton(new TextureRegionDrawable(atlas.findRegion("arrow_right")));
+
         // Zafarbenie šípok na čierno
         leftBtn.getImage().setColor(assetsColor);
         rightBtn.getImage().setColor(assetsColor);
+        fastLeftBtn.getImage().setColor(secondaryAssetsColor);
+        fastRightBtn.getImage().setColor(secondaryAssetsColor);
 
         Label valueLabel = new Label(String.valueOf(initialValue), style);
         valueLabel.setAlignment(Align.center);
 
         if (isX) xValueLabel = valueLabel;
         else yValueLabel = valueLabel;
+
+        fastLeftBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                changeDimension(isX, -10);
+            }
+        });
+
+        fastRightBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                changeDimension(isX, 10);
+            }
+        });
 
         leftBtn.addListener(new ClickListener() {
             @Override
@@ -186,9 +206,11 @@ public class MenuScreen implements Screen {
             }
         });
 
+        table.add(fastLeftBtn).size(28).padRight(-15);
         table.add(leftBtn).size(48);
         table.add(valueLabel).width(60);
         table.add(rightBtn).size(48);
+        table.add(fastRightBtn).size(28).padLeft(-15);
 
         return table;
     }
@@ -223,7 +245,7 @@ public class MenuScreen implements Screen {
         // 2. Kontrola pre AI
         if (isAiEnabled) {
             int currentArea = gridX * gridY;
-            if (currentArea > MAX_AI_AREA) {
+            if (currentArea > MAX_AI_AREA && (gridX != 9 || gridY != 7)) {
                 // Výpis chyby pri AI
                 errorLabel.setText("Pre hru proti AI je mriežka priveľká.");
             }

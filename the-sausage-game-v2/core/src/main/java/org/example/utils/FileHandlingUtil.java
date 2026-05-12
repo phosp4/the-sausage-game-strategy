@@ -21,6 +21,13 @@ public class FileHandlingUtil {
     public static final String GROUND_TRUTH = "minimax_results/truth/truth.csv";
     public static final String STRATEGY_PATH = "minimax_strategies";
 
+    // temp
+    public static void main(String[] args) throws IOException {
+        FileHandlingUtil.CompareCSVsOnesMinusOnes(
+            "/Users/samueldobrik/Documents/upjs_all/bp_kod/the-sausage-game-v2/assets/strategies_truth.csv",
+            "/Users/samueldobrik/Documents/upjs_all/bp_kod/the-sausage-game-v2/assets/truth.csv");
+    }
+
     public static String writeArrayToCSV(long[][] data, String fileName) {
 
         String today = LocalDate.now().format(DateTimeFormatter.ISO_DATE); // e.g. 2026-01-12

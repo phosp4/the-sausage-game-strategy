@@ -4,14 +4,15 @@ import lombok.Getter;
 import org.example.entities.GameBoard;
 import org.example.entities.Sausage;
 import org.example.entities.Strategy;
+import org.example.exceptions.StrategyMoveNotFoundException;
 
 import java.io.FileNotFoundException;
 
-public class AutoOpponentMinimaxFromFile implements AutoOpponent {
+public class AutoOpponentMinimaxJustFromFile implements AutoOpponent {
 
     @Getter private Strategy moves = null;
 
-    public AutoOpponentMinimaxFromFile(int x, int y, boolean isFirst) {
+    public AutoOpponentMinimaxJustFromFile(int x, int y, boolean isFirst) {
         try {
             this.moves = StrategyFilesRepository.getStrategy(x, y, isFirst);
         } catch (FileNotFoundException e) {
@@ -21,7 +22,7 @@ public class AutoOpponentMinimaxFromFile implements AutoOpponent {
     }
 
     @Override
-    public Sausage getNextMove(GameBoard g) {
+    public Sausage getNextMove(GameBoard g) throws StrategyMoveNotFoundException {
         return moves.getBestMoveFor(g);
     }
 }

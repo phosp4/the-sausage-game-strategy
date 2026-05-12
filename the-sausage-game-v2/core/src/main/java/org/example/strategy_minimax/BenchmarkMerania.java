@@ -13,17 +13,19 @@ import java.util.Set;
 public class BenchmarkMerania {
 
     public static void main(String[] args) {
-//        getEmptyBoardMovegeneratorUpToN(50);
-//        getMaxTreeDepthTable(50);
 //        saveStrategyFileAsTxt(9, 7, false);
-        Set<Long> strategyBoards = getAndPrintStrategyFile(9,  6, true);
-        System.out.println(strategyBoards);
+//        Set<Long> strategyBoards = getAndPrintStrategyFile(9,  6, true);
+//        System.out.println(strategyBoards);
 //        Set<Long> allCanonnicalBoards = canonicalFormTester(9, 7);
 //        allCanonnicalBoards.removeAll(strategyBoards);
 
         // nech bitovo pozera prieniky alebo tak
 //        openingBookContainsReactionToEveryFirstMove();
 //        poOpeningBookMaStaleStrategiuDruhy();
+
+        getEmptyBoardMovegeneratorUpToN(55);
+//        getMaxTreeDepthTable(55);
+//        countAndSaveUniqueLinesInStrategiesUpToN(55);
     }
 
     public static void poOpeningBookMaStaleStrategiuDruhy() {
@@ -175,6 +177,10 @@ public class BenchmarkMerania {
         strategy.writeStrategyToTxt(x, y);
     }
 
+    /**
+     * toto sa zide
+     * @param n
+     */
     public static void getMaxTreeDepthTable(int n) {
         long[][] matrice = new long[n][n];
 
@@ -196,6 +202,10 @@ public class BenchmarkMerania {
         return (int) Math.ceil(x*y / 2.0);
     }
 
+    /**
+     * toto sa tiez zide
+     * @param n
+     */
     public static void getEmptyBoardMovegeneratorUpToN(int n) {
 
         long[][] matrice = new long[n][n];
@@ -220,5 +230,38 @@ public class BenchmarkMerania {
         }
 
         FileHandlingUtil.writeArrayToCSV(matrice, "empty_board_movegenerator.csv");
+    }
+
+    /**
+     * ocesanie - vybratie iba unique
+     * v aktualnej implementacii musia byt strategie v asset folderi
+     * @param n
+     */
+    public static void countAndSaveUniqueLinesInStrategiesUpToN(int n) {
+        int[][] truth = FileHandlingUtil.loadStrategiesTruthCsvFromFile();
+
+        long[][] uniqueCount = new long[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int x = i + 1;
+                int y = j + 1;
+
+                if (x*y > n) {
+                    continue;
+                }
+
+                System.out.println("Board: " + x + "x" + y);
+                uniqueCount[j][i] = countUniqueLinesInStrategy(x, y, truth[j][i] == 1);
+            }
+        }
+
+        FileHandlingUtil.writeArrayToCSV(uniqueCount, "unique_strategy_count_upto" + n + ".csv");
+
+    }
+
+    public static int countUniqueLinesInStrategy(int x, int y, boolean isFirstWinner) {
+        Set<Long> lines = FileHandlingUtil.loadStrategyBinaryFromFile(x, y, isFirstWinner);
+        return lines.size();
     }
 }

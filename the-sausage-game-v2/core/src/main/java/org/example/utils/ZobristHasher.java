@@ -12,15 +12,13 @@ import org.example.entities.GameBoard;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 //import java.util.SplittableRandom;
 
 public class ZobristHasher {
 
     private static final int MAX_DIMENSION = 100;
-    private static final long[][] TABLE = new long[MAX_DIMENSION][MAX_DIMENSION];
+    private static final long[][] ZOBRIST_TABLE = new long[MAX_DIMENSION][MAX_DIMENSION];
 
     // zbehne pri prvom pouziti triedy
     static {
@@ -30,7 +28,7 @@ public class ZobristHasher {
         for (int y = 0; y < MAX_DIMENSION; y++) {
             for (int x = 0; x < MAX_DIMENSION; x++) {
                 // vratane mensich (additional) bodov - to je velmi dolezite!!
-                TABLE[y][x] = random.nextLong();
+                ZOBRIST_TABLE[y][x] = random.nextLong();
             }
         }
     }
@@ -41,10 +39,10 @@ public class ZobristHasher {
     public static long updateHashForSausage(long currentHash, Sausage s) {
         long newHash = currentHash;
         for (Point p : s.getThreePoints()) {
-            newHash ^= TABLE[p.getY()][p.getX()];
+            newHash ^= ZOBRIST_TABLE[p.getY()][p.getX()];
         }
         for (Point p : s.getTwoAdditionalPoints()) {
-            newHash ^= TABLE[p.getY()][p.getX()];
+            newHash ^= ZOBRIST_TABLE[p.getY()][p.getX()];
         }
         return newHash;
     }
@@ -61,7 +59,7 @@ public class ZobristHasher {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (g.isOccupied(x, y)) {
-                    hash ^= TABLE[y][x];
+                    hash ^= ZOBRIST_TABLE[y][x];
                 }
             }
         }

@@ -5,6 +5,7 @@
 package org.example.entities;
 
 import lombok.Data;
+import org.example.exceptions.StrategyMoveNotFoundException;
 import org.example.strategy_minimax.MoveGenerator;
 import org.example.strategy_minimax.SymmetryUtil;
 import org.example.utils.BitEncoder;
@@ -38,7 +39,7 @@ public class Strategy {
         this.isCanonized = isCanonized;
     }
 
-    public Sausage getBestMoveFor(GameBoard g) {
+    public Sausage getBestMoveFor(GameBoard g) throws StrategyMoveNotFoundException {
 //        long gridLong = BitEncoder.sausageGridToLongBitboard(g.getGrid());
         GameBoard g2 = g.clone();
 
@@ -53,8 +54,8 @@ public class Strategy {
             g2.removeSausage(move);
         }
 
-        System.err.println("cannot find a valid move");
-        return null;
+//        System.err.println("cannot find a valid move");
+        throw new StrategyMoveNotFoundException(g);
     }
 
     public boolean isThisPositionLoosing(GameBoard g) {

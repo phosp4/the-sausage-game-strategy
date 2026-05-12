@@ -55,10 +55,10 @@ public class GameSession {
             int[][] strategiesTruth = FileHandlingUtil.loadStrategiesTruthCsvFromGdx();
 
             if (strategiesTruth[height - 1][width - 1] == 1) {
-                aiManager.registerAiPlayer(p1, new AutoOpponentMinimaxFileOrLive(width, height, true, this));
+                aiManager.registerAiPlayer(p1, new AutoOpponentMinimaxFromFileOrLive(width, height, true));
 //                p1.setColor(AI_COLOR);
             } else if (strategiesTruth[height - 1][width - 1] == -1) {
-                aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFileOrLive(width, height, false, this));
+                aiManager.registerAiPlayer(p2, new AutoOpponentMinimaxFromFileOrLive(width, height, false));
 //                p2.setColor(AI_COLOR);
             } else {
                 System.err.println("Cannot find strategy info in the truth file");

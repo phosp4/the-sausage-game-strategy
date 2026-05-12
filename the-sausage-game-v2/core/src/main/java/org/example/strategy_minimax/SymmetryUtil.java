@@ -31,8 +31,7 @@ public class SymmetryUtil {
      */
     private static int[][] generateMapsForSize(int width, int height) {
         if (width % 2 == 0 || height % 2 == 0) {
-            System.err.println("Cannot generate maps for even dimensions!");
-            return null;
+            throw new IllegalArgumentException("Cannot generate maps for even dimensions!");
         }
 
         List<int[]> maps = new ArrayList<>();
@@ -115,6 +114,7 @@ public class SymmetryUtil {
 
         // Vytiahne z cache (alebo prvýkrát vygeneruje)
         int[][] symmetryMaps = getSymmetryMaps(width, height);
+
         long minBoard = board;
 
         for (int[] map : symmetryMaps) {

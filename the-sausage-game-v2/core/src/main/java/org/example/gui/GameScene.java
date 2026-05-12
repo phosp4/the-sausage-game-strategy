@@ -23,6 +23,7 @@ import org.example.engine.TurnManager;
 import org.example.entities.Player;
 import org.example.entities.Point;
 import org.example.entities.Sausage;
+import org.example.exceptions.StrategyMoveNotFoundException;
 import org.example.strategy_minimax.MoveGenerator;
 import org.example.utils.BitEncoder;
 import org.example.utils.CliRendererUtil;
@@ -68,7 +69,7 @@ public class GameScene implements Screen {
     private float gridOffsetY;
 
     // generate moves animation
-    private boolean animateMoves = false;
+    private boolean animateMoves = true;
     private List<Sausage> moves;
     private int ticker = 0;
     private int idx = 0;
@@ -83,9 +84,6 @@ public class GameScene implements Screen {
 //        System.out.println(BitEncoder.sausageGridToLongBitboard(ctrl.getGameBoard().getGrid()));
 
         if (animateMoves) {
-            ctrl.tryApplyMove(new Point(6, 0), new Point(7, 1), new Point(5, 1));
-            ctrl.tryApplyMove(new Point(1, 1), new Point(2, 2), new Point(1, 3));
-            ctrl.tryApplyMove(new Point(4, 0), new Point(4, 2), new Point(4, 4));
             moves = MoveGenerator.getPossibleMovesList(ctrl.getGameBoard().getGrid(), new Player("asdf"));
         }
     }
@@ -232,16 +230,19 @@ public class GameScene implements Screen {
         if (!ctrl.isGameOver() && ctrl.getAiManager().isPlayerAi(ctrl.getTurnManager().getCurrentPlayer())) {
             aiThinkTimer += delta;
             if (aiThinkTimer >= AI_DELAY_SECONDS) {
-                Sausage s = ctrl.getAiManager().getAiMoveForPlayer(ctrl.getTurnManager().getCurrentPlayer(), ctrl.getGameBoard());
-                if (s == null) {
-                    System.err.println("AI move not found!");
-                    ctrl.setWinner(ctrl.getTurnManager().getNotCurrentPlayer());
-                    SoundManager.play(gameOverSound, 0.2f);
-                } else {
+                Sausage s = null;
+                try {
+                    Player currentPlayer = ctrl.getTurnManager().getCurrentPlayer();
+                    s = ctrl.getAiManager().getAiMoveForPlayer(currentPlayer, ctrl.getGameBoard());
                     ctrl.tryApplyMove(s);
                     if (ctrl.isGameOver()) {
                         SoundManager.play(gameOverSound, 0.2f);
                     }
+                } catch (StrategyMoveNotFoundException e) {
+                    // da sa to aj inak riesit
+                    System.err.println("AI move not found!");
+                    ctrl.setWinner(ctrl.getTurnManager().getNotCurrentPlayer());
+                    SoundManager.play(gameOverSound, 0.2f);
                 }
                 aiThinkTimer = 0f;
             }
@@ -288,7 +289,7 @@ public class GameScene implements Screen {
 
     private void showMovesAnimation() {
         ticker++;
-        if (ticker % 16 == 0) {
+        if (ticker % 2 == 0) {
             if (idx >= moves.size()) {
                 ctrl.getGameBoard().removeSausage(moves.get(idx-1));
                 idx = 0;
