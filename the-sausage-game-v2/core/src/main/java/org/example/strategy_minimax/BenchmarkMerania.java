@@ -23,9 +23,9 @@ public class BenchmarkMerania {
 //        openingBookContainsReactionToEveryFirstMove();
 //        poOpeningBookMaStaleStrategiuDruhy();
 
-        getEmptyBoardMovegeneratorUpToN(55);
+//        getEmptyBoardMovegeneratorUpToN(55);
 //        getMaxTreeDepthTable(55);
-//        countAndSaveUniqueLinesInStrategiesUpToN(55);
+        countAndSaveUniqueLinesInStrategiesUpToN(55);
     }
 
     public static void poOpeningBookMaStaleStrategiuDruhy() {

@@ -69,7 +69,7 @@ public class GameScene implements Screen {
     private float gridOffsetY;
 
     // generate moves animation
-    private boolean animateMoves = true;
+    private boolean animateMoves = false;
     private List<Sausage> moves;
     private int ticker = 0;
     private int idx = 0;
