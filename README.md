@@ -1,3 +1,5 @@
+# The Sausage Game Strategy
+
 This repository contains the practical part of the bachelor's thesis titled *The Sausage Game Strategy*, conducted at the Faculty of Science, Pavol Jozef Šafárik University in Košice.
 
 ### Repository Structure
