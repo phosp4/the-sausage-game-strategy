@@ -55,12 +55,21 @@ public class MinimaxLaunchers {
 //        getStrategiesForBoardsUpToNxN(55);
 //        getStrategiesUpToDepthForBoardsUpToNxN(55, 3);
 
-        MinimaxBitboard mb = new MinimaxBitboard();
+//        MinimaxBitboard mb = new MinimaxBitboard();
+////        mb.minimaxMemoStart(
+////            new GameBoard(6,6), 1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+////        );
 //        mb.minimaxMemoStart(
-//            new GameBoard(6,6), 1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+//            new GameBoard(6,7), -1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
 //        );
-        mb.minimaxMemoStart(
-            new GameBoard(6,7), -1, true, 2, MinimaxMode.DATABASE, true, 28, CanonizeMode.TT_CANONIZE
+
+        getAndSaveStrategyForBoardBIN(
+            9,7,
+            -1,
+            false,
+            4,
+            MinimaxMode.DATABASE,
+            true, 28, CanonizeMode.EXTRA_CANONIZE
         );
     }
 

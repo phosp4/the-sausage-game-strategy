@@ -1,6 +1,10 @@
 /**
- * dolezite - aktualne funguje len pre
- * feature - dalo by sa urobit
+ * dolezite - aktualne funguje len pre neparne plochy
+ * hladanie ukazkovych ploch do textovej casti:
+ *      https://aistudio.google.com/u/2/prompts/16YLZYGmYvWSzYRTsoa4fcA4IK2OjNGNk
+ * thread safety tu nie je nevyhnutna, ale bolo to s tym robene
+ * pozor - pri zvacseni pola nad 64 bitov to tu treba upravit
+ * pred tym tam s tym String bol memory leak - upravene
  */
 
 package org.example.strategy_minimax;
@@ -14,16 +18,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SymmetryUtil {
 
     // Cache: Mapuje text "šírka,výška" (napr. "9,6") na predpočítané mapy
-    private static final ConcurrentHashMap<String, int[][]> CACHE = new ConcurrentHashMap<>();
+    private static final int[][][][] CACHE = new int[65][65][][];
 
     // Privatny konštruktor - nedá sa spraviť "new"
     private SymmetryUtil() {}
 
     private static int[][] getSymmetryMaps(int width, int height) {
-        String key = width + "," + height;
+        // Rýchly prístup bez synchronizácie v 99.999% prípadov
+        int[][] maps = CACHE[width][height];
 
-        // Ak už pre túto veľkosť mapy máme, rovno ich vrátime (bleskové)
-        return CACHE.computeIfAbsent(key, k -> generateMapsForSize(width, height));
+        if (maps == null) {
+            // Lazy inicializácia bezpečná pre viac vlákien (Double-checked locking)
+            synchronized (SymmetryUtil.class) {
+                maps = CACHE[width][height];
+                if (maps == null) {
+                    maps = generateMapsForSize(width, height);
+                    CACHE[width][height] = maps;
+                }
+            }
+        }
+        return maps;
     }
 
     /**
