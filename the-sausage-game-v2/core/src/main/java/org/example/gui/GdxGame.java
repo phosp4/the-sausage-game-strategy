@@ -20,10 +20,10 @@ public class GdxGame extends Game {
         assets.finishLoading(); // Zablokujeme vlákno, kým sa všetko nenačíta (pre loading screeny sa používa assets.update())
 
 //        setScreen(new GameScene(this, engine));
-//        setScreen(new GameScene(this, new GameSession(9, 7, true)));
+        setScreen(new GameScene(this, new GameSession(7, 6, true)));
 //        setScreen(new FontTestScreen());
 //        setScreen(new TableTestScreen());
-        setScreen(new MenuScreen(this, 9, 7, true));
+//        setScreen(new MenuScreen(this, 9, 7, true));
     }
 
     // Metóda na dynamické spustenie/reštartovanie hry

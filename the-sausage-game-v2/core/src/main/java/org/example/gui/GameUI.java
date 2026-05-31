@@ -51,7 +51,7 @@ public class GameUI extends Table {
         // Získanie textúr z AssetManagera
         TextureAtlas atlas = game.assets.get("icons.atlas", TextureAtlas.class);
         atlas.getTextures().first().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        TextureAtlas.AtlasRegion texHome = atlas.findRegion("home_icon");
+//        TextureAtlas.AtlasRegion texHome = atlas.findRegion("home_icon");
         texSoundOn = atlas.findRegion("volume_on");
         texSoundOff = atlas.findRegion("volume_off");
         TextureAtlas.AtlasRegion texRestart = atlas.findRegion("refresh_icon");
@@ -64,21 +64,21 @@ public class GameUI extends Table {
         Table leftTable = new Table();
         leftTable.setTouchable(Touchable.childrenOnly);
 
-        ImageButton homeBtn = new ImageButton(new TextureRegionDrawable(texHome));
+//        ImageButton homeBtn = new ImageButton(new TextureRegionDrawable(texHome));
         soundButton = new ImageButton(
             new TextureRegionDrawable(SoundManager.isSoundEnabled() ? texSoundOn : texSoundOff)
         );
         ImageButton restartBtn = new ImageButton(new TextureRegionDrawable(texRestart));
 
         // ZAFARBENIE NA ČIERNO (Za predpokladu, že zdrojové PNG sú biele s priehľadným pozadím)
-        homeBtn.getImage().setColor(Color.BLACK);
+//        homeBtn.getImage().setColor(Color.BLACK);
         soundButton.getImage().setColor(Color.BLACK);
         restartBtn.getImage().setColor(Color.BLACK);
 
         // Listenery spúšťajú "Runnable" funkcie podané z GameScene
-        homeBtn.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) { onHome.run(); }
-        });
+//        homeBtn.addListener(new ClickListener() {
+//            @Override public void clicked(InputEvent event, float x, float y) { onHome.run(); }
+//        });
         restartBtn.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) { onRestart.run(); }
         });
@@ -89,7 +89,7 @@ public class GameUI extends Table {
         });
 
         // Tlačidlá sú teraz väčšie (napr. 56 namiesto 48) pre lepšiu výraznosť
-        leftTable.add(homeBtn).size(64).padRight(20);
+//        leftTable.add(homeBtn).size(64).padRight(20);
         leftTable.add(soundButton).size(64).padRight(20);
         leftTable.add(restartBtn).size(64);
         // --- STREDNÁ ČASŤ (Koniec hry - Korunka + Výherca) ---
